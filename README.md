@@ -102,7 +102,7 @@ bitcoin.blk.sh -ii 400000 | head | bitcoin.tx.sh -b"$BLOCK_HASH"
 
 ## SEE ALSO
 
-[binfo.sh](https://github.com/mountaineerbr/markets/binfo.sh)
+[binfo.sh](https://github.com/mountaineerbr/markets/blob/master/binfo.sh)
 is bitcoin blockchain explorer.
 
 There are many shell functions to get data from many API points
