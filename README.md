@@ -102,11 +102,11 @@ bitcoin.blk.sh -ii 400000 | head | bitcoin.tx.sh -b"$BLOCK_HASH"
 
 ## SEE ALSO
 
-[binfo.sh](../markets/binfo.sh)
+[binfo.sh](https://github.com/mountaineerbr/markets/binfo.sh)
 is bitcoin blockchain explorer.
 
 There are many shell functions to get data from many API points
-at my [markets repo](../markets/)
+at my [markets repo](https://github.com/mountaineerbr/markets/)
 
 Grondilu's bitcoin-bash-tools: [bitcoin.sh](https://github.com/grondilu/bitcoin-bash-tools)
 
@@ -114,14 +114,6 @@ Some `bitcoin-cli` scripts: https://github.com/kristapsk/bitcoin-scripts
 
 ---
 
-## MISCELLANEOUS
-
-Para um registro histórico em texto de o Antagonista, veja:
-
-For a large historical text record of the news website &lt;oantagonista.com&gt;,
-check my [scrape record](https://github.com/mountaineerbr/largeFiles/tree/master/oAntaRegistro).
-
----
 
 > Please consider sending me a nickle!  = )
 >
