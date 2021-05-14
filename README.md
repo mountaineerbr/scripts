@@ -110,7 +110,7 @@ at my [markets repo](https://github.com/mountaineerbr/markets/)
 
 Grondilu's bitcoin-bash-tools: [bitcoin.sh](https://github.com/grondilu/bitcoin-bash-tools)
 
-Some `bitcoin-cli` scripts: https://github.com/kristapsk/bitcoin-scripts
+Kristapsk's [bitcoin scripts](https://github.com/kristapsk/bitcoin-scripts)
 
 ---
 
