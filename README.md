@@ -59,8 +59,8 @@ SCRIPT NAME | DESCRIPTION
 __bitcoin.blk.sh__ | bitcoin block information and functions
 __bitcoin.hx.sh__ | create base58 address types from public key and WIF from private keys (shell function wrapper)
 __bitcoin.tx.sh__ |  parse transactions by hash or transaction json data
-__bitcoin.zzz.parsedTxs.blk638200.txt__ | example of parsed transactions from block 638200
 __blockchair.btcoutputs.sh__ |  download blockchair output dump files systematically, see also [this repo](https://github.com/mountaineerbr/bitcoin-all-addresses)
+__zzz.bitcoin.parsedTxs.blk638200.txt__ | example of parsed transactions from block 638200
 
 ---
 
