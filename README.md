@@ -14,7 +14,6 @@ __ctemp.sh__ | Convert amongst temperature units (Celsius, Fahrenheit and Kelvin
 __ddate.sh__ | Calculate time ranges in different units; convert between human and UNIX time formats
 __diffcp.sh__ | Copy files from SOURCE dir to $PWD when they differ (uses `diff`).
 __faster_sh.txt__ | Tips for improving script performances, specific for some use cases, text document
-__firefox.sh__ | Set opengl environment vars and launch firefox with pvkrun or primusrun
 __grep.sh__ |  Grep files with shell built-ins
 __inmet.sh__ | Download satellite images from Brazilian National Institute of Meteorology
 __skel.sh__ | My skel script and tips
