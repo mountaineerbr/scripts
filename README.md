@@ -108,7 +108,7 @@ is bitcoin blockchain explorer.
 There are many shell functions to get data from many API points
 at my [markets repo](https://github.com/mountaineerbr/markets/)
 
-Grondilu's bitcoin-bash-tools: [bitcoin.sh](https://github.com/grondilu/bitcoin-bash-tools)
+Grondilu's [bitcoin-bash-tools](https://github.com/grondilu/bitcoin-bash-tools)
 
 Kristapsk's [bitcoin scripts](https://github.com/kristapsk/bitcoin-scripts)
 
