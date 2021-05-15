@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.8  may/2021  by mountaineerbr
+# v0.8.1  may/2021  by mountaineerbr
 # parse transactions by hash or transaction json data
 # requires bitcoin-cli and jq
 
@@ -60,7 +60,7 @@ HELP="NAME
 SYNOPSIS
 	$SN  [-aklosvyy] [-jNUM] [-bBLOCK_HASH|HEIGHT] TRANSACTION_HASH..
 	$SN  [-aklosvyy] [-jNUM] \"TRANSACTION_HASH [BLOCK_HASH|HEIGHT]\"..
-	$SN  -hVw
+	$SN  -hVww
 
 
 DESCRIPTION
