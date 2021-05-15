@@ -24,7 +24,7 @@ JOBSDEF=3   #hard defaults
 
 #white paper
 #out file
-WPOUTFILE=bitcoin.pdf
+WPOUTFILE=bitcoinWP.pdf
 #whitepaper transaction hash and block hash
 WPTXID=54e48e5f5c656b26c3bca14a8c95aa583d07ebe84dde3b7dd4a78f4e4186e713
 WPBLKHX=00000000000000ecbbff6bafb7efa2f7df05b227d5c73dca8f2635af32a2e949
