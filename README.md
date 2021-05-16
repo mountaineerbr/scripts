@@ -19,7 +19,7 @@ __inmet.sh__ | Download satellite images from Brazilian National Institute of Me
 __skel.sh__ | My skel script and tips
 __ug.sh__ | Light version of `urlgrep.sh', almost as a proof-of-concept but more generous.
 __urlgrep.sh__ | Grep full-text content from a URL list; useful for searching web history and bookmarks
-__wc.sh__ |  print line, word and character count for files with shell built-ins
+__wc.sh__ |  Print line, word and character count for files with shell built-ins
 
 ---
 
@@ -55,11 +55,11 @@ seems quite feasible for personal use.
 
 SCRIPT NAME | DESCRIPTION
 :-------------|:-----------
-__bitcoin.blk.sh__ | bitcoin block information and functions
-__bitcoin.hx.sh__ | create base58 address types from public key and WIF from private keys
-__bitcoin.tx.sh__ |  parse transactions by hash or transaction json data
-__blockchair.btcoutputs.sh__ |  download blockchair output dump files systematically, see also [this repo](https://github.com/mountaineerbr/bitcoin-all-addresses)
-__zzz.bitcoin.parsedTxs..__ | example of parsed transactions from block 638200
+__bitcoin.blk.sh__ | Bitcoin block information and functions
+__bitcoin.hx.sh__ | Create base58 address types from public key and WIF from private keys
+__bitcoin.tx.sh__ |  Parse transactions by hash or transaction json data
+__blockchair.btcoutputs.sh__ |  Download blockchair output dump files systematically, see also [this repo](https://github.com/mountaineerbr/bitcoin-all-addresses)
+__zzz.bitcoin.parsedTxs..__ | Example of parsed transactions from block 638200
 
 ---
 
