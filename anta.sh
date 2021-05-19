@@ -1,6 +1,6 @@
 #!/bin/bash
 # anta.sh -- puxa artigos da homepage de <oantagonista.com>
-# v0.15.4  may/2021  by mountaineerbr
+# v0.15.6  may/2021  by mountaineerbr
 
 #padrões
 
@@ -20,7 +20,7 @@ LOGF=/tmp/anta.log
 SCRIPT="${BASH_SOURCE[0]}"
 #não inunde o servidor
 #espera entre chamadas (em segundos)
-FLOOD=0.2
+FLOOD=0.4
 
 #cat output instead of less pager by defaults
 OPTL=( cat )
@@ -273,14 +273,19 @@ getlinksf()
 # Check for errors
 cerrf()
 {
-	if grep -aFq -e 'Você será redirecionado para a página inicial' -e 'Page not found' <<< "$PAGE"; then
-		printf 'anta.sh: erro: página não encontrada -- %s\n' "$COMP" 1>&2
-		exit 1
+	if grep -aFq -e 'Você será redirecionado para a página inicial' -e 'Page not found' <<< "$PAGE"
+	then
+		printf 'anta.sh: erro: página não encontrada -- %s\n' "$COMP" >&2
+		(( ROLLOPT )) && return 1 || exit 1
 	elif [[ -z "$PAGE" ]] || grep -aFiq -e 'has been limited' -e 'you were blocked' \
 		-e 'to restrict access' -e 'access denied' -e 'temporarily limited' \
-		-e 'you have been blocked' -e 'has been blocked' -e 'Error processing request' <<< "$PAGE"; then
-		return 1
-	elif ! grep -aq '[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]' <<< "$PAGE"; then
+		-e 'you have been blocked' -e 'has been blocked' -e 'Error processing request' <<< "$PAGE"
+	then
+		printf 'anta.sh: erro: acesso limitado ou página não encontrada -- %s\n' "$COMP" >&2
+		(( ROLLOPT )) && return 1 || exit 1
+	elif ! grep -aq '[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]' <<< "$PAGE"
+	then
+		printf 'anta.sh: erro: não parece ser artigo de <oantagonista> -- %s\n' "$COMP" >&2
 		return 1
 	fi
 
@@ -365,10 +370,10 @@ puxarpgsf() {
 		cerrf && return 0
 
 		#havendo erro, chamar curl mais uma vez
-		printf '\r\033[2Kanta.sh: tentativa %s\r' "$N" 1>&2
+		printf '\ranta.sh: tentativa %s\n' "$N" 1>&2
 
 		#debug, n tentativas
-		(( DEBUG )) && printf -- '>>> Tentativa: %s\n\n' "$N" >> "$LOGF"
+		(( DEBUG )) && printf -- '>>> Tentativa: %s\n' "$N" >> "$LOGF"
 
 		sleep "$SLEEP"
 		(( SLEEP = SLEEP + 2 )) 
@@ -802,7 +807,7 @@ fi
 			AGAIN="$((AGAIN+180))"
 
 			#grand retry
-			printf 'anta.sh: aviso -- aguardando %s minutos..\n' "$((AGAIN/60))" 1>&2
+			printf '\nanta.sh: aviso -- aguardando %s minutos..\n' "$((AGAIN/60))" 1>&2
 			sleep "$AGAIN"
 		done
 	fi
