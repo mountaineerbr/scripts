@@ -1,6 +1,6 @@
 #!/bin/bash
 # anta.sh -- puxa artigos da homepage de <oantagonista.com>
-# v0.15.14  may/2021  by mountaineerbr
+# v0.15.15  may/2021  by mountaineerbr
 
 #padrões
 
@@ -705,13 +705,14 @@ do
 done
 shift $((OPTIND -1))
 
-
 #chamar algumas opções
+#ajuda
 if ((HELPOPT))
-then
-	echo "$HELP" | "${OPTL[@]}"
-	exit 0
+then echo "$HELP" | "${OPTL[@]}" ;exit 0
 fi
+
+#set variables
+typeset -a RET
 
 # Test if cURL and Wget are available
 if command -v curl &>/dev/null
@@ -764,13 +765,13 @@ fi
 			then
 				#indicies de pgs como arg posicionais
 				for PAGINAS in "$@"
-				do linksf ;RET=($?)
+				do linksf ;RET+=($?)
 				done
 			else
 				#opção padrão, puxar primeira pg e sair
 				#ou -NUM
 				linksf "$@"
-				RET=($?)
+				RET+=($?)
 			fi
 		else
 			#só os resumos das matérias das pgs iniciais
@@ -779,13 +780,13 @@ fi
 			then
 				#indicies de pgs como arg posicionais
 				for PAGINAS in "$@"
-				do anta ;RET=($?)
+				do anta ;RET+=($?)
 				done
 			else
 				#opção padrão, puxar primeira pg e sair
 				#ou -NUM
 				anta
-				RET=($?)
+				RET+=($?)
 			fi
 		fi
 	fi
