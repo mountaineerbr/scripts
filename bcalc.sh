@@ -1,7 +1,7 @@
 #!/bin/bash
 #!/bin/zsh
 # bcalc.sh -- shell maths wrapper
-# v0.12.1  may/2021  by mountaineerbr
+# v0.12.2  may/2021  by mountaineerbr
 
 #defaults
 #script path
@@ -663,7 +663,7 @@ recfilef()
 		cat >>"$BCRECFILE" <<-!
 		## $( date "+%FT%T%Z" )
 		## { $eq }
-		$res 	#${INDEX}#
+		$res 	${INDELL}${INDEX}${INDELR}
 		!
 	#if result is the same as last result
 	elif [[ -n "$OPTV" && "${res}" != "${eqlast[-1]}" ]]
