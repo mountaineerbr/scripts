@@ -1,7 +1,7 @@
 #!/bin/bash
 #!/bin/zsh
 # wc.sh  --  print line, word and character count
-# v0.4.3  may/2021  by mountaineerbr
+# v0.4.4  may/2021  by mountaineerbr
 
 #TODO: ask for
 #maybe help from com.unix.shell or usenet
@@ -433,7 +433,7 @@ then echo "$SN: err  -- input (FILE or stdin) required" >&2 ;exit 1
 fi
 
 #warnings
-((OPTA && OPTC)) && echo "$SN: warning -- cannot detect null bytes, new line bytes are assumed" >&2
+((OPTA && OPTC+OPTL)) && echo "$SN: warning -- cannot detect null-ending lines" >&2
 
 #set tests to mainf()
 if ((OPTMAX))
