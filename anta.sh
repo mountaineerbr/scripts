@@ -1,6 +1,6 @@
 #!/bin/bash
 # anta.sh -- puxa artigos da homepage de <oantagonista.com>
-# v0.16.10  may/2021  by mountaineerbr
+# v0.16.11  may/2021  by mountaineerbr
 
 #padrões
 
@@ -90,6 +90,8 @@ SINOPSE
 	Uma outra opção para puxar os links por assuntos/categorias pode
 	ser acionada setando-se o primeiro argumento posicional com tag/
 	ou um dos seguintes assuntos: ${SUBLIST[*]/%/, }.
+	Esta opção aceita a opção -[p]NUM ou ÍNDICES das páginas iniciais
+	da categoria, e também opção -f, veja exemplo de uso (7).
 
 	Use a opção -a para habilitar o uso de servidores alternativos,
 	caso observe consecutivos erros ou seja bloqueado pelo limite
@@ -214,6 +216,15 @@ EXEMPLOS DE USO
 		$ anta.sh {10..5}      #da página 10 até a página 5
 		$ anta.sh 10 9 8 7 6 5 #idem
 		
+
+	( 7 ) Puxar páginas as primeiras 3 páginas iniciais por categoria;
+	      opção -f para puxar os artigos completos pode ser habilitada:
+
+		$ anta.sh -3 brasil
+		$ anta.sh brasil 3 2 1
+
+		$ anta.sh -3f despertador
+		                        
 
 OPÇÕES
 	-NUM 	  Mesmo que opção -pNUM .
