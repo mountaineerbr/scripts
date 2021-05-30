@@ -15,7 +15,8 @@ __ddate.sh__ | Calculate time ranges in different units; convert between human a
 __diffcp.sh__ | Copy files from SOURCE dir to $PWD when they differ (uses `diff`).
 __faster_sh.txt__ | Tips for improving script performances, specific for some use cases, text document
 __grep.sh__ |  Grep files with shell built-ins
-__inmet.sh__ | Download satellite images from Brazilian National Institute of Meteorology
+__inmet.sh__ | Download satellite images from Brazilian Instituto Nacional de Meteorologia
+__ipmet.sh__ | Download radar images from Brazilian Instituto de Pesquisas Meteorológicas (UNESP)
 __skel.sh__ | My skel script and tips
 __ug.sh__ | Light version of `urlgrep.sh', almost as a proof-of-concept but more generous.
 __urlgrep.sh__ | Grep full-text content from a URL list; useful for searching web history and bookmarks
