@@ -1,6 +1,6 @@
 #!/bin/bash
 # anta.sh -- puxa artigos da homepage de <oantagonista.com>
-# v0.16.20  jun/2021  by mountaineerbr
+# v0.16.21  jun/2021  by mountaineerbr
 
 #padrões
 
@@ -33,7 +33,7 @@ UPURL=https://raw.githubusercontent.com/mountaineerbr/scripts/master/anta.sh
 DREGEX='[0-3][0-9]\.[0-1][0-9]\.[1-2][0-9].*[0-2][0-9]:[0-5][0-9]'
 
 #assuntos/categorias
-SUBLIST=(brasil cultura economia eleicoes2020 entretenimento especial esportes mundo opiniao sociedade reuniao-de-pauta videos tudo-sobre tv opiniao despertador)
+SUBLIST=(brasil cultura economia eleicoes2020 entretenimento especial esportes mundo opiniao sociedade reuniao-de-pauta videos tudo-sobre tv opiniao despertador sem-categoria)
 #tag
 
 #Ref tapir art: http://www.ascii-art.de/ascii/t/tapir.txt
@@ -568,10 +568,10 @@ fulltf() {
 	#remove html tags, more processing of article
 	art="$( 
 		sedhtmlf <<<"$art" |
-		sed -e '/^\s*var.*"script/d' \
+		sed -Ee '/^\s*var.*"script/d' \
 		     -e 's/setTimeout.*//' \
 		     -e 's/function().*//' \
-			 -e '/^\s*Rua Iguatemi, 192 -/,/^\s*CNPJ 25.163.879\/0001-13/ d'
+			 -e '/^\s*(Rua Iguatemi, 192 -|®202[0-9] - O Antagonista)/,/^\s*CNPJ 25.163.879\/0001-13/ d'
 	)"
 
 	#contar parágrafos
