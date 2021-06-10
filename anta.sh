@@ -1,6 +1,6 @@
 #!/bin/bash
 # anta.sh -- puxa artigos da homepage de <oantagonista.com>
-# v0.16.19  may/2021  by mountaineerbr
+# v0.16.20  jun/2021  by mountaineerbr
 
 #padrões
 
@@ -570,7 +570,8 @@ fulltf() {
 		sedhtmlf <<<"$art" |
 		sed -e '/^\s*var.*"script/d' \
 		     -e 's/setTimeout.*//' \
-		     -e 's/function().*//'
+		     -e 's/function().*//' \
+			 -e '/^\s*Rua Iguatemi, 192 -/,/^\s*CNPJ 25.163.879\/0001-13/ d'
 	)"
 
 	#contar parágrafos
