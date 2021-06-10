@@ -1,6 +1,6 @@
 #!/bin/bash
 # anta.sh -- puxa artigos da homepage de <oantagonista.com>
-# v0.16.21  jun/2021  by mountaineerbr
+# v0.17  jun/2021  by mountaineerbr
 
 #padrões
 
@@ -520,7 +520,7 @@ fulltf() {
 			-e '<div class="gravata' \
 			| grep -aFv 'class="timer-icon' \
 			|sed -E -e 's/^#breadcrumbs.*}\s?//' \
-			-e 's/.*<div class="gravata.*/[&]\n\n/'
+			-e 's/.*<div class="gravata.*/[&]\n<layout>\n/'
 	)"
 	grav="$( <<<"$PAGE" grep -cF '<div class="gravata' )"
 
@@ -570,7 +570,7 @@ fulltf() {
 		sedhtmlf <<<"$art" |
 		sed -Ee '/^\s*var.*"script/d' \
 		     -e 's/setTimeout.*//' \
-		     -e 's/function().*//' \
+		     -e 's/function\(\).*//' \
 			 -e '/^\s*(Rua Iguatemi, 192 -|®202[0-9] - O Antagonista)/,/^\s*CNPJ 25.163.879\/0001-13/ d'
 	)"
 
