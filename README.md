@@ -46,7 +46,7 @@ functions embedded.
 
 Transaction parsing time really depends on the number of
 vins and vouts. Parsing a few hendred or thousand transactions
-seems quite feasible for personal use. `bitcoin.tx.sh` has got option -f, which is fast and delivers basic transaction data.
+seems quite feasible for personal use. `bitcoin.tx.sh` has got option -f, which is fast and delivers basic transaction info.
 
 SCRIPT NAME | DESCRIPTION
 :-------------|:-----------
