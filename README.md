@@ -18,7 +18,7 @@ __grep.sh__ |  Grep files with shell built-ins
 __inmet.sh__ | Download satellite images from Brazilian Instituto Nacional de Meteorologia
 __ipmet.sh__ | Download radar images from Brazilian Instituto de Pesquisas Meteorológicas (UNESP)
 __skel.sh__ | My skel script and tips
-__ug.sh__ | Light version of `urlgrep.ss`, almost as a proof-of-concept but more generous.
+__ug.sh__ | Light version of `urlgrep.sh`, almost as a proof-of-concept but more generous.
 __urlgrep.sh__ | Grep full-text content from a URL list; useful for searching web history and bookmarks
 __wc.sh__ |  Print line, word and character count for files with shell built-ins
 
