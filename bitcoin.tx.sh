@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.8.24  jun/2021  by mountaineerbr
+# v0.8.25  jun/2021  by mountaineerbr
 # parse transactions by hash or transaction json data
 # requires bitcoin-cli and jq 1.6+
 
@@ -437,6 +437,8 @@ hexasciif()
 		#verbose?
 		if (( OPTVERBOSE > 1))
 		then
+			#clear last feedback line in stderr
+			printf "$CLR" >&2
 			#is coinbase tx?
 			iscoinb="$( jq -r '.vin[0] | if .coinbase then "(coinbase transaction)\\n" else empty end' <<<"$data" )"
 			echo -ne "--------\n${iscoinb}TXID: ${TXID}\nHEX_: $hex\nASCI: "
@@ -1462,19 +1464,17 @@ then
 			fi
 			unset TMP5
 			
-			#fast processing?
-			#special cases when input is JSON data
+			#-f fast processing (only general tx info)?
 			if ((OPTFAST))
 			then
-				#-y transaction hex to ascii
-				if (( OPTASCII ))
-				then
-					TMP3="${TMPD}/${RANDOM}.tx"
-					jq -er ".${TXAR}[] // empty" "$TMPSTDIN" >"$TMP3" \
-					&& hexasciif
-				#only general info
-				else jq -er ".${TXAR}[] // empty" "$TMPSTDIN" | mainfastf
-				fi
+				jq -er ".${TXAR}[] // empty" "$TMPSTDIN" | mainfastf
+				RET+=( $? )
+			#-y transaction hex to ascii
+			elif (( OPTASCII ))
+			then
+				TMP3="${TMPD}/${RANDOM}.tx"
+				jq -er ".${TXAR}[] // empty" "$TMPSTDIN" >"$TMP3" \
+				&& hexasciif
 				RET+=( $? )
 			else
 				#ids in array
@@ -1497,14 +1497,10 @@ then
 					if jq -er ".${TXAR}[${COUNTER}] // empty" "$TMPSTDIN" >"$TMP3" &&
 						[[ -s "$TMP3" ]]
 					then
-						#-y transaction hex to ascii
-						if (( OPTASCII ))
-						then hexasciif
 						#parse tx info
-						else parsef
-						fi
+						parsef
+						RET+=( $? )
 					fi
-					RET+=( $? )
 				done
 			fi
 			;;
