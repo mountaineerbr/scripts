@@ -1,6 +1,6 @@
 #!/bin/bash
 # anta.sh -- puxa artigos da homepage de <oantagonista.com>
-# v0.17  jun/2021  by mountaineerbr
+# v0.17.1  jun/2021  by mountaineerbr
 
 #padrões
 
@@ -552,7 +552,8 @@ fulltf() {
 			    -e 's/<.*id="linkcopy".*>//g' \
 			    -e '/>Notícias relacionadas:/d' \
 			    -e 's|<a|[*][&|g ;s|</a|]&|g' \
-			    -e 's|\[\*\]\[\s*\]\s*||g'
+			    -e 's|\[\*\]\[\s*\]\s*||g' \
+				-e 's/<\/li>/&\n<layout>\n/g'
 	)"
 	#https://stackoverflow.com/questions/5315464/email-formatting-basics-links-in-plain-text-emails
 	
@@ -600,6 +601,12 @@ fulltf() {
 #article index number?
 #https://www.oantagonista.com/brasil/399950/
 #https://www.oantagonista.com/brasil/bolsonarista-preso-ontem-e-apontado-como-financiador-de-acampamentos/
+#try not to break html processing at
+#www.oantagonista.com/brasil/como-votou-cada-deputado-no-destaque-da-facada-em-paulo-guedes/
+#https://www.oantagonista.com/frases-da-semana/as-frases-da-semana-em-que-o-ministro-interino-da-saude-rezou/
+#https://www.oantagonista.com/podcast/podcast-viva-la-muerte/
+#https://www.oantagonista.com/brasil/o-stf-esta-disposto-a-ajudar-davi-alcolumbre/
+#https://www.oantagonista.com/brasil/renan-calheiros-anuncia-lista-de-14-investigados-pela-cpi/
 
 # Puxar links das páginas iniciais
 # e puxar artigos completos
