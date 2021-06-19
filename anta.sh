@@ -1,6 +1,6 @@
 #!/bin/bash
 # anta.sh -- puxa artigos da homepage de <oantagonista.com>
-# v0.17.1  jun/2021  by mountaineerbr
+# v0.17.2  jun/2021  by mountaineerbr
 
 #padrões
 
@@ -553,7 +553,7 @@ fulltf() {
 			    -e '/>Notícias relacionadas:/d' \
 			    -e 's|<a|[*][&|g ;s|</a|]&|g' \
 			    -e 's|\[\*\]\[\s*\]\s*||g' \
-				-e 's/<\/li>/&\n<layout>\n/g'
+				-e 's/<\/li>/&\n/g'
 	)"
 	#https://stackoverflow.com/questions/5315464/email-formatting-basics-links-in-plain-text-emails
 	
