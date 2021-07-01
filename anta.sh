@@ -296,7 +296,6 @@ getlinksf()
 	| sed -nE "/(title|h2)/ s|.*href=['\"]([^'\"#]+)['\"\t\s\ ].*|\1| p" \
 	| nl | sort -k2 | uniq -f 1 \
 	| sort -n | cut -f2
-	#| grep -v '"' \
 }
 #-e "href=['\"]https://www.oantagonista.com/despertador/['\"]+['\"]" \
 
