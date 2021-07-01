@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.6.29  jun/2021  by castaway
+# v0.6.30  jun/2021  by castaway
 # create base-58 address types from public key
 # create WIF from private keys
 # requires Bash v4+
@@ -644,7 +644,8 @@ gendsha256f()
 		type=file
 		input="$( pack "$(<"$1")" )"
 	else
-		type=string  input="$1"
+		type=string
+		input="$1"
 	fi 2>/dev/null
 
 	sha256=( $(
