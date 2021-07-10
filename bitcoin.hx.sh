@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.8  jul/2021  by castaway
+# v0.8.1  jul/2021  by castaway
 # create base-58 address types from public key,
 # create WIF from private keys and more
 # requires Bash v4+
@@ -17,15 +17,14 @@ VERCOMP=01
 SN="${0##*/}"
 
 #make sure locale is set correctly
-export LC_NUMERIC=C
-#export LC_NUMERIC=en_US.UTF-8
+export LC_NUMERIC=C  LANG=C
+#export LC_NUMERIC=en_US.UTF-8  LANG=en_US.UTF-8
 
-#base58 character set
-B58='1-9A-HJ-NP-Za-km-z'
-#bech32 character set
-#B32='AC-HJ-NP-Zac-hj-np-z02-9'
+#base58 character set [1-9A-HJ-NP-Za-km-z]
+B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+#bech32 character set [AC-HJ-NP-Zac-hj-np-z02-9]
 
-#ASCII chars [\x00-\x7F]
+#ASCII character set [\x00-\x7F]
 #literal newline and blank space
 ASCIISET="${IFS}!\"#$%&'()*+,./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~-"
 
@@ -459,10 +458,10 @@ revf()
 	fi 2>/dev/null
 	#validate base58 input string
 	#segwit bech32 character set will throw errors
-	if [[ "$input" =~ [^${B58}"$IFS"] ]]
-	then echo "err: illegal base58 char -- ${BASH_REMATCH[0]}" >&2 ;return 1
 	#get addr type
-	else type="$(ispubkeyf "$input" || isprivkeyf "$input" || echo base58 string)"
+	if isbase58f "$input"
+	then type="$(ispubkeyf "$input" || isprivkeyf "$input" || echo base58 string)"
+	else return 1
 	fi
 
 	#decode base58
@@ -647,7 +646,7 @@ HEXDUMP: $bytestr
 BASE58_: $output"
 
 			#check if text is ascii
-			[[ "$input" = *[^${ASCIISET}]* ]] && echo "info -- input contains non-ascii characters" >&2
+			[[ "$input" = *[^"$ASCIISET"]* ]] && echo "info -- input contains non-ascii characters" >&2
 			##transliterate diacritics with iconv (utf8 to ascii):
 			#{ iconv -f utf-8 -t ascii//translit <<<"$input" ;}
 		else
@@ -666,13 +665,12 @@ BASE58_: $output"
 			#drop 0x from start of string
 			bytestr="${input#0[Xx]}"
 		#validate base58 input string
-		elif [[ "$input" =~ [^${B58}"$IFS"] ]]
+		elif isbase58f "$input"
 		then
-			echo "err: illegal base58 char -- ${BASH_REMATCH[0]}" >&2
-			return 1
-		else
 			#convert base58 to hex
 			bytestr="$(decodeBase58 "$input")"
+		else
+			return 1
 		fi
 		
 		#process output
@@ -828,7 +826,11 @@ wifkeyf()
 	fi
 	
 	#Convert it to a string using Base58Check encoding
-	pkey="$( decodeBase58 "$input" )"
+	#validate base58 input string
+	if isbase58f "$input"
+	then pkey="$( decodeBase58 "$input" )"
+	else return 1
+	fi
 
 	#Drop the last 4 checksum bytes from the byte string
 	pkey="${pkey%????????}"
@@ -868,7 +870,11 @@ wcheckf()
 	fi
 	
 	#Convert it to a string using Base58Check encoding
-	a="$( decodeBase58 "$input" )"
+	#validate base58 input string
+	if [[ "$input" =~ [^"$B58$IFS"] ]]
+	then echo "err: illegal base58 char -- ${BASH_REMATCH[0]}" >&2 ;return 1
+	else a="$( decodeBase58 "$input" )"
+	fi
 	#Drop the last 4 checksum bytes from the byte string
 	b="${a%????????}"
 	#Drop first byte from the string
@@ -953,12 +959,23 @@ isprivkeyf()
 	return 1
 }
 
+#is input base58?
+isbase58f()
+{
+	if [[ "$1" =~ [^"$B58$IFS"] ]]
+	then
+		echo "err: illegal base58 char -- ${BASH_REMATCH[0]}" >&2
+		return 1
+	fi
+
+	return 0
+}
+
 #is input SHA256SUM ?
 issha256sumf()
 {
 	[[ "$1" =~ ^\ *[A-Fa-f0-9]{64}\ *$ ]]
 }
-
 
 #parse opts
 while getopts 126abcehv:pxwyY c
