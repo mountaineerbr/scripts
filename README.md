@@ -3,7 +3,7 @@ Shell script collection
 
 ---
 
-This repo __moved to [GitLab](https://gitlab.com/mountaineerbr/scripts/)__.
+This repo __[moved to GitLab](https://gitlab.com/mountaineerbr/scripts/)__.
 
 ---
 
