@@ -22,6 +22,7 @@ _bcalc_ext.bc_ | *bcalc.sh* extensions for bash bc
 [ctemp.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/ctemp.sh) | Convert amongst temperature units (Celsius, Fahrenheit and Kelvin)
 [datediff.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/datediff.sh) | Small shell function library to calculate time ranges in different units ([go to repo](https://gitlab.com/fenixdragao/shelldatediff)).
 [faster_sh.txt](https://gitlab.com/mountaineerbr/scripts/-/blob/main/faster_sh.txt) | Tips for improving script performances, specific for some use cases, text document
+[geoconv.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/geoconv.sh) |  Convert geocoordinates to various formats
 [grep.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/grep.sh) |  Grep files with shell built-ins
 [inmet.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/inmet.sh) | Download satellite images from Brazilian Instituto Nacional de Meteorologia
 [ipmet.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/ipmet.sh) | Download radar images from Brazilian IPMET/SIMEPAR
@@ -29,7 +30,7 @@ _bcalc_ext.bc_ | *bcalc.sh* extensions for bash bc
 [ul.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/ul.sh) |  Generate html lists from URLs
 [urlgrep.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/urlgrep.sh) | Grep full-text content from URL list
 [wc.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/wc.sh) |  Print line, word and character count for files with shell built-ins
-[wf.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/wf.sh) |  Weather forecast (Norway Meteorological Institute)
+[wf.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/wf.sh) |  Weather forecast from the Norway Meteorological Institute
 
 
 ## BITCOIN-RELATED
