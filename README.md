@@ -180,9 +180,3 @@ bank currency rate convertion.
 </p>
 
 
-<br/>
-
-    Please consider sending me a nickle!  = )
-
-        bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
-
