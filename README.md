@@ -74,8 +74,8 @@ NAME | DESCRIPTION
 [cmc.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/markets/cmc.sh) |  <Coinmarketcap.com> convert any amount of one crypto, bank/fiat currency or metal into any another, NON-public api access
 [myc.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/markets/myc.sh) | <Mycurrency.net> public api, central bank currency rate converter
 [novad.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/markets/novad.sh) | puxa dados das apis públicas da NovaDax brasileira. fetch public api data from NovaDax brazilian enchange
-[ourominas.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/markets/ourominas.sh) | Ourominas (precious metals exchange) rates public api. Pega taxas da api pública da Ouro Minas
-[parmetal.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/markets/parmetal.sh) | Parmetal (precious metals exchange) rates public api. Pega taxas da api pública da Parmetal
+<!-- [ourominas.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/markets/ourominas.sh) | Ourominas (precious metals exchange) rates public api. Pega taxas da api pública da Ouro Minas -->
+<!-- [parmetal.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/markets/parmetal.sh) | Parmetal (precious metals exchange) rates public api. Pega taxas da api pública da Parmetal -->
 [stocks.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/markets/stocks.sh) | <Financialmodelingprep.com> latest and historical stock and major index rates
 [uol.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/markets/uol.sh) | Fetches rates from uol service provider public api. Puxa dados de páginas da api pública do uol economia
 [whalealert.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/markets/whalealert.sh) | Data from whale-alert.io free api with the latest whale transactions.
