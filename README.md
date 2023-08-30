@@ -1,2 +1,2 @@
 # scripts
-Shell scripts collection (Bash, Zsh, Ksh, and Python).
+Shell script collection (Bash, Zsh, Ksh, and Python).
