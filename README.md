@@ -26,6 +26,7 @@ _bcalc_ext.bc_ | *bcalc.sh* extensions for bash bc
 [grep.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/grep.sh) |  Grep files with shell built-ins
 [inmet.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/inmet.sh) | Download satellite images from Brazilian Instituto Nacional de Meteorologia
 [ipmet.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/ipmet.sh) | Download radar images from Brazilian IPMET/SIMEPAR
+[md2man.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/md2man.sh) | Generate man pages from a pandoc markdown file.
 [tkn-cnt.py](https://gitlab.com/mountaineerbr/scripts/-/blob/main/tkn-cnt.py) | Python tiktoken wrapper.
 [ul.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/ul.sh) |  Generate html lists from URLs
 [urlgrep.sh](https://gitlab.com/mountaineerbr/scripts/-/blob/main/urlgrep.sh) | Grep full-text content from URL list
