@@ -1,0 +1,19 @@
+/* round argument 'x' to 'd' digits */
+define r(x, d) {
+	auto r, s
+
+	if(0 > x) {
+		return -r(-x, d)
+	}
+	r = x + 0.5*10^-d
+	s = scale
+	scale = d
+	r = r*10/10
+	scale = s  
+	return r
+};
+/* Serge3leo - https://stackoverflow.com/questions/26861118/rounding-numbers-with-bc-in-bash
+ * MetroEast - https://askubuntu.com/questions/179898/how-to-round-decimals-using-bc-in-bash
+ */
+
+

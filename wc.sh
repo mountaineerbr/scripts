@@ -1,0 +1,359 @@
+#!/usr/bin/env bash
+#!/usr/bin/env zsh
+# wc.sh  --  print line, word and character count
+# v0.5.5  feb/2023  by mountaineerbr
+
+#defaults
+#script name
+SN="${0##*/}"
+
+#help page
+HELP="NAME
+	$SN -   Print newline, word and byte counts for each file
+
+
+SYNOPSIS
+	$SN [-clLmw] FILE..
+	$SN [-hv]
+
+
+	Use shell builtins to print line, word, byte and character counts
+	from FILES or stdin input. It can also print the maximum display
+	width (longest line).
+
+	Newline bytes are used to detect and count lines. Null bytes are
+	ignored.
+	
+	This script uses shell builtins only and is compatible with bash
+	and zsh.
+
+	GNU wc, AST wc and Busybox wc perform word counting differently.
+	This script run with Bash or Zsh count words more similarly to
+	GNU and AST wc implementations.
+
+	This script is not supposed to compete with Wc, it is rather a
+	tool for studying shell scripting. Recently, code readability
+	was exchange for speed improvements.
+
+
+ENVIRONMENT VARIABLES
+	LANG and LC_ALL environment variables determine values of locale
+	categories and shall affect the execution of shell builtins.
+
+
+SEE ALSO
+	Remove leading & trailing whitespace from a Bash variable
+	<https://web.archive.org/web/20121022051228/http://codesnippets.joyent.com/posts/show/1816>
+
+
+	WHEELER, Fixing Unix/Linux/POSIX Filenames: Control Characters
+	(such as Newline), Leading Dashes, and Other Problems
+	<https://dwheeler.com/essays/fixing-unix-linux-filenames.html>	
+
+
+WARRANTY
+	Tested with GNU Bash 5.0+ and Zshell 5.8+ .
+	
+	Licensed under the GNU Public License v3 or better and is
+	distributed without support or bug corrections.
+   	
+	Please consider sending feedback!  =)
+
+
+BUGS
+	There may be count differences for some files when compared to
+	other wc implementations, mostly files with binary or invalid
+	data.
+	
+
+OPTIONS
+	-c 	   Count bytes.
+	-h 	   Print this help page.
+	-L 	   Print the maximum display width.
+	-l 	   Count lines.
+	-m 	   Count characters.
+	-w 	   Count words.
+	-v 	   Print script version."
+
+
+#functions
+#https://github.com/coreutils/coreutils/blob/master/src/wc.c
+
+
+#parse options
+while getopts chLlmwvz c
+do
+	case $c in
+		#count bytes
+		c) (( ++OPTC )) ;;
+		#count characters
+		m) (( ++OPTM )) ;;
+		#help
+		h) echo "$HELP" ;exit 0 ;;
+		#max line length
+		L) (( ++OPTMAX )) ;;
+		#count lines
+		l) (( ++OPTL )) ;;
+		#count words
+		w) (( ++OPTW )) ;;
+		#script version
+		v)
+			while read
+			do if [[ "$REPLY" = \#\ v* ]] ;then echo "$REPLY" ;exit ;fi
+			done <"$0"
+			;;
+		#run this script with zshell
+		z) [[ -n $ZSH_VERSION ]] || { 	zsh "$0" "$@" ;exit ;} ;;
+		#illegal option
+		?) exit 1 ;;
+	esac
+done
+shift $(( OPTIND - 1 ))
+unset c
+
+#save number of positional arguments
+#if none left at this point, input
+#is probably from /dev/stdin
+FILENUM=$#
+
+#save original (user) values $LANG $LC_ALL
+ORIGLANG=$LANG  ORIGLC_ALL=$LC_ALL
+
+#following params affects shell speed 
+#(and GNU tools behaviour in general)
+export POSIXLY_CORRECT=y
+(( OPTMAX )) || LANG=C  LC_ALL=C
+
+#consolidate options
+if (( OPTMAX ))
+then unset OPTM OPTC OPTL OPTW
+elif [[ -z "$OPTM$OPTC$OPTL$OPTW" ]]
+then (( ++OPTC )) ;(( ++OPTL )) ;(( ++OPTW ))
+fi
+
+#bash or zsh?
+if [[ -n $ZSH_VERSION ]]
+then
+	#set automatic word split
+	#array index start at nought
+	setopt  SH_WORD_SPLIT  KSH_ZERO_SUBSCRIPT
+
+	#shell array index
+	BZ=1
+else
+	#unset shell globbing
+	#conform to posix
+	set -f -o posix
+	
+	#shell array index
+	BZ=0
+fi
+
+#is stdin free?
+#is there any user argument?
+if ((FILENUM == 0)) && [[ -t 0 ]]
+then echo "$SN: err  -- input (FILE or stdin) required" >&2 ;exit 1
+fi
+
+#warnings
+((OPTA && OPTC+OPTL)) && echo "$SN: warning -- cannot detect null-ending lines" >&2
+
+
+#loop through files
+#save partially formatted result and add values to totals
+for FILE in "${@:-/dev/stdin}"
+do
+	#is it a file or stdin?
+	#check if that is a file (even if that is a fifo)
+	if ((FILENUM)) && [[ ! -e "$FILE" ]]
+	then
+		echo "$SN: no such file -- $FILE" >&2
+		continue
+	fi
+
+	#read file to stdin
+	exec 0< "$FILE"
+	
+	#call main functions
+	#set tests to mainf()
+	if ((OPTMAX))
+	then
+		#longest line
+		#loop through document
+		while IFS=  read -r buffer ||
+			[[ -n "$buffer" ]]
+		do
+			#substitute tab with whitespaces
+			buffer="${buffer//$'\t'/    }"
+	
+			#longest string
+			(( ${#buffer} > longest )) && longest="${#buffer}"
+		done
+		#GNU wc -L gives the width of the widest line in its input by
+		#using wcwidth(3) to determine the width of characters.
+	
+		#add to total (file totals)
+		(( longest > longesttotal )) && longesttotal="$longest"
+	
+		unset buffer
+	else
+		#count file attributes
+		#loop through document
+		while 
+			nl=1
+			IFS=  read -r buffer || {
+				#no newline bytes detected but line is non-empty
+				[[ -n "$buffer" ]] && nl=
+			}
+		do
+			#count lines
+			(( OPTL )) && (( lines = lines + nl ))
+	
+			#count bytes, new line is one byte
+			(( OPTC )) && (( bytes = bytes + nl + ${#buffer} ))
+	
+	
+			#count words
+			(( OPTW )) && {
+				#break at spaces and non-breaking spaces
+				IFS=$' \t\r\n\v\f'  w=( $buffer )  IFS=$' \t\n'
+	
+				(( words = words + ${#w[@]} ))
+			}
+	
+			#count characters
+			(( OPTM )) && {
+				#set $LANG $LC_ALL to user original
+				#revert $LANG $LC_ALL to C (faster)
+				LANG="$ORIGLANG" LC_ALL="$ORIGLC_ALL"  m=${#buffer}  LANG=C LC_ALL=C
+	
+				(( chars = chars + m + nl ))
+			}
+	
+		done
+	
+		#add to totals
+		(( OPTL )) && (( linestotal = linestotal + lines ))
+		(( OPTW )) && (( wordstotal = wordstotal + words ))
+		(( OPTM )) && (( charstotal = charstotal + chars ))
+		(( OPTC )) && (( bytestotal = bytestotal + bytes ))
+	
+		unset buffer m w nl
+	fi
+	#NOTES
+	#see `man 1p wc' and ISO C standard isspace() fun
+	#https://pubs.opengroup.org/onlinepubs/009604599/functions/isspace.html
+	#[[:space:]] = [ \t\r\n\v\f]
+	##non-breaking spaces from gnu wc source code:
+	##$'\u00a0'$'\u2007'$'\u202f'$'\u2060'
+	#0020 = space        #2002 = en-space      #2009 = thin space
+	#00a0 = nbsp         #2003 = em-space      #2060 = word joiner
+	#202f = narrow nbsp  #2007 = figure space  #000a = form feed, also \f
+	##https://www.compart.com/en/unicode/search?q=space#characters
+	##&nbsp; &thinsp; &ensp; and &emsp;
+	#In ASCII, &#09; is a TAB
+	#LFD key, typing C-j will produce the desired character (same as Enter)
+	##The stat and ls utilities just execut the lstat syscall and get the file
+	##length without reading the file. Thus, they do not need the read permission
+	##and their performance does not depend on the file's length. wc actually
+	##opens the file and usually reads it, making it perform much worse on large
+	##files. But GNU coreutils wc optimizes when only byte count of a regular
+	##file is wanted: it uses fstat and lseek syscalls to get the count. – Palec
+	##https://stackoverflow.com/questions/9195493/unix-find-average-file-size
+	#https://lists.gnu.org/archive/html/bug-bash/2016-09/msg00015.html
+	#https://stackoverflow.com/questions/46163678/get-rid-of-warning-command-substitution-ignored-null-byte-in-input
+	#read string without ending with newline
+	#https://unix.stackexchange.com/questions/418060/read-a-line-oriented-file-which-may-not-end-with-a-newline
+	#count length vs bytes:
+	#ipc#https://stackoverflow.com/questions/17368067/length-of-string-in-bash
+	##strict mode, check null chars: while IFS=  read -r -d ''
+	##https://stackoverflow.com/questions/36313562/how-to-redirect-stdin-to-file-in-bash
+	#notes on even another alternative method
+	#it should be faster if we can process the whole file at once.
+	#however, we cannot detect new line bytes directly (as opposed to null)
+	#and this info is needed for counting lines and bytes correctly.
+	#requires more memory as we load one whole file at a time.
+	#zsh#MAPFILE=( ${(ps:\n:)"$(<${(b)1})"} )
+	#bash#mapfile -t <<<"$buffer"
+
+
+	#save results
+	results=( $(
+		#print selected results
+		(( OPTL )) && echo "${lines:-0}"
+		(( OPTW )) && echo "${words:-0}"
+		(( OPTM )) && echo "${chars:-0}"
+		(( OPTC )) && echo "${bytes:-0}"
+		(( OPTMAX )) && echo "${longest:-0}"
+	) )
+	opts=( $OPTM $OPTC $OPTL $OPTW $OPTMAX )  #"${!OPT@}" expands to OPTERR and OPTIND, too..
+	fields=$(( ${#opts[@]} ))
+
+	#find the longest numeric string in results
+	for r in ${results[@]} $linestotal $wordstotal $charstotal $bytestotal
+	do ((${#r} > n)) && n=${#r}
+	done
+
+	#compose a printf formatting string
+	#try to comply with gnu guidelines?
+	if ((fields > 1 && FILENUM < 1))
+	then min_width=7 ;((n < min_width)) && n=$min_width
+	fi
+
+	unset fmtstring
+	strdecimal="%${n}d "
+	for ((f=1 ;f<(fields+1) ;++f))  #one more field for filename
+	do fmtstring="${fmtstring}${strdecimal}"
+	done
+
+	#add filename field (/dev/stdin fix)
+	if ((FILENUM))
+	then fmtstring="${fmtstring}%s\n"
+	else fmtstring="${fmtstring% }%s\n"
+	fi
+
+	#save partially formatted result for printing later
+	if [[ -n "$resultsall" ]]
+	then
+		filesall=( "${filesall[@]}" "$FILE" )
+		resultsall="${resultsall}
+${results[*]}"
+	else
+		filesall=( "$FILE" )
+		resultsall="${results[*]}"
+	fi
+
+	unset lines words chars bytes min_width longest FILE nl r f m results opts fields strdecimal
+done
+
+#print individual results
+i=$BZ
+while read
+do
+	#is there any result?
+	[[ -z "$REPLY" ]] && EXITCODE=1
+	
+	results=( $REPLY )
+	FILE="${filesall[$i]}"
+
+	printf "$fmtstring" "${results[@]}" "${FILE%/dev/stdin}"
+	(( ++i ))
+done <<< "$resultsall"
+unset i results FILE REPLY
+
+#print totals
+if (( FILENUM > 1 ))
+then
+	FILE=total
+	
+	#define printing variables
+	if (( OPTMAX ))
+	then results=( $longesttotal )
+	else results=( $linestotal $wordstotal $bytestotal $charstotal )
+	fi
+
+	printf "$fmtstring" "${results[@]}" "${FILE%/dev/stdin}"
+fi
+
+exit "${EXITCODE:-0}"
+

@@ -1,0 +1,1333 @@
+#!/usr/bin/env bash
+# v0.8.23  jan/2024  by mountaineerbr
+# bitcoin block information and functions
+# requires bitcoin-cli and jq 1.6+
+# tested to work with bitcoin-daemon v22!
+
+#script name
+SN="${0##*/}"
+
+#print simple
+#feedback to stderr
+OPTVERBOSE=0
+
+#separator for option -n
+#defaults='\t'
+SEP='\t'
+
+#mininum length to print sequences
+#of characters, opt -y
+#defaults=20
+STRMIN="${STRMIN:-20}"
+
+#maximum simultaneous asynchronous jobs
+#defaults=1
+JOBSDEF=1
+
+#timezone
+#defaults=UTC0
+TZ="${TZ:-UTC0}"
+export TZ
+
+#set locale
+#LC_NUMERIC=C
+LANG=C LC_ALL=C
+
+#printf clear line
+CLR='\033[2K'
+
+#genesis block hash (same as coinbase tx hash)
+#requesting this may throw errors in some funcs
+GENBLK_HASH=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+#get tx with `bitcoin-cli getblock $GENBLK_HASH 2`
+
+#help
+HELP="NAME
+	$SN - Bitcoin block information and functions
+
+
+SYNOPSIS
+	$SN [-.,] [BLOCK_HASH..|BLOCK_HEIGHT..]
+	$SN [-dd] [-luvx] [-jNUM] [DATESTRING|@UNIXTIME]
+	$SN [-giiyy] [-lv] [-jNUM] [BLOCK_HASH..|BLOCK_HEIGHT..]
+	$SN -t [-lnuvx] [-jNUM] [BLOCK_HASH..|BLOCK_HEIGHT..]
+	$SN -mmm [-lv] [-jNUM] [TRANSACTION_ID..]
+	$SN [-bhV]
+
+
+DESCRIPTION
+	By defaults, print header block information of BLOCK_HASH or
+	BLOCK_HEIGHT. If option -i is set, prints more block information
+	and stats. If option -ii is set, prints only transaction hashes
+	from blocks. If option -g is set, prints JSON of all transactions
+	from blocks.
+
+	Multiple block hashes or height numbers are allowed. If empty,
+	fetches hash of best (last) block. Negative integers refer to
+	blocks from the tip (e.g. -10, 10-, .10 or 10.), see note on exam-
+	ple (1.2). Positional parameters with a . (dot) refer to the tip.
+
+	Option -. (dot option) prints block height and -, (comma option)
+	prints block hash. Multiple block heights and hashes may be set as
+	positional parameters. Negative index from the tip is accepted. If
+	no positional parameter is given, fetches best block. Options -,.
+	may be combined.
+
+
+	General Options
+	Option -c CONFIGFILE sets the configuration file path (bitcoin.conf)
+	if that is in a custom location other than defaults, see also
+	section ENVIRONMENT.
+
+	Option -l sets local time instead of UTC time; this affects how
+	DATESTRING from user input is interpreted, too.
+
+	Option -u prints time in human-readable format ISO 8601 and -uu
+	prints in RFC 5322.
+
+	Option -v enables verbose, set twice to more verbose.
+
+
+	Job Control
+	To speed up processing of some options, setting maximum number of
+	asynchronous jobs with option -jNUM is allowed, in which case NUM
+	must be an integer or \`auto'; increasing NUM may only return modest
+	speed gains; defaults jobs=$JOBSDEF .
+
+	Beware that asynchronous jobs may lose the print lock momentarily
+	for another job and output may get mixed. To avoid that, try setting
+	-j1 .
+
+
+	Find Block at Date
+	Option -d DATESTRING finds the block height immediately before or
+	at a date, in which DATESTRING is a string describing a date that
+	is understandable by the GNU date programme. Note that option -l
+	changes interpretation of input time as local time; by defaults,
+	compare block \`times'; set -x to compare block \`mediantimes';
+	set option -v to check target and matched times. If input string
+	is UNIX time, attach an \`\`at'' (@) sign to it, see usage example
+	(3).
+
+	Option -d takes user input and tries to autocorrect it to a format
+	GNU date programme can understand. Check date interpretation ver-
+	bosely with option -v. Some autocorrection of user input date for-
+	mats is performed; if needed, set -d twice to disable autocorrec-
+	tion.
+
+
+	Block Timestamp List
+	Option -t generates a list of block timestamps, one timestamp per
+	line. Set option -n to print block height hash besides block time
+	separated by <TAB> control character. The defaults behaviour is
+	to print block \`time'; set -x to print \`mediantime' instead.
+	Check reference at SEE ALSO for the distinction between both.
+	To print time in human-readable formats, see options -uu.
+
+
+	Mempool Information
+	Option -m prints mempool transaction ids and -mm prints mempool
+	transactions with more information. Optionally, transaction ids
+	from the mempool are accepted as positional parameters. Option
+	-mmm prints the number of transactions, their fees and some stats.
+
+
+	Other Functions
+	Option -b prints various blockchain, network and some other infor-
+	mation and statistics.
+
+	Option -y will convert hex from a coinbase transaction to ascii
+	text.  The output will be filtered to print sequences that are at
+	least $STRMIN characters long, unless that returns empty, in which
+	case there is decrement of one character until nought.  If nought
+	is reached, the raw byte output will be printed.  You may set
+	-yy to print raw byte output, see example (4).
+
+
+ENVIRONMENT
+	BITCOINCONF
+		Path to bitcoin.conf or equivalent file with configs
+		such as RPC user and password, is overwritten by script
+		option -c, defaults=\"\$HOME/.bitcoin/bitcoin.conf\".
+
+	STRMIN  Sets mininum length to print sequences of characters
+		for options opt -y; alternatively, see usage example (4.3).
+
+	TZ 	Sets timezone; if none set, defaults to UTC0 (GMT).
+
+
+SEE ALSO
+	A bitcoin-cli script to try and find approximate block height
+	at a date. This was the inspiration of what became option -d
+	in this script. Specifically, the usage of the bisection technique.
+
+	<github.com/kristapsk/bitcoin-scripts/blob/master/blockheightat.sh>
+
+
+	Median Time vs. Time of a Block
+	<https://github.com/bitcoin/bips/blob/master/bip-0113.mediawiki>
+	
+
+WARRANTY
+	Licensed under the gnu general public license 3 or better and
+	is distributed without support or bug corrections.
+
+	Bitcoin-cli v0.21+, jq 1.6+, xxd, GNU date v5.3+ and bash are required.
+	
+	If you found this programme interesting, please consider
+	sending feedback!  =)
+
+
+BUGS
+	Not a real bug but note that some maths are performed with package
+	\`jq', which uses double float values, thus 0.999999 may actually
+	be 1 round.
+
+
+BLOCK REFERENCES
+	BLOCK 		UNIX TIME 	HUMAN-READABLE TIME (UTC)
+	#0 Genesis 	1231006505 	2009-01-03T18:15:05+00:00
+	#1 Height 1	1231469665 	2009-01-09T02:54:25+00:00
+
+
+USAGE EXAMPLES
+	1) Get block information by block hash or height
+
+	1.1) Information of 3 blocks, input is mixed with block heights
+	     and hashes:
+
+	$ $SN 200000 00000000000000000007316856900e76b4f7a9139cfbfba89842c8d196cd5f91
+
+
+	1.2) Negative index, the 10th, 11th and 12th block before best
+	     block (blockchain tip); use either minus or dot sign; do
+	     note that -- signals the end of script options, if any:
+
+	$ $SN 10- 11- 12-
+
+	$ $SN 10. 11. 12.
+
+	$ $SN -- -10 -11 -12
+
+
+	2.1) Generate a list of timestamps (block time) from block 0 to 1000,
+	     defaults to one job at most, output is ordered.
+
+	$ $SN -t {0..1000}
+	
+
+	2.2) Generate a list of timestamps (mediantime) from block 0 to 1000,
+	     set max jobs to 4; faster but prints asynchronously, so we will
+	     sort output numerically.
+
+	$ $SN -tx -j4 {0..1000} | tee | sort -n
+
+
+	3) Find a block at or immediately before a date and time.
+	   Note that date format must be understood by GNU \`date\`
+
+	3.1) UNIX time format
+
+	$ $SN -d  @1584007200
+
+
+	3.2) Verbose with human-readable time formats
+	
+	$ $SN -duuv '12-mar-2020 10:00'
+	
+	
+	3.3) Local time instead of UTC0 (GMT)
+	
+	$ $SN -duuvl '12 mar 2020 10:00:00'
+
+	
+	3.4) Local time
+	
+	$ $SN -dl 'yesterday 9:00pm'
+
+
+	4.1) Decode hex code from coinbase transaction of a block to
+	     ascii text:
+	
+	$ $SN -y 0000000000000000000080324fdf044b64f0661b3562a5729a51722d007d90b8
+
+
+	4.2) Decode hex code from coinbase of the last 10 blocks (note
+	     usage of brace expansion and negative relative block height):
+	
+	$ $SN -y -- -{0..9}
+
+	$ $SN -y .{0..9}
+
+
+	4.3) Some other usage examples with package \`strings':
+
+	$ $SN -yy 666076 | strings -n 20
+
+	$ strings -n 20 blk00003.dat  #decode the whole block file
+
+
+	5) Parse all transactions from best block; note that bitcoin.tx.sh
+	   is a companion suite script from the same author:
+
+	$ $SN -g | bitcoin.tx.sh -ff    #fast, less tx info
+	
+	$ $SN -ii | bitcoin.tx.sh       #slow, detailed tx info 
+
+
+OPTIONS
+	Miscellaneous
+	-e 	Debugging.
+	-h 	Print this help page.
+	-v	Verbose, may set multiple times.
+	-V 	Print script version.
+
+	General
+	-c  CONFIGFILE
+		Path to bitcoin.conf or equivalent configuration file,
+		defaults=\"\$HOME/.bitcoin/bitcoin.conf\".
+	-l 	Set \`local time' instead of \`UTC time'.
+	-u 	Print time in ISO8601 format, set twice for RFC5322.
+	-x 	Set block \`mediantime' instead of \`time'.
+
+	Job Control
+	-j  NUM	Maximum simultaneos jobs, may print asynchronously,
+		defaults=$JOBSDEF .
+
+	Timestamp List
+	-n 	Print block hash besides block timestamp.
+	-t  [HASH|HEIGHT]
+		Generate a list of block \`time' timestamps; see also
+		options -luux.
+
+	Memory Pool
+	-m 	Print mempool transaction ids.
+	-mm [TXID]
+		Print mempool transactions with more info, if empty,
+		process the whole mempool.
+	-mmm, -M
+		Print number of transactions, fees and more stats.
+
+	Find Block at Date
+	-d  DATESTRING
+		Find block height before or at time/date, see also options
+		-luuvx.
+	-dd Disable autocorrection of user input; only set this if -d
+		misbehaves.
+
+	Blockchain Information
+	-b 	General blockchain, mempool, mining, network and rpc info.
+
+	Block Information
+	-. 	Print block height.
+	-, 	Print block hash.
+	-g 	Prints raw JSON of all block transactions. 
+	-i 	Header information and stats.
+	-ii	Transaction hashes.
+	-y 	Decode coinbase HEX to ASCII text and print sequences
+		longer than $STRMIN chars only.
+	-yy, -Y	Same as -y but prints all bytes."
+
+
+#functions
+
+#err signal
+errsigf()
+{
+	local sig="${1:-1}"
+	echo "$sig" >>"$TMPERR"
+}
+
+#clean temp files
+cleanf() {
+	#disable trap
+	trap \  EXIT
+
+	#check for err signals in err temp file
+	if [[ -e "$TMPERR" ]]
+	then 	while read; do ((RET+=$REPLY)) ;done <"$TMPERR"
+		rm -- "$TMPERR"
+	fi 2>/dev/null
+
+	#verbose feedback
+	(( OPTVERBOSE )) && 
+		printf '\n>>>took %s seconds  (%s min)\n' "$SECONDS" "$(( SECONDS / 60 ))" >&2
+	
+	#sum exit codes from other funcs
+	exit $RET
+}
+
+#get unix time from user input
+#print error msg only if DATE is not human or unix time
+dateunixfhelper()
+{
+	local str str2 seprm fmt
+
+	#out-time format
+	fmt=+%s
+	#chars to remove
+	seprm='[ /._-]*'
+
+	#set string
+	str="$*"
+	#try this new separator
+	sep="$sep"
+
+	#defaults
+	if date -d"$str" "$fmt"
+	then 	return 0
+	#some unusual date input formats
+	elif str2="$( sed -En "s:([0-9]{1,4})(${seprm})([a-zA-Z]{3,}|[0-9]{1,2})(${seprm})([0-9]{1,4}):\1${sep}\3${sep}\5:p" <<<"$str" )" &&
+		[[ -n "$str2" ]] && date -d"$str2" "$fmt"
+	then 	return 0
+	elif str2="$( sed -En "s:([0-9]{1,4})(${seprm})([a-zA-Z]{3,}|[0-9]{1,2})(${seprm})([0-9]{1,4}):\5${sep}\3${sep}\1:p" <<<"$str" )" &&
+		[[ -n "$str2" ]] && date -d"$str2" "$fmt"
+	then 	return 0
+	fi
+	
+	return 1
+}
+#check DATE format validity
+checkdatef() { 
+	local unix sepout sep unix unixmin unixmax ok 
+
+	#disable date checking?
+	(( OPTDATE > 1 )) && return 1
+
+	#rm extra chars froma rgs
+	set -- "${@#[./]}"
+	set -- "${@%[./]}"
+
+	#only one letter is not date
+	#not a date format
+	if [[ "$*" = [a-z] ]] || (( ( ${#1} + ${#2} ) < 3 ))
+	then return 1
+	fi
+
+	#try these separators
+	for sep in \  \/ \-
+	do  unix="$( dateunixfhelper "$@" )" && break
+	done
+
+	(( unix )) || return 1
+	
+	echo "$unix"
+	return 0
+}
+
+
+#decode coinbase HEX
+deccoinbf()
+{
+	local ascii coinb num rawtx strs txhex ret
+
+	#get coinbase tx hash
+	coinb="$( jq -r '.tx[0]' <<< "$BLK" )"
+	((ret += $?))
+
+	#get coinbase raw tx data and its hex
+	#is target other block than genesis block?
+	if [[ "$BLK_HASH" = "$GENBLK_HASH" ]]
+	then
+		#genesis block tx
+		rawtx="$coinb"
+	else
+		rawtx="$(bwrapper getrawtransaction "$coinb" true)"
+		((ret += $?))
+	fi
+	
+	#get coinbase hex
+	txhex="$(jq -r '.hex' <<<"$rawtx" )"
+	((ret += $?))
+	#or: .vin[].hex
+	
+	#verbose?
+	(( OPTVERBOSE )) &&
+		echo -ne "--------\nBLK_: $BLK_HASH\nTXID: $coinb\nHEX_: $txhex\nASCI: "
+
+	#print ascii text
+	if ((OPTASCII>1))
+	then
+		<<<"$txhex" xxd -p -r
+	else
+		#decode hex to ascii (ignore null byte warning)
+		{ ascii="$(<<<"$txhex" xxd -p -r)" ;} 2>/dev/null
+
+		for ((num=STRMIN ;num>=0 ;--num))
+		do
+			((num)) || break
+
+			strs="$( strings -n "$num" <<<"$ascii" )"
+			#-n Print sequences of characters that are
+			#at least min-len characters long, instead of the default 4
+
+			[[ -n "${strs// /}" ]] && break
+		done
+
+		#decide how to print
+		if ((num))
+		then
+			#there was some output from `strings`
+			echo "$strs"
+		else
+			#otherwise print the raw ascii
+			<<<"$txhex" xxd -p -r
+		fi
+	fi
+	((ret += $?))
+
+	#sum exit codes
+	return $ret
+}
+#https://bitcoin.stackexchange.com/questions/90684/how-to-decode-a-coinbase-transaction
+#you can just print every string in the blockchain database directly
+#{ strings -n 20 blk0000.dat ;}
+#https://bitcoin.stackexchange.com/questions/18/how-can-one-embed-custom-data-in-block-headers
+
+#is block hash or height?
+ishashf()
+{
+	local hx
+	hx="$1"
+
+	#grep -qEx '[0]{8}[a-fA-F0-9]{56}' <<<"$hx"
+	[[ "$hx" =~ ^[0]{8}[a-fA-F0-9]{56}$ ]]
+}
+
+#blockchain general information
+#mempool, network information
+blockchainf()
+{
+	local chain_info forknames ret
+
+	#rpc info
+	((OPTVERBOSE)) && printf "\r${CLR}%s " "Getting RPC info.." >&2
+	bwrapper getrpcinfo \
+		| jq -r '"",
+		"--------",
+		"RPC-call information",
+		"Commands:",
+		( .active_commands[]|"  Method: \(.method)\t Duration: \(.duration) µs" ),
+		"Logpath_: \(.logpath)"'
+	((ret += $?))
+
+	#network info
+	((OPTVERBOSE)) && printf "\r${CLR}%s " "Getting Network info.." >&2
+	bwrapper getnetworkinfo \
+		| jq -r '"",
+		"--------",
+		"Network information",
+		"Version_: \(.version)",
+		"SubVersi: \(.subversion)",
+		"ProtVers: \(.protocolversion)",
+		"LService: \(.localservices)",
+		"LSerName: \(.localservicesnames|@sh)",
+		"LocRelay: \(.localrelay)",
+		"TiOffset: \(.timeoffset)",
+		"NetwActv: \(.networkactive)",
+		"Connects: \(.connections)",
+		"ConnecIn: \(.connections_in)",
+		"ConneOut: \(.connections_out)",
+		"Networks:",
+		( .networks[]|
+			"  Name__: \(.name)\t Limitd: \(.limited)\t Reachb: \(.reachable)\t PxRand: \(.proxy_randomize_credentials)\t Proxy_: \(.proxy//"-")"
+		),
+		"RelayFee: \(.relayfee) BTC/kB",
+		"IncreFee: \(.incrementalfee) BTC/kB",
+		"LocalAddresses:",
+		(.localaddresses[]|
+			"  Addres: \(.address)\t Port__: \(.port)\t Score_: \(.score)"
+		),
+		"Warnings: \(if .warnings == "" then empty else .warnings end)"'
+	((ret += $?))
+
+	#human readable table with inbound and outbound peers
+	echo
+	bwrapper -netinfo ;((ret += $?))
+
+	#net totals
+	((OPTVERBOSE)) && printf "\r${CLR}%s " "Getting Net Totals info.." >&2
+	bwrapper getnettotals \
+		| jq -r '"",
+		"--------",
+		"Net totals information",
+		"TotBRecv: \(.totalbytesrecv) B\t \(if (.totalbytesrecv/1000000) < 2000 then "\(.totalbytesrecv/1000000) MB" else "\(.totalbytesrecv/1000000000) GB" end)",
+		"TotBSent: \(.totalbytessent) B\t \(if (.totalbytessent/1000000) < 2000 then "\(.totalbytessent/1000000) MB" else "\(.totalbytessent/1000000000) GB" end)",
+		"UNIXEpoc: \(.timemillis) [ms]",
+		"UplodTgt:",
+		(.uploadtarget |
+		"  TimeFram: \(.timeframe) s",
+		"  Target__: \(.target) B",
+		"  TgtReach: \(.target_reached)",
+		"  SHistBlk: \(.serve_historical_blocks)",
+		"  BLeftCyc: \(.bytes_left_in_cycle) B",
+		"  TLeftCyc: \(.time_left_in_cycle) s"
+		)'
+	((ret += $?))
+
+	#get mining stats
+	((OPTVERBOSE)) && printf "\r${CLR}%s " "Getting Mining info.." >&2
+	bwrapper getmininginfo \
+		| jq -r '"",
+		"--------",
+		"Mining information",
+		"Chain___: \(.chain)",
+		"Blocks__: \(.blocks)",
+		"Difficul: \(.difficulty)",
+		"HashRate: \(.networkhashps) H/s\t \(.networkhashps/1000000000000000000 | tostring | .[0:6]) EH/s",
+		"BlockETA: \(((.difficulty * pow(2; 32)) / .networkhashps)/60 | tostring | .[0:6])min",
+		"PooledTx: \(.pooledtx) txs",
+		"Warnings: \(if .warnings == "" then empty else .warnings end)"'
+	((ret += $?))
+
+	#get mempool data
+	((OPTVERBOSE)) && printf "\r${CLR}%s " "Getting Mempool info.." >&2
+	bwrapper getmempoolinfo \
+		| jq -r '"",
+		"--------",
+		"Mempool information",
+		"Loaded__: \(.loaded)",
+		"Min_Fee_: \( .mempoolminfee ) sat/KB\t \(.mempoolminfee/1000) sat/B",
+		"MinRlyFe: \( .minrelaytxfee ) sat/KB\t \(.minrelaytxfee/1000) sat/B",
+		"MaxMempo: \(.maxmempool)\t \(.maxmempool / 1000000 | tostring | .[0:6] ) MB",
+		"UsageTot: \(.usage)\t \(.usage / 1000000 | tostring | .[0:6] ) MB",
+		"vTxSize_: \(.bytes)\t \(.bytes / 1000000 | tostring | .[0:6] ) MvB",
+		"UnbroadC: \(if .unbroadcastcount == 0 then empty else .unbroadcastcount end)",
+		"Tx_Count: \(.size) txs"'
+	((ret += $?))
+	#the eternal question (block eta)
+	#https://en.bitcoin.it/wiki/Difficulty
+
+	#blockchain and fork information
+	((OPTVERBOSE)) && printf "\r${CLR}%s " "Getting Blockchain info.." >&2
+	((OPTVERBOSE)) && printf "\r${CLR}%s " "Getting Fork info.." >&2
+	chain_info="$(bwrapper getblockchaininfo)"
+	((ret += $?))
+
+	if forknames=( $(jq -r '.softforks // empty | keys_unsorted[]' <<<"$chain_info" 2>/dev/null) )\
+		&& [[ -n "${forknames[*]}" ]]
+	then
+		echo -e "\n--------\nBlockchain forks"
+		for key in "${forknames[@]}"
+		do
+			<<< "$chain_info" jq -r --arg key "$key" '.softforks | .[$key] |
+				"    Name: \($key)\t Type: \(.type)\t Active: \(.active)\t Height: \(.height)"'
+		done
+	fi
+
+	#general info
+	<<< "$chain_info" jq -r '"--------",
+		"Blockchain status",
+  		"Warnings: \(.warnings // empty)",
+  		"Chain___: \(.chain)",
+  		"Blocks__: \(.blocks)",
+  		"Headers_: \(.headers)",
+  		"IniBlkDl: \(.initialblockdownload)",
+  		"Pruned?_: \(.pruned)",
+  		"SizeDisc: \(.size_on_disk) B\t \(.size_on_disk / 1000000000 | tostring | .[0:6] ) GB",
+		"Verifica: \(.verificationprogress)\t \(.verificationprogress * 100 | tostring | .[0:6] ) %",
+  		"BestBlk_: \(.bestblockhash)",
+  		"ChainWrk: \(.chainwork)",
+  		"Difficul: \(.difficulty)",
+  		"MedianTi: \(.mediantime // empty)\t \((.mediantime // empty) | '"$HH"' )"'
+
+	#sum exit codes
+	return $ret
+}
+
+#general block information and block transactions
+defaultf()
+{
+	local blk_stat ret jqblock jqblockb jqblockC jqblockD
+
+	#print transaction hashes
+	if ((OPTI > 1))
+	then 
+		((OPTI > 2)) && jqblockC='"","============","Block transactions",' jqblockD=',"--------"'
+		<<<"$BLK" jq -r "$jqblockC"'.tx[]'"$jqblockD"
+		((OPTI > 999 || OPTI == 2)) && return
+	elif ((OPTI == 1))
+	then jqblockB='"","============",'
+	else jqblock='"","============",'
+	fi
+
+	#stats opt -- is target other block than genesis block?
+	if [[ "$OPTI" = [31] && "$BLK_HASH" != "$GENBLK_HASH" ]]
+	then
+		blk_stat="$( bwrapper getblockstats \""$BLK_HASH"\" )"
+		<<<"$blk_stat" jq -r "$jqblockB"'"Block status",
+			"Height__: \(.height)",
+			"Avg_Fee_: \(.avgfee) sat/KB \t \(.avgfee/1000) sat/B",
+			"Med_Fee_: \(.medianfee) sat/KB\t \(.medianfee/1000) sat/B",
+			"Min_Fee_: \(.minfee) sat/KB\t \(.minfee/1000) sat/B",
+			"Max_Fee_: \(.maxfee) sat/KB\t \(.maxfee/1000) sat/B",
+			"--------",
+			"Transaction Fee Rates",
+			"AvgFeeRt: \(.avgfeerate) sat/vB",
+			"MinFeeRt: \(.minfeerate) sat/vB",
+			"MaxFeeRt: \(.maxfeerate) sat/vB",
+			"FeeRtPct: \(.feerate_percentiles | tostring ) sat/vB",
+			"--------",
+			"Segwit transactions",
+			"Segw_Txs: \(.swtxs)",
+			"SwTotWgt: \(.swtotal_weight) WU",
+			"SwTotSiz: \(.swtotal_size) B\t \(.swtotal_size/1000) KB",
+			"--------",
+			"Transaction status",
+			"AvgTxSiz: \(.avgtxsize) B\t \(.avgtxsize/1000) KB",
+			"MedTxSiz: \(.mediantxsize) B\t \(.mediantxsize/1000) KB",
+			"MinTxSiz: \(.mintxsize) B\t \(.mintxsize/1000) KB",
+			"MaxTxSiz: \(.maxtxsize) B\t \(.maxtxsize/1000) KB",
+			"--------",
+			"Txs_In__: \(.ins)",
+			"Txs_Out_: \(.outs)",
+			"Utxo_Inc: \(.utxo_increase)",
+			"UtxoSizI: \(.utxo_size_inc)",
+			"--------",
+			"TotalWgt: \(.total_weight) WU",
+			"TotalSiz: \(.total_size) B\t \(.total_size/1000) KB",
+			"TotalOut: \(.total_out)\t \(.total_out/100000000) BTC",
+			"Subsidy_: \(.subsidy)\t \(.subsidy/100000000) BTC",
+			"TotalFee: \(.totalfee)\t \(.totalfee/100000000) BTC",
+			"--------"'
+		((ret += $?))
+	fi
+
+	#print block information
+	<<<"$BLK" jq -r "$jqblock"'"Block information",
+		"Hash____: \(.hash)",
+		"MrklRoot: \(.merkleroot)",
+		"PrevBlkH: \(.previousblockhash)",
+		"NextBlkH: \(.nextblockhash // empty)",
+		"Chainwrk: \(.chainwork)",
+		"Difficul: \(.difficulty)",
+		"Version_: \(.version)",
+		"Vers_Hex: \(.versionHex)",
+		"Bits____: \(.bits)",
+		"Nonce___: \(.nonce)",
+		"Txs_____: \(.nTx)",
+		"Confirma: \(.confirmations)",
+		"Size____: \(.size //empty) B\t \((.size //empty)/1000) KB",
+		"Stripped: \(.strippedsize //empty) B\t \((.strippedsize //empty)/1000) KB",
+		"Weight__: \(.weight //empty) WU\t \((.weight //empty)/4000) vKB",
+		"Height__: \(.height)",
+		"MedianTi: \(.mediantime // empty)\t \((.mediantime // empty) | '"$HH"' )",
+		"Time____: \(.time // empty)\t \((.time // empty)| '"$HH"')"'
+	((ret += $?))
+
+	#sum exit codes
+	return $ret
+}
+
+#find a block at timestamp
+heightatf()
+{
+	local HEIGHTDELTA HEIGHTLAST HEIGHTMAX HEIGHTMIN HEIGHTMINLAST \
+		HEIGHTSTART HEIGHTTIMELAST TARGETTIME INPUT TIME DATEOPT
+
+	INPUT="$*"
+
+	#human readable opt
+	((OPTHUMAN>1)) && DATEOPT='-R' || DATEOPT='-Iseconds'
+
+	#check if there is any user input
+	if [[ -z "$INPUT" ]]
+	then
+		echo "$SN: err -- DATE string required" >&2
+		return 1
+	#user input $INPUT
+	#find block at TARGET time
+	elif
+		! TARGETTIME="$( date -d"$INPUT" +%s 2>/dev/null || checkdatef "$INPUT" 2>/dev/null )"
+	then
+ 		#print error message
+		date -d"$INPUT" +%s
+		echo "$SN: err: invalid date format -- $INPUT" >&2
+		return 1
+	fi
+
+	#current blockchain height
+	#user input or get the latest block height
+	HEIGHTMAX="$( bwrapper getblockchaininfo )" || return
+	HEIGHTMAX="$( jq -r .blocks <<< "$HEIGHTMAX" )"
+	HEIGHTSTART=1
+
+	HEIGHTLAST="$HEIGHTMAX"
+	HEIGHTMIN="$HEIGHTSTART"
+	
+	#check times
+	#genesis: 1231006505  #block 1: 1231469665
+	if (( TARGETTIME > $(date +%s) )) || (( TARGETTIME < 1231006505 ))
+	then echo "$SN: DATE out of range -- @${TARGETTIME} $(date -R -d@$TARGETTIME)" >&2 ;return 1
+	fi
+	
+	#loop
+	while true
+	do
+		HEIGHTMINLAST="$HEIGHTLAST"
+		HEIGHTTIMELAST="$HEIGHTTIME"
+	
+		(( HEIGHTDELTA = ( HEIGHTLAST - HEIGHTMIN ) / 2 ))
+		(( HEIGHTMIN = HEIGHTLAST - HEIGHTDELTA ))
+		
+		BLK_INFO_LAST=( "${BLK_INFO[@]}" )
+		BLK_INFO=( $( bwrapper getblockheader "$( bwrapper getblockhash "$HEIGHTMIN" )" | jq -r .${OPTMEDTIME}time,.hash ) )
+		HEIGHTTIME="${BLK_INFO[0]}"
+		HEIGHTDELTA="${HEIGHTDELTA#-}"
+	
+		#verbose
+		if (( OPTVERBOSE ))
+		then
+			TIME="$HEIGHTTIME"
+			(( OPTHUMAN )) && TIME="$( date $DATEOPT -d@"$HEIGHTTIME" )"
+			printf '%s: %*d  %s: %s\n' height 6 $HEIGHTMIN date "$TIME" >&2
+		fi
+	
+		if (( HEIGHTTIME == TARGETTIME ))
+		then
+			HEIGHTTIMELAST="$HEIGHTTIME"
+			HEIGHTMINLAST="$HEIGHTMIN"
+			break
+		elif (( HEIGHTDELTA == 1 ))
+		then
+			if (( HEIGHTTIMELAST < TARGETTIME )) && (( HEIGHTTIME > TARGETTIME ))
+			then
+				break
+			elif (( HEIGHTMAX == HEIGHTMIN ))
+			then 
+				HEIGHTTIMELAST="$HEIGHTTIME"
+				HEIGHTMINLAST="$HEIGHTMIN"
+				break
+			else
+				HEIGHTDELTA=2
+			fi
+		fi
+	
+		if (( HEIGHTTIME > TARGETTIME ))
+		then
+			HEIGHTLAST="$HEIGHTMIN"
+			(( HEIGHTMIN = HEIGHTMIN - HEIGHTDELTA ))
+		elif (( HEIGHTTIME < TARGETTIME ))
+		then
+			HEIGHTLAST="$HEIGHTMIN"
+			(( HEIGHTMIN = HEIGHTMIN + HEIGHTDELTA ))
+		fi
+	done
+	
+	#print result
+	
+	#verbose?
+	if (( OPTVERBOSE ))
+	then
+		cat <<-!
+
+		Target_Time: $TARGETTIME  $( date $DATEOPT -d@"$TARGETTIME" )
+		Match__Time: $HEIGHTTIMELAST  $( date $DATEOPT -d@"$HEIGHTTIMELAST" )
+		Block__Hash: ${BLK_INFO_LAST[1]}
+		BlockHeight: $HEIGHTMINLAST
+		!
+	else
+		echo "$HEIGHTMINLAST"
+	fi
+}
+
+#print block hash and height
+gethashheightf()
+{
+	local arg blk_height blk_hash bestblk ret
+	typeset -a bestblk
+
+	#expand braces, ex '{1..10}'
+	for arg in $@
+	do
+		#is negative index? 
+		#get best block hash and height, set [bestblock - index]
+		if [[ "$arg" = @(+([.,-])+([0-9])*([.,-])|*([.,-])+([0-9])+([.,-])) ]]
+		then 	(( ${#bestblk[@]} )) || bestblk=( $( bestblkfun ) )
+			arg=$((bestblk[1] - ${arg//[.,-]}))
+		fi
+
+		#is block hash or height?
+		if ishashf $arg
+		then
+			blk_hash=$arg
+			if ((OPTDOT))
+			then 	blk_height=$(bwrapper getblock $arg | jq -r '.height') || {
+					echo "invalid block hash/height -- $arg" >&2
+					((++ret)) ;continue
+				}
+			fi
+		else
+			if ((OPTCOMMA))
+			then 	blk_hash="$( bwrapper getblockhash $arg )" || {
+					echo "invalid block hash/height -- $arg" >&2
+					((++ret)) ;continue
+				}
+			fi
+			blk_height=$arg
+		fi
+
+		#how to print?
+		((OPTDOT)) && printf '%s' $blk_height
+		((OPTCOMMA)) && printf "${OPTDOT+\t}%s" $blk_hash
+		printf \\n
+	done
+	
+	#get best block hash and height
+	(($#)) || { 
+		bestblk=( $( bestblkfun ) )
+		#how to print?
+		((OPTDOT)) && printf '%s' ${bestblk[1]}
+		((OPTCOMMA)) && printf "${OPTDOT+\t}%s" ${bestblk[0]}
+		printf \\n
+	}
+
+
+	#sum exit codes
+	return $ret
+}
+
+#get best block hash and height
+bestblkfun()
+{
+	bwrapper getblockchaininfo | jq -er .bestblockhash,.blocks
+}
+
+#block information, transaction hashes or decode coinbase hex
+mainf()
+{
+	local TOTAL N
+	local arg bestblk blocks ret
+	typeset -a blocks bestblk
+
+	#total number of arguments
+	TOTAL="$#"
+
+	#is there positional args from user?
+	if ((TOTAL))
+	then
+		#let braces expand, ex '{1..10}'
+		for arg in $@
+		do
+			#if argument is . or , , get best block
+			if [[ "$arg" = +(.|,) ]]
+			then
+				#get bets block hash from ., operators
+				(( ${#bestblk[@]} )) || bestblk=( $( bestblkfun ) ) || return
+				blocks+=( ${bestblk[0]} )
+			elif [[ "$arg" = @(+([.,-])+([0-9])*([.,-])|*([.,-])+([0-9])+([.,-])) ]]
+			then
+				#negative integers (block from the tip)
+				#get best block hash and height
+				(( ${#bestblk[@]} )) || bestblk=( $( bestblkfun ) ) || return
+				blocks+=( $((bestblk[1] - ${arg//[.,-]})) )
+			else
+				#positive integers
+				#block hashes
+				blocks+=( $arg )
+			fi
+		done
+		set -- "${blocks[@]}"
+	else
+		#get best block hash
+		bestblk=( $( bestblkfun ) ) || return
+
+		echo "Best block height: ${bestblk[1]}" >&2
+		set -- "${bestblk[0]}"
+	fi
+
+	#multiple jobs?
+	if ((JOBSMAX>1))
+	then
+		#get block info
+		for arg in "$@"
+		do
+			#counter
+			((++N))
+			#job control (batch)
+			((N % JOBSMAX)) || wait
+
+			{ mainenginef || errsigf $? ;} &
+		done
+		wait
+	else
+		#get block info
+		for arg in "$@"
+		do ((++N)) ;mainenginef ;((ret+=$?))
+		done
+	fi
+
+	#sum exit codes
+	return $ret
+}
+mainenginef()
+{
+	local BLK BLK_HASH BLK_HEIGHT ret
+
+	#is block hash or height?
+	if ishashf "$arg"
+	then
+		BLK_HASH="$arg" BLK_HEIGHT=
+	else
+		if ! BLK_HASH="$( bwrapper getblockhash "$arg" )"
+		then
+			echo "invalid block hash/height -- $arg" >&2
+			errsigf ;return 1
+		fi
+		BLK_HEIGHT="$arg"
+	fi
+
+	#get block info
+	#is target other block than genesis block?
+	if [[ "$OPTI" -ge 1000 || ( "$BLK_HASH" = "$GENBLK_HASH" && -n "$OPTI" ) ]]
+	then
+		#all block transaction json
+		#genesis block with tx info
+		BLK="$( bwrapper getblock "$BLK_HASH" 2 )"
+	else
+		#common block tx info
+		if ((OPTASCII + OPTI))
+		then BLK="$( bwrapper getblock "$BLK_HASH" true )"        #full block
+		else BLK="$( bwrapper getblockheader "$BLK_HASH" true )"  #only header
+		fi
+	fi
+	((ret += $?))
+
+	#debug? print raw data
+	if ((DEBUGOPT))
+	then
+		echo "$BLK"
+		echo "$BLK_HASH"
+		echo "$BLK_HEIGHT"
+		echo '$blk_stat, $rawtx, $txhex and $coinb are defined later in their respective functions' >&2
+		return
+	fi
+	
+	#call opt functions
+	#-t generate timestamp list
+	if (( OPTTIMESTAMP ))
+	then timestamplistf
+	#decode coinbase HEX
+	elif (( OPTASCII ))
+	then deccoinbf
+	#default option
+	#general block information and block transactions
+	else defaultf
+	fi
+	#record exit codes
+	((ret += $?))
+	
+	#feedback
+	#try to clear last feedback line
+	((OPTVERBOSE==1)) && printf "${CLR}blk[%s/%s]: %s \r" "$N" "${TOTAL:-$N}" "${BLK_HEIGHT:-$BLK_HASH}" >&2
+	((OPTVERBOSE>1)) && printf "${CLR}blk[%s/%s]: %s  %s \r" "$N" "${TOTAL:-$N}" "$BLK_HEIGHT" "$BLK_HASH" >&2
+	
+	#sum exit codes
+	return $ret
+}
+
+#-m mempool funcs
+mempoolf()
+{
+	local cols width mempool_raw jqselect maxfee ret tx wc i c tt
+	
+	#-m print transaction hashes only
+	if (( OPTMEMPOOL == 1 && $# == 0 ))
+	then
+		mempool_raw="$( bwrapper getrawmempool false )" || return
+		jq -er '.[]' <<< "$mempool_raw"
+		((ret+=$?))
+	#-mm print transaction ids and some more info
+	elif (( OPTMEMPOOL == 2 || $# ))
+	then
+		#get data
+		mempool_raw="$( bwrapper getrawmempool true )" || return
+
+		#debug? print raw data
+		if (( DEBUGOPT ))
+		then echo "$mempool_raw" ;return 0
+		fi
+
+		#process only certain tx or print all of them
+		for tx in ${@:-empty}
+		do
+			jqselect="select(.wtxid==\"${tx}\")"
+			[[ "$tx" == empty ]] && jqselect='.'
+			
+			#process transaction data one by one
+			<<< "$mempool_raw" jq -er '.[] | '${jqselect}' |
+				"",
+				"--------",
+				"TxId+Wit: \(.wtxid)",
+				"DependOn: \(.depends[] // empty)",
+				"SpentBy_: \(.spentby[] // empty)",
+				"Time____: \(.time // empty)\t \((.time // empty)| '"$HH"' )",
+				"UnbroadC: \(if .unbroadcast == true then "unbroadcasted" else empty end)",
+				"BIP125Rp: \(.["bip125-replaceable"] | if . == true then "replaceable" else "not-replaceable" end)",
+				"Height__: \(.height)",
+				"Ance_Cnt: \(.ancestorcount) tx(s)",
+				"AnceSize: \(.ancestorsize) B",
+				"Desc_Cnt: \(.descendantcount) tx(s)",
+				"DescSize: \(.descendantsize) B",
+				( .fees |
+					"Fees",
+					"  Ancest: \(.ancestor) sat",
+					"  Descen: \(.descendant) sat",
+					"  Base__: \(.base) sat",
+					"  Modifd: \(if .modified == .base then empty else .modified end) sat"
+				),
+				"VirtSize: \(.vsize) vB",
+				"Weight__: \(.weight) WU"'
+			((ret+=$?))
+		done
+
+	#-mmm Print the number of transactions, their fees and some stats
+	else
+		#feedback?
+		(( OPTVERBOSE )) && printf '%s \r' "Fetching mempool transactions.." >&2
+		mempool_raw="$( bwrapper getrawmempool true | jq -r '[.[]|(.fee*100000000)/.vsize] | sort | .[]' )" || return
+
+		(( OPTVERBOSE )) && printf "${CLR}\r%s\n" "Processing mempool transactions.." >&2
+		wc=$(wc -l <<<"$mempool_raw")
+
+		#columns
+		width=${COLUMNS:-$(tput cols)}
+		cols=$((width/22))
+		((width>24)) || width=72 cols=1
+
+		#print mempool tx fees
+		#echo "Mempool Transaction Fees (sat/vB)"
+		#((OPTV)) && echo "(columns are printed across rather than down)"
+		#<<<"$mempool_raw" pr -aT$cols -w$width
+		#echo
+
+		#tx number by fee
+		echo "Fee and Transaction Number (transactions per sat/vB)"
+		maxfee=100
+		{
+		for i in $(seq 1 $maxfee)
+		do
+			c=$(grep -c "^$i\." <<<"$mempool_raw") tt="$((tt+c))"
+			printf "%+*d/vB: %5d\n" "$((${#maxfee}+1))" "$i" "$c"
+		done
+		printf ">%*d/vB: %5d\n" "${#maxfee}" "$maxfee" "$((wc-tt))"
+		} | pr -T$cols -w$width
+
+		<<<"$mempool_raw" jq -s -r '
+			"",
+			"Statistics (sat/vB)",
+			"Minimum: \(min)",
+			"Maximum: \(max)",
+			"Average: \(add/length)",
+			"Median_: \(sort|if length%2==1 then.[length/2|floor]else[.[length/2-1,length/2]]|add/2 end)",
+			"TxTotal: \(length)"'
+		#jq -s '{minimum:min,maximum:max,average:(add/length),median:(sort|if length%2==1 then.[length/2|floor]else[.[length/2-1,length/2]]|add/2 end)}'
+		#perl -M'List::Util qw(sum max min)' -MPOSIX -0777 -a -ne 'printf "%-7s : %.2f\n"x4, "Min", min(@F), "Max", max(@F), "Average", sum(@F)/@F,  "Median", sum( (sort {$a<=>$b} @F)[ int( $#F/2 ), ceil( $#F/2 ) ] )/2;'
+		#https://unix.stackexchange.com/questions/13731/is-there-a-way-to-get-the-min-max-median-and-average-of-a-list-of-numbers-in
+
+		#number of txs (lines)
+		#echo "Txs: $wc"
+	fi
+
+	#sum exit codes
+	return $ret
+}
+
+#-t generate timestamp list
+timestamplistf()
+{
+	local nn ret
+
+	#print in human-readable format?
+	(( OPTHUMAN )) || unset HH
+	
+	#print block hash, too?
+	(( OPTN )) && nn="${SEP}${BLK_HASH}"
+
+	jq -er "\"\( .${OPTMEDTIME}time | ${HH:-.})${nn}\"" <<<"$BLK"
+	((ret+=$?))
+	
+	#print simple feedback to stderr?
+	(( OPTVERBOSE )) &&
+		printf '>>>blk: %4d/%4d \r' "$N" "$TOTAL" >&2
+
+	#sum exit codes
+	return $ret
+}
+
+
+#start
+
+#parse script options
+while getopts .,bc:deghij:lMmntuvVxyY opt
+do
+	case $opt in
+		\.)
+			#print best block height
+			OPTDOT=1
+			;;
+		\,)
+			#print best block hash
+			OPTCOMMA=1
+			;;
+		b)
+			#blockchain information
+			#mining information
+			#mempool information
+			#network information
+			#rpc information
+			OPTCHAIN=1
+			;;
+		c)
+			#bitcoin.conf filepath
+			BITCOINCONF="$OPTARG"
+			;;
+		d)
+			#block height by date/time
+			((++OPTDATE))
+			;;
+		e)
+			#debug? print raw data
+			DEBUGOPT=1
+			;;
+		g)
+			#json of all all block transactions
+			OPTI=1000
+			;;
+		h)
+			#help page
+			echo "$HELP"
+			exit 0
+			;;
+		i)
+			#block information option
+			(( ++OPTI ))
+			;;
+		j)
+			#maximum number of jobs
+			if [[ "$OPTARG" = [Aa][Uu][Tt][Oo]* ]]
+			then JOBSMAX=$(nproc)
+			else JOBSMAX="$OPTARG"
+			fi
+			;;
+		l)
+			#local time for humans
+			unset TZ
+			;;
+		M)
+			#full information of mempool yxs
+			#same as -mm
+			OPTMEMPOOL=3
+			;;
+		m)
+			#mempool
+			(( ++OPTMEMPOOL ))
+			;;
+		n)
+			#print block height number, too
+			OPTN=1
+			;;
+		t)
+			#timestamp lists
+			((++OPTTIMESTAMP))
+			;;
+		u)
+			#human-readable time formats
+			((++OPTHUMAN))
+			;;
+		v)
+			#feedback
+			(( ++OPTVERBOSE ))
+			;;
+		V)
+			#print script version
+			while IFS=  read -r
+			do [[ "$REPLY" = \#\ v[0-9]* ]] && break
+			done < "$0"
+			echo "$REPLY"
+			exit 0
+			;;
+		x)
+			#use block mediantime instead of block time
+			#opts -dt
+			OPTMEDTIME=median
+			;;
+		Y)
+			#same as -yy, shortcut
+			#block information option
+			unset OPTI
+			OPTASCII=2
+			;;
+		y)
+			#block information option
+			unset OPTI
+			((++OPTASCII))
+			;;
+		\?)
+			#illegal option
+			exit 1
+			;;
+	esac
+done
+shift $(( OPTIND - 1 ))
+unset opt
+
+#typeset vars
+typeset -a RET
+
+#error signal temp file
+TMPERR="${TMPDIR:-/tmp}/$$.errsig.txt"
+
+#required packages
+if ! command -v bitcoin-cli jq &>/dev/null
+then echo "$SN: required packages -- bitcoin-cli and jq" >&2 ;exit 1
+fi
+
+#set alternative bitcoin.conf path?
+if [[ -e "$BITCOINCONF" ]]
+then
+	#warp bitcoin-cli
+	bwrapper() { bitcoin-cli -conf="$BITCOINCONF" "$@" ;}
+	((OPTVERBOSE>1)) && echo "$SN: -conf=\"${BITCOINCONF}\"" >&2
+else
+	#warp bitcoin-cli
+	bwrapper() { bitcoin-cli "$@" ;}
+fi
+
+#local time?
+#human-readable time formats
+#set jq arguments for time format printing
+if [[ "${TZ^^}" = +(UTC0|UTC-0|UTC|GMT) ]]
+then HH='strftime("%Y-%m-%dT%H:%M:%SZ")'       ;((OPTHUMAN>1)) && HH='strftime("%a, %d %b %Y %T +00")'
+else HH='strflocaltime("%Y-%m-%dT%H:%M:%S%Z")' ;((OPTHUMAN>1)) && HH='strflocaltime("%a, %d %b %Y %T %Z")'
+fi
+
+#consolidate $JOBSMAX
+JOBSMAX="${JOBSMAX:-$JOBSDEF}"
+#check minimum jobs
+if ((JOBSMAX < 1))
+then echo "$SN: err  -- at least one job required" >&2 ;exit 1
+else ((OPTVERBOSE>1)) && echo "$SN: jobs -- $JOBSMAX" >&2
+fi
+	
+#traps
+trap cleanf EXIT
+
+#call option func
+#-,. print block hash and height
+if ((OPTDOT+OPTCOMMA))
+then gethashheightf "$@"
+#-b blockchain and network information
+elif (( OPTCHAIN ))
+then blockchainf
+#-mm mempool
+elif (( OPTMEMPOOL ))
+then mempoolf "$@"
+#-d  block height by date string
+elif (( OPTDATE ))
+then heightatf "$@"
+#default function
+else mainf "$@"
+fi
+((RET+=$?))
+

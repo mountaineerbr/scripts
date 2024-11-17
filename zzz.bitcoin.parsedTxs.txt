@@ -1,0 +1,1269 @@
+
+============
+Block status
+Height__: 714176
+Avg_Fee_: 3741 sat/KB 	 3.741 sat/B
+Med_Fee_: 1562 sat/KB	 1.562 sat/B
+Min_Fee_: 330 sat/KB	 0.33 sat/B
+Max_Fee_: 544480 sat/KB	 544.48 sat/B
+--------
+Transaction Fee Rates
+AvgFeeRt: 12 sat/vB
+MinFeeRt: 2 sat/vB
+MaxFeeRt: 302 sat/vB
+FeeRtPct: [7,7,8,10,20] sat/vB
+--------
+Segwit transactions
+Segw_Txs: 3004
+SwTotWgt: 3529417 WU
+SwTotSiz: 1426687 B	 1426.687 KB
+--------
+Transaction status
+AvgTxSiz: 454 B	 0.454 KB
+MedTxSiz: 224 B	 0.224 KB
+MinTxSiz: 154 B	 0.154 KB
+MaxTxSiz: 102871 B	 102.871 KB
+--------
+Txs_In__: 6647
+Txs_Out_: 11596
+Utxo_Inc: 4949
+UtxoSizI: 366344
+--------
+TotalWgt: 3991677 WU
+TotalSiz: 1542252 B	 1542.252 KB
+TotalOut: 937527337835	 9375.27337835 BTC
+Subsidy_: 625000000	 6.25 BTC
+TotalFee: 12704690	 0.1270469 BTC
+--------
+Block information
+Hash____: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+MrklRoot: 2edbefb589929ff4810216e463f07ef31a642db0ac3c14a52d399e5a1297738f
+PrevBlkH: 000000000000000000085fdc889506f714f7b4cb931943b23bd100da8c7086bc
+NextBlkH: 00000000000000000002dafbcb2730ff9ed05b043df4ad739ccb4b414559d95b
+Chainwrk: 000000000000000000000000000000000000000025845cfd23a30115be15472b
+Difficul: 24195286980613.62
+Version_: 551550980
+Vers_Hex: 20e00004
+Bits____: 170ba21f
+Nonce___: 3326021014
+Txs_____: 3397
+Confirma: 97
+Size____: 1542631 B	 1542.631 KB
+Stripped: 816818 B	 816.818 KB
+Weight__: 3993085 WU	 998.27125 vKB
+Height__: 714176
+MedianTi: 1639517457	 2021-12-14T21:30:57Z
+Time____: 1639521895	 2021-12-14T22:44:55Z
+
+--------
+Input and output vectors
+Vins
+  Sequenc: 0
+    coinbase
+
+
+Vouts
+  Number_: 0	Value__: 6.3770469
+  Type___: pubkeyhash	AddrBal: 6.3770469
+    1CK6KHY6MHgYvmRQ4PAafKYDrg1ejbH1cE
+
+  Number_: 1	Value__: 0
+  Type___: nulldata
+    52534b424c4f434b3aedd14c23bc65af98c54aa07e911b998f822217f737f85dac13849335003be4a4
+
+  Number_: 2	Value__: 0
+  Type___: nulldata
+    aa21a9ed2e07bc38609b5131bc4dca5dcc94abdc2302e9664e2d27ed8f8422143bc39dfb
+
+
+Transaction information
+Tx_Id___: 1c91ba039260cfac0b527200fe0483b67ad07bd57bfccf8f938a026ce96802bf
+Hash____: 6747703356aa55e45cb785ac4d9adf83da9d67418bfe7f618d833c680898267e
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 0
+Version_: 1
+Confirma: 120
+Weight__: 1076 WU
+VirtSize: 269 vB
+Size____: 296 B
+Vout_Sum: 6.3770469
+Vin__Sum: coinbase
+Vout_Sum: +6.37704690
+Tx___Fee: +0.00000000
+FeeRates: 0 sat/B  0 sat/vB  0 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: 87d4d16e74d5b0005b0eb02209f8d5a15e32026bdae8cb2d918c5475ae015894
+  Sequenc: 4294967295	VoutNum: 1
+  Number_: 1	Value__: 0.01463064
+  Type___: scripthash
+    36diLGG8U2LqVUEakEi3KqqyozHChiKHfG
+
+
+Vouts
+  Number_: 0	Value__: 0.011523
+  Type___: scripthash
+    34WDgKW6GVpsiQH6BtfEjkoUKRno6CMi2T
+
+  Number_: 1	Value__: 0.00260764
+  Type___: scripthash
+    3J5ZgXpkCffMoDi1snLMw9bY5GCUxyN8nw
+
+
+Transaction information
+Tx_Id___: d26ba5bbf976008abc3de08b02f48f6584710f00826119c7972a06ebda49d54a
+Hash____: d6380a29ed53a9bdb26b43b0e49976ecb878494997f9a01e4f52ec1abe2f3cfd
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 0
+Version_: 2
+Confirma: 132
+Weight__: 662 WU
+VirtSize: 166 vB
+Size____: 248 B
+Vout_Sum: 0.01413064
+Vin__Sum: +0.01463064
+Vout_Sum: +0.01413064
+Tx___Fee: +0.00050000
+FeeRates: 201.6 sat/B  301.2 sat/vB  75.52 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: a38bb7cf4e3452b892584e7e5d5adce49cd426c4c74f5e2a185610866008f141
+  Sequenc: 4294967294	VoutNum: 1
+  Number_: 1	Value__: 0.22806728
+  Type___: witness_v0_keyhash
+    bc1qnz4lmemek5cm64ndzmyy5y2wlxec6j3n8z0peg
+
+
+Vouts
+  Number_: 0	Value__: 0.01116073
+  Type___: scripthash	AddrBal: 0.01116073
+    3E7LjmDiriey1b2K8azLy2Lx8LW8puGuZk
+
+  Number_: 1	Value__: 0.21648055
+  Type___: witness_v0_keyhash
+    bc1qqyez9jetn3tuyrh4skad5jy9e0j3nsh0j5huch
+
+
+Transaction information
+Tx_Id___: 6b9a164a15eae477be8837de6fb24d9ecc9d03e2a8e6cf5cf7cc15e942bd1505
+Hash____: 289c90991f0c94b867c77cc8f28de3d5648db4b4ee05e958df1bf6a829898152
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 714175
+Version_: 2
+Confirma: 132
+Weight__: 565 WU
+VirtSize: 142 vB
+Size____: 223 B
+Vout_Sum: 0.22764128
+Vin__Sum: +0.22806728
+Vout_Sum: +0.22764128
+Tx___Fee: +0.00042600
+FeeRates: 191.0 sat/B  300 sat/vB  75.39 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: 7ec189e87cb8663f9d218f12b03848c50cfbf033df700fafa0d63413af243323
+  Sequenc: 4294967295	VoutNum: 2
+  Number_: 2	Value__: 0.34814316
+  Type___: witness_v0_scripthash
+    bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej
+
+
+Vouts
+  Number_: 0	Value__: 0.03715098
+  Type___: pubkeyhash
+    1J4vhMf2fvr2AVTdrTVz7P7WbpDDNaBfo6
+
+  Number_: 1	Value__: 0.31059218
+  Type___: witness_v0_scripthash
+    bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej
+
+
+Transaction information
+Tx_Id___: dfec2abcd99c8061bf8a7608b2ee6c948488b967a8468e9d00fa6d01bdb69327
+Hash____: b0b387f31c0683af4e7ce979f11614cd13766c03c5cd9c89d920eadfa9c65b35
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 0
+Version_: 1
+Confirma: 132
+Weight__: 766 WU
+VirtSize: 192 vB
+Size____: 382 B
+Vout_Sum: 0.34774316
+Vin__Sum: +0.34814316
+Vout_Sum: +0.34774316
+Tx___Fee: +0.00040000
+FeeRates: 104.7 sat/B  208.3 sat/vB  52.21 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: 5c463fe9bc17bc77b60428fff2d67fb433cd919d2582d7f15155c6c0cd003074
+  Sequenc: 4294967295	VoutNum: 23
+  Number_: 23	Value__: 2.5471051
+  Type___: pubkeyhash
+    19chMzYUW3rPPcTMARHdQgXsV8z3AhxKZj
+
+
+Vouts
+  Number_: 0	Value__: 0.2
+  Type___: pubkeyhash
+    12H9M5NXzkvi74TdhfBrSxKexhvVRUAQha
+
+  Number_: 1	Value__: 2.22766115
+  Type___: pubkeyhash	AddrBal: 2.22766115
+    1HDTdAbQk7sRcMfFwdvjsKhKqBSgH8tuji
+
+  Number_: 2	Value__: 0.0145889
+  Type___: scripthash
+    3LwdqzJDybJsd8U8yChzpSrNkztP2qAdgp
+
+  Number_: 3	Value__: 0.10425505
+  Type___: witness_v0_keyhash	AddrBal: 0.10425505
+    bc1qq2x0vx5dhm48gyyrym9z2f9qqz0fwpt56637la
+
+
+Transaction information
+Tx_Id___: 3d183ecdadc6b173040b2affd0ca2470394560779dbe0985faac6367f9793f98
+Hash____: 3d183ecdadc6b173040b2affd0ca2470394560779dbe0985faac6367f9793f98
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 0
+Version_: 1
+Confirma: 132
+Weight__: 1152 WU
+VirtSize: 288 vB
+Size____: 288 B
+Vout_Sum: 2.5465051
+Vin__Sum: +2.54710510
+Vout_Sum: +2.54650510
+Tx___Fee: +0.00060000
+FeeRates: 208.3 sat/B  208.3 sat/vB  52.08 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: 9d67c21becc7968182bbc0508a028391b9178a0773df3e0a582896e6aefc6045
+  Sequenc: 4294967294	VoutNum: 15
+  Number_: 15	Value__: 0.00120916
+  Type___: pubkeyhash
+    1BxvjgUGTBBMEmvCBpmAqRB5FnBWAs3Pdw
+
+  TxIndex: 73f2a969c786260d704bd700c9028ea5de41be47bbf293690cf2b4eae5443caa
+  Sequenc: 4294967294	VoutNum: 28
+  Number_: 28	Value__: 0.00054497
+  Type___: pubkeyhash
+    179spjRnmpXAQXuQqnTcJDaA1FBYxTDtAQ
+
+
+Vouts
+  Number_: 0	Value__: 0.001074
+  Type___: witness_v0_keyhash	AddrBal: 0.001074
+    bc1q39czqqjg0yns4p4y8kh7h9n8gg5dst69smg98y
+
+
+Transaction information
+Tx_Id___: e1d7d4c60e8d762c0a2498cdec6e8317553d0945b54455d63cb4e285aac78eee
+Hash____: e1d7d4c60e8d762c0a2498cdec6e8317553d0945b54455d63cb4e285aac78eee
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 714175
+Version_: 2
+Confirma: 145
+Weight__: 1340 WU
+VirtSize: 335 vB
+Size____: 335 B
+Vout_Sum: 0.001074
+Vin__Sum: +0.00175413
+Vout_Sum: +0.00107400
+Tx___Fee: +0.00068013
+FeeRates: 203.0 sat/B  203.0 sat/vB  50.75 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: 8fdbb5ec64fc50714000b81a223ee98e3e13d7a279b2d829a650c0bd081632ca
+  Sequenc: 4294967295	VoutNum: 3
+  Number_: 3	Value__: 0.10203757
+  Type___: witness_v0_scripthash
+    bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej
+
+
+Vouts
+  Number_: 0	Value__: 0.001
+  Type___: pubkeyhash	AddrBal: 0.001
+    12HmsX9kjg4UzVfo5JRg45z8T2WfKp5Gx2
+
+  Number_: 1	Value__: 0.0179
+  Type___: pubkeyhash	AddrBal: 0.0179
+    19N1CuzmVDYceBDyVXDehFSa44m5ZvkJ6L
+
+  Number_: 2	Value__: 0.08273757
+  Type___: witness_v0_scripthash
+    bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej
+
+
+Transaction information
+Tx_Id___: aae4d8ea2c726bcce733bef51392178a099404f811e7eb8f93ca46920065be94
+Hash____: 5919539ecc7e6799094c3c24cb9a262c298bdcf75408c759536ddb308b594da3
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 0
+Version_: 1
+Confirma: 148
+Weight__: 902 WU
+VirtSize: 226 vB
+Size____: 416 B
+Vout_Sum: 0.10163757
+Vin__Sum: +0.10203757
+Vout_Sum: +0.10163757
+Tx___Fee: +0.00040000
+FeeRates: 96.15 sat/B  176.9 sat/vB  44.34 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: 6f8d6101f702a88bf924cf33dbac4d0bb5fddc9f3318c7f92133a4fe20a2394e
+  Sequenc: 4294967295	VoutNum: 1
+  Number_: 1	Value__: 0.00017743
+  Type___: scripthash	AddrBal: 0.00156495
+    3K2nEJaP5W1zn8uwALpQpAN4hTixN5kjXR
+
+  TxIndex: 9420002c3c86e732b0a67cfff82b548e6a1d1d9e3c6b4bd54b66c408e4c68536
+  Sequenc: 4294967295	VoutNum: 0
+  Number_: 0	Value__: 0.00731428
+  Type___: scripthash	AddrBal: 0.00548
+    33faUBCaBaB7qQppYwcvr1AYspQ8ZTRund
+
+
+Vouts
+  Number_: 0	Value__: 0.00548
+  Type___: pubkeyhash	AddrBal: 0.00548
+    13fVooA5wUsmDCXjvZ6AEr1fsyKgAEM8ou
+
+  Number_: 1	Value__: 0.00156495
+  Type___: scripthash	AddrBal: 0.00156495
+    3NCCHZKLWxNLCjrBcdioVuiTJJyy84ohKV
+
+
+Transaction information
+Tx_Id___: b068b3b028a693f28b9719a921e4aa57352e5681cd1aa6c416ea00071cc5db04
+Hash____: 91d729ce80e46838a5dd6402de706d8f330e4d9917857fff8392d6e3f3f69ef7
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 0
+Version_: 1
+Confirma: 148
+Weight__: 1033 WU
+VirtSize: 259 vB
+Size____: 421 B
+Vout_Sum: 0.0070449499999999995
+Vin__Sum: +0.00749171
+Vout_Sum: +0.00704495
+Tx___Fee: +0.00044676
+FeeRates: 106.1 sat/B  172.4 sat/vB  43.24 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: 87603aaf1ac1e828154df7196a3f8cc9432791d28f6ee6d5691e63245a1d858d
+  Sequenc: 4294967293	VoutNum: 5
+  Number_: 5	Value__: 10.07712162
+  Type___: witness_v0_keyhash
+    bc1q7cyrfmck2ffu2ud3rn5l5a8yv6f0chkp0zpemf
+
+
+Vouts
+  Number_: 0	Value__: 0.003716
+  Type___: scripthash
+    3AeZKbGVY6tWnnFWdCJCwNYq4wCqqsup6k
+
+  Number_: 1	Value__: 0.04451197
+  Type___: scripthash
+    38Dsw2qcPLU3fHeZZFa7HUooyt1ihQLY9m
+
+  Number_: 2	Value__: 10.02862284
+  Type___: witness_v0_keyhash
+    bc1q7cyrfmck2ffu2ud3rn5l5a8yv6f0chkp0zpemf
+
+
+Transaction information
+Tx_Id___: 79bf87aabbfc4f11e02675e94dc74c66066a5f6ea80105153bce5b5e32d66c1a
+Hash____: 9d1f45de59cfd929bee895702ce5f39bb0f02db02d051e9527364bf71c106368
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 0
+Version_: 2
+Confirma: 148
+Weight__: 694 WU
+VirtSize: 174 vB
+Size____: 256 B
+Vout_Sum: 10.07685081
+Vin__Sum: +10.07712162
+Vout_Sum: +10.07685081
+Tx___Fee: +0.00027081
+FeeRates: 105.7 sat/B  155.6 sat/vB  39.02 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: 6dc614ffb8a0102848d3cad9f9f8dd8ca9a52db0853235070e12554d83c7458f
+  Sequenc: 4294967293	VoutNum: 6
+  Number_: 6	Value__: 14.93353026
+  Type___: witness_v0_keyhash
+    bc1q7cyrfmck2ffu2ud3rn5l5a8yv6f0chkp0zpemf
+
+
+Vouts
+  Number_: 0	Value__: 0.0070502
+  Type___: pubkeyhash
+    17y9nua2GqaATC7zc3wZRQbZqppQD4XEjE
+
+  Number_: 1	Value__: 0.0032084
+  Type___: scripthash
+    3AFoZiG3WUt8MTrh6JUqnrES2KENagYEML
+
+  Number_: 2	Value__: 14.92299779
+  Type___: witness_v0_keyhash
+    bc1q7cyrfmck2ffu2ud3rn5l5a8yv6f0chkp0zpemf
+
+
+Transaction information
+Tx_Id___: a1c103d3d52d81e1d97bfc1f6c015212a4997a55cd673791fba0b7a7d86fb0a9
+Hash____: 957ac5eef0585783f451bb2345ea3e9c246aada8f99bb235eae9e3fa9892c864
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 0
+Version_: 2
+Confirma: 148
+Weight__: 702 WU
+VirtSize: 176 vB
+Size____: 258 B
+Vout_Sum: 14.93325639
+Vin__Sum: +14.93353026
+Vout_Sum: +14.93325639
+Tx___Fee: +0.00027387
+FeeRates: 106.1 sat/B  155.6 sat/vB  39.01 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: e8f6088edf229e4666007f8189cfaf90c6e70a487dfdca31d3e3777d5b61795e
+  Sequenc: 4294967295	VoutNum: 1
+  Number_: 1	Value__: 0.01789489
+  Type___: pubkeyhash
+    1534VFVmqVnjXdr2YtPGTzRKr85HzVvMmY
+
+
+Vouts
+  Number_: 0	Value__: 0.01037881
+  Type___: pubkeyhash	AddrBal: 0.01037881
+    1667riktoWiyQaSsHvqHXZEV6Guu4snb8W
+
+  Number_: 1	Value__: 0.0075
+  Type___: scripthash
+    3FtcN5yrARoswgbaRtaeZB69aRHgfrPaq3
+
+
+Transaction information
+Tx_Id___: eb6fca7205a259624247bf885d9a1042ab9d7f1f396f0170cf0ff2788af8aff1
+Hash____: eb6fca7205a259624247bf885d9a1042ab9d7f1f396f0170cf0ff2788af8aff1
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 0
+Version_: 1
+Confirma: 156
+Weight__: 896 WU
+VirtSize: 224 vB
+Size____: 224 B
+Vout_Sum: 0.017878810000000002
+Vin__Sum: +0.01789489
+Vout_Sum: +0.01787881
+Tx___Fee: +0.00001608
+FeeRates: 7.178 sat/B  7.178 sat/vB  1.794 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: 761690b22cf9747d6ece69a82bec2caf1983a0b62006b4e1ba99d5db280a5463
+  Sequenc: 4294967295	VoutNum: 4
+  Number_: 4	Value__: 5.4181573
+  Type___: witness_v0_keyhash
+    bc1qn0jhxe3k2dr596pvay3k9t0zg8yc0em06v6duq
+
+
+Vouts
+  Number_: 0	Value__: 0.04138338
+  Type___: witness_v0_keyhash	AddrBal: 0.04138338
+    bc1qqd2xhha2hx3secmeuup8t5h27uwfgs8tfxw5qk
+
+  Number_: 1	Value__: 0.00197457
+  Type___: scripthash
+    35U1322jm5YqFtD8hSe2qUj4XGHvqmKmsd
+
+  Number_: 2	Value__: 0.0003785
+  Type___: scripthash
+    3BVHcdcGkYCu4ZMBbJBzbb29cFJooNRY84
+
+  Number_: 3	Value__: 0.00019908
+  Type___: witness_v0_keyhash
+    bc1qrkh9glchhqqpsfe2n4fzk4333z4thxahp8hq2q
+
+  Number_: 4	Value__: 0.00988723
+  Type___: pubkeyhash
+    19xMRYJUpjc79Echs16aJuuHEdnUwMJQ1J
+
+  Number_: 5	Value__: 0.06198211
+  Type___: scripthash
+    3LJAPLr8fCd47ymDBorEDgAW7kLUEncjk9
+
+  Number_: 6	Value__: 0.00436149
+  Type___: witness_v0_keyhash
+    bc1qrm2kfsyzny5zhntcw7erep0yf9tnw7rfsxjuah
+
+  Number_: 7	Value__: 0.01438874
+  Type___: scripthash
+    3DYKKfHLwsNWq6gZrJ9CUCZmzHB1Cw5XAG
+
+  Number_: 8	Value__: 0.00285545
+  Type___: scripthash
+    3EHTJLMjLsGMhpiTW28WS2LkkiNcgUFgyF
+
+  Number_: 9	Value__: 0.00207459
+  Type___: pubkeyhash
+    13Nsf28avdvp6mPo8wYzLr1Qx6KXepY9U4
+
+  Number_: 10	Value__: 0.0004553
+  Type___: witness_v0_keyhash
+    bc1qkurm0k8srmfnwp6f32p5mclc482xrudgnpm4xh
+
+  Number_: 11	Value__: 0.00114339
+  Type___: witness_v0_keyhash	AddrBal: 0.00114339
+    bc1qpvgt6ym4p6zy9fdylpewqqzj3zydyap6c7wlh7
+
+  Number_: 12	Value__: 0.01693979
+  Type___: witness_v0_keyhash	AddrBal: 0.01693979
+    bc1q5ur3luk59dtwv7f9wjfturvwvvagh0r5wv22ah
+
+  Number_: 13	Value__: 0.0014792
+  Type___: scripthash
+    3H7gGegsaGz2qQvvc8WqfsuC3nNu8iauQ9
+
+  Number_: 14	Value__: 0.00127473
+  Type___: pubkeyhash	AddrBal: 0.00127473
+    12hUfGuSkokmZ5bD2s7au2TYsvkVc8ixZB
+
+  Number_: 15	Value__: 0.01045866
+  Type___: pubkeyhash	AddrBal: 0.01045866
+    1GCoGKbdigjARfCNQUpga2deXqZ9hwB9vh
+
+  Number_: 16	Value__: 0.02066614
+  Type___: scripthash
+    332LnPKjVUsAE7Szfz8UEG392uz6izmdyE
+
+  Number_: 17	Value__: 0.00207467
+  Type___: scripthash
+    32jHbZgECS7ZZFvJr2CyDnmU3AGToFQtFp
+
+  Number_: 18	Value__: 3.96439748
+  Type___: witness_v0_keyhash
+    bc1ql7ythlnlncnnrdahfjc5evlhst0lcywp5rmfkz
+
+  Number_: 19	Value__: 0.00018377
+  Type___: scripthash
+    3KZejuRqUT81wr1D7PYLtJi12ueH2wWkCz
+
+  Number_: 20	Value__: 0.02261967
+  Type___: scripthash	AddrBal: 0.02261967
+    3NaZiHhYYbpoQz4w9mRjmgnoa1h9dbqfSi
+
+  Number_: 21	Value__: 0.0009873
+  Type___: scripthash
+    3EtNMdkosXStHdz2sgxCKXL3pUHstMvE13
+
+  Number_: 22	Value__: 0.0001177
+  Type___: scripthash
+    3L2SFaVFatKJSmMyAnY6DKtRma33m2rDK6
+
+  Number_: 23	Value__: 0.02075
+  Type___: pubkeyhash	AddrBal: 0.02075
+    1M6HhzBHA9y11CrbuL8q9g1CiiibVJyQcc
+
+  Number_: 24	Value__: 0.0309569
+  Type___: scripthash
+    38bSrM4Ew5zXqXapSdjxVz5GKo8kYjffxc
+
+  Number_: 25	Value__: 0.00133767
+  Type___: scripthash	AddrBal: 0.00133767
+    3PPCvrERbTpePX5yR9FmqVPdNQFohJUvEF
+
+  Number_: 26	Value__: 0.0099
+  Type___: scripthash	AddrBal: 0.0099
+    3G2DonbVNetf2EQVRwWkfw3U2ZmeqYuyPg
+
+  Number_: 27	Value__: 0.00043122
+  Type___: scripthash	AddrBal: 0.00043122
+    3LoEyb7zcTeA38PNHeLpDNGAwxVaDPdFfm
+
+  Number_: 28	Value__: 0.00027526
+  Type___: scripthash	AddrBal: 0.00027526
+    34UaiqNSHCdY7BgebAPegQaPgPFTxvhdu9
+
+  Number_: 29	Value__: 0.00056925
+  Type___: scripthash
+    3E1da5tT5K6NX8ZExuhSZyFjHKbXNHuzKm
+
+  Number_: 30	Value__: 0.001175
+  Type___: scripthash
+    35k9uJ3MjKnZTiP3bVkddvcYqDtBGp86u8
+
+  Number_: 31	Value__: 0.00020695
+  Type___: scripthash
+    3P61G6BdaAgFf69prbJsmb4TMMyV14C7jJ
+
+  Number_: 32	Value__: 0.00619995
+  Type___: scripthash
+    3GGYHb63zWoWhL42DNy3wP1VoiiYSRgXFs
+
+  Number_: 33	Value__: 0.00246327
+  Type___: witness_v0_keyhash	AddrBal: 0.00246327
+    bc1q09qezc6lvnrggxc72rrzp9jccftv5a9gupgsgg
+
+  Number_: 34	Value__: 0.02457636
+  Type___: witness_v0_keyhash
+    bc1qxutx3zqyfnv0ckrctn0d8x2u4utzdl3a0pw9g0
+
+  Number_: 35	Value__: 0.00062083
+  Type___: scripthash
+    3NAYSjaVrysUk6meXUBuGc9VwoejqhyUzc
+
+  Number_: 36	Value__: 0.00939758
+  Type___: scripthash	AddrBal: 0.00939758
+    3KHakvnRP4rfcTGQas26rutKfEtD88ZriB
+
+  Number_: 37	Value__: 0.06199878
+  Type___: scripthash
+    3EtRW9A5fzDFd7BbSfEYNSwrC5gSp47vmQ
+
+  Number_: 38	Value__: 0.00052767
+  Type___: scripthash	AddrBal: 0.00052767
+    39YcaaEZJDGNGRmQBBP1xAmdUtYtnDKF6s
+
+  Number_: 39	Value__: 0.00113043
+  Type___: scripthash
+    36GxRwPp8hC22WerpHvLHp42ffe4adKgb9
+
+  Number_: 40	Value__: 0.0030216
+  Type___: scripthash
+    3JepWYFdXjHoxDhMrum3dgLbfbDgo1HT89
+
+  Number_: 41	Value__: 0.02066119
+  Type___: scripthash
+    37tAFVv3P73bqygCYiveHjiib2wNS6KfTa
+
+  Number_: 42	Value__: 0.00020673
+  Type___: witness_v0_keyhash	AddrBal: 0.00020673
+    bc1qhmmkravveshwqc4u5kulw3drmrjgkfzvj8307g
+
+  Number_: 43	Value__: 0.00071567
+  Type___: scripthash	AddrBal: 0.00071567
+    3F6ijX1FGPS13LbWmKRCgwSxqgQeNHVT19
+
+  Number_: 44	Value__: 0.00090367
+  Type___: scripthash	AddrBal: 0.00090367
+    354KnojtFmZhayfq6qeRcmrpqhg7EUzXAw
+
+  Number_: 45	Value__: 0.000112
+  Type___: scripthash	AddrBal: 0.000112
+    35za2unQeVnYYN9NrbeHhcKiKSA3jVhgwc
+
+  Number_: 46	Value__: 0.00013183
+  Type___: witness_v0_keyhash
+    bc1q3fxp66readatnw8sc65v0754axw0gw4yulvn4t
+
+  Number_: 47	Value__: 0.00051662
+  Type___: scripthash
+    3FjCiCXPqNdUMmApJUm1AwnGg55UF27Fs6
+
+  Number_: 48	Value__: 0.002913
+  Type___: scripthash	AddrBal: 0.002913
+    31n3GKJ7ybFPbKwANzcUKRcJi8mWf4ZbQc
+
+  Number_: 49	Value__: 0.5
+  Type___: scripthash
+    39RaKcAUCWnwWcu96EER22eMXv8pYW6ARz
+
+  Number_: 50	Value__: 0.01758042
+  Type___: scripthash
+    3PWkw2dyqDUiBkQUByFMUfF89PLLDC4eTE
+
+  Number_: 51	Value__: 0.00203767
+  Type___: scripthash
+    3ADRhoGHxanr8EZcBQ1ctGAf5KEwL8RCgY
+
+  Number_: 52	Value__: 0.00232766
+  Type___: pubkeyhash	AddrBal: 0.00232766
+    1KnEDLptJ62PByNu3PUu8hudyPU1yu4gQY
+
+  Number_: 53	Value__: 0.07853167
+  Type___: scripthash	AddrBal: 0.07853167
+    3C6HNTTVpBQJ2aFmCPj141J41dinzE4cKy
+
+  Number_: 54	Value__: 0.00959986
+  Type___: scripthash	AddrBal: 0.00959986
+    35JouXTngTj2Yg8vzdCWBkRNMTiCU574Lo
+
+  Number_: 55	Value__: 0.00054242
+  Type___: scripthash	AddrBal: 0.00054242
+    3GGkovjtWGE9zqzArSK77UEfznEobr4jug
+
+  Number_: 56	Value__: 0.00217399
+  Type___: scripthash
+    3P21n7JK2o1BLhsMnAw4eLaY8GeMKfmuEp
+
+  Number_: 57	Value__: 0.00568778
+  Type___: scripthash
+    39uYKwXHYo56uFCe9QKuQ7gCTYa5RV3UQN
+
+  Number_: 58	Value__: 0.0010468
+  Type___: scripthash	AddrBal: 0.0010468
+    39g5hoiNd2YEMA16MkMquPGv52qFVWvCFa
+
+  Number_: 59	Value__: 0.10343677
+  Type___: pubkeyhash
+    12UfEmNXuXstg3SrnAH7mrr8jKskg3Tw93
+
+  Number_: 60	Value__: 0.0041335
+  Type___: witness_v0_keyhash
+    bc1qalgl7uygl5m07v437u4cn2r380gqpl5a6rg68y
+
+  Number_: 61	Value__: 0.00207728
+  Type___: scripthash	AddrBal: 0.00207728
+    34tEDaeS7T7UPSrjR4YjP92hLZ87oxUVef
+
+  Number_: 62	Value__: 0.00506067
+  Type___: pubkeyhash	AddrBal: 0.00506067
+    1FyiCJNnmyiH1z1V3eh2KhfrDpPFVBqcke
+
+  Number_: 63	Value__: 0.00062099
+  Type___: scripthash
+    34bpwu4ipio433ZmR68htnC4tLBTd1YuKh
+
+  Number_: 64	Value__: 0.06499767
+  Type___: pubkeyhash	AddrBal: 0.06499767
+    1PF9M4VoyDomKXT2tKSr8ELD1uungaPFRp
+
+  Number_: 65	Value__: 0.00048083
+  Type___: scripthash	AddrBal: 0.00048083
+    35DSGo9GEE8y5EG2ej2T7cPnCqHAxx3o1r
+
+  Number_: 66	Value__: 0.00237855
+  Type___: scripthash
+    3MMizp6Aa22QxLrbdbPBpigfVKJUPRTBuy
+
+  Number_: 67	Value__: 0.00620836
+  Type___: witness_v0_keyhash
+    bc1q0zp3qcllcy85axs7fy02xmn6z64cefkjfhjppp
+
+  Number_: 68	Value__: 0.0008167
+  Type___: witness_v0_keyhash	AddrBal: 0.0008167
+    bc1qyf7nmc0c7dz59uk4sha2wywaujahxk08lg0z2v
+
+  Number_: 69	Value__: 0.00310461
+  Type___: pubkeyhash
+    1FEU1Hzaszqx3irK1yfn2qbVV2XhBH3cyu
+
+  Number_: 70	Value__: 0.125
+  Type___: scripthash
+    32v3DyM7wnT4MXiYcdaRYeN7ZiwviXD3sP
+
+  Number_: 71	Value__: 0.01035177
+  Type___: scripthash
+    35kDD5pdYjQHfbuFjNydFPAkXFTtXZSy4Z
+
+  Number_: 72	Value__: 0.00045499
+  Type___: scripthash
+    33xBSUwioxgE2J79S9v64VxYAREURwFrvL
+
+  Number_: 73	Value__: 0.00043466
+  Type___: scripthash
+    3F6tjEbXPzhMsooJpZCQVgrUX1SPSjBiee
+
+  Number_: 74	Value__: 0.0206784
+  Type___: scripthash
+    3Q3yj33UqiKrQHos71bJR3XXKhmvVz6xE6
+
+  Number_: 75	Value__: 0.01879768
+  Type___: scripthash
+    3MAznXwqdJjR4Vo8CdBSkHgUyfXeTntGcj
+
+  Number_: 76	Value__: 0.00237776
+  Type___: pubkeyhash
+    13MUUreu9zDAjFKniqbZwhmMNNBpoo7SaZ
+
+  Number_: 77	Value__: 0.00106767
+  Type___: scripthash	AddrBal: 0.00106767
+    3NyHMSDUcQmmLhWW8GyFZoF5MUGN9MRYQv
+
+  Number_: 78	Value__: 0.00062077
+  Type___: witness_v0_keyhash	AddrBal: 0.00062077
+    bc1qmtqjys9x9jefq0evdsl3tm72ndcnjtk7fm676r
+
+  Number_: 79	Value__: 0.00225723
+  Type___: pubkeyhash	AddrBal: 0.00225723
+    12h7iRY8z1hsbxtXmUbixHwa25QMMJAAPU
+
+  Number_: 80	Value__: 0.02875166
+  Type___: witness_v0_keyhash
+    bc1qrx58tt7d58mp2g0lexgqmvasudsqquwj8lnypm
+
+  Number_: 81	Value__: 0.004134
+  Type___: scripthash
+    3EaTRNBNcWfdC7SBUgtfkZs1nqHUjrwFSw
+
+  Number_: 82	Value__: 0.00620731
+  Type___: witness_v0_keyhash	AddrBal: 0.00620731
+    bc1qdznva46tp5qt20y5a7q3rpmjln6p45zd8qzrzt
+
+
+Transaction information
+Tx_Id___: 605b2ee3f8136d1f5d0a117fd2be640efdc48b5004f16029fd1eccbf04550d16
+Hash____: 5730d5274b248b792112ecf44bed4bb8f15d82eed22d4d3a5ec1b11939db382d
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 0
+Version_: 1
+Confirma: 165
+Weight__: 10966 WU
+VirtSize: 2742 vB
+Size____: 2824 B
+Vout_Sum: 5.417960469999998
+Vin__Sum: +5.41815730
+Vout_Sum: +5.41796047
+Tx___Fee: +0.00019683
+FeeRates: 6.969 sat/B  7.178 sat/vB  1.794 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: 05bbc5627cb581c7c56c386ea1309e63a6e7535ea01e27948d1f1081484c0cdf
+  Sequenc: 4294967295	VoutNum: 41
+  Number_: 41	Value__: 7.08086898
+  Type___: witness_v0_keyhash
+    bc1qpy5g4rutcxjmhpa2vvcryj8lfzf0n2qcg35as6
+
+
+Vouts
+  Number_: 0	Value__: 0.00062316
+  Type___: scripthash	AddrBal: 0.00062316
+    3BRmoD2MWdMRpbBmsarB3u5LEGeZQZB8Sa
+
+  Number_: 1	Value__: 0.00053185
+  Type___: witness_v0_keyhash
+    bc1qjn6rq9vy584wgyth7kps5wfgjqlzd9gexvpcpe
+
+  Number_: 2	Value__: 0.00022068
+  Type___: scripthash
+    3MumDwsbRpcSVS3hbMYkDjFoDuMhX5De2w
+
+  Number_: 3	Value__: 0.00168589
+  Type___: scripthash
+    35QEbRXkW4o1d2bSbDjJNiwRButV5u2THF
+
+  Number_: 4	Value__: 0.000656
+  Type___: scripthash
+    3QDyucHAXQjyPtR2rU1yv9w3gFcSzyNvEv
+
+  Number_: 5	Value__: 0.00011268
+  Type___: witness_v0_keyhash	AddrBal: 0.00011268
+    bc1qlke4l3t4p24fjlzwxvvf8245agwntwf0yazzfu
+
+  Number_: 6	Value__: 5.4523902
+  Type___: witness_v0_keyhash
+    bc1q5yy5lrxnh3dj7sj9ky695lp9zcpz0h0ee8hqcf
+
+  Number_: 7	Value__: 0.00062305
+  Type___: witness_v0_keyhash
+    bc1qhjse0ggrqkdfx8wkd7ht7ykzqnyx9gn58fyr8z
+
+  Number_: 8	Value__: 0.00046634
+  Type___: witness_v0_scripthash
+    bc1qalkz7gg55mycklyjacdwsyhy3j5el9t56mlwjyud3rjhdvz7w2dqdxmmg4
+
+  Number_: 9	Value__: 0.02069239
+  Type___: scripthash
+    3L9xa1iyUR6ZiYYT7s34b3VfJafp3af1fc
+
+  Number_: 10	Value__: 0.00042599
+  Type___: witness_v0_keyhash	AddrBal: 0.00042599
+    bc1q949vzay7zkr8h2t7f8vzhrrh4nkl80nw5yff04
+
+  Number_: 11	Value__: 0.00021168
+  Type___: witness_v0_keyhash	AddrBal: 0.00021168
+    bc1qgxux0kqf89vf6l2ufjg4g489qsgj6ysxkfwzdp
+
+  Number_: 12	Value__: 0.00714447
+  Type___: scripthash	AddrBal: 0.00714447
+    3EyZNNoPvLyZdjryZvnh25GHrf4zjTA3HN
+
+  Number_: 13	Value__: 0.00353935
+  Type___: scripthash	AddrBal: 0.00353935
+    36RVcA2qKHMgpAr4fgQRrXBujazmzWxQLJ
+
+  Number_: 14	Value__: 0.00024923
+  Type___: scripthash
+    3BYPvFxAdTJ5NoTW82Sid2MChzWnYF8CFB
+
+  Number_: 15	Value__: 0.00054971
+  Type___: witness_v0_keyhash
+    bc1qxypg43sluz2nll6r09utdwwh7kyllz54qs5ggv
+
+  Number_: 16	Value__: 0.04078885
+  Type___: scripthash
+    3MbNDjVvPqA2Ksas3ZEU2vqx5zXtCBL56F
+
+  Number_: 17	Value__: 0.14681656
+  Type___: witness_v0_keyhash
+    bc1qptdjtjwqgg3j78nptu3gml29ctcqc9h2etfc6l
+
+  Number_: 18	Value__: 0.00021627
+  Type___: scripthash
+    3AHhZH11s5S7U5zHUPv59njznvQvtqpK3c
+
+  Number_: 19	Value__: 0.02075106
+  Type___: scripthash
+    39pMBMAA1HD7ucQUFB1GVQZDMMGude2kuX
+
+  Number_: 20	Value__: 0.00311536
+  Type___: scripthash	AddrBal: 0.00311536
+    3MEVj1uN7EMPP6897b5DTAgzTyUkC65dgF
+
+  Number_: 21	Value__: 0.00037974
+  Type___: pubkeyhash	AddrBal: 0.00037974
+    13JrgxKDuqwDMMAFh4hwsBaibvrWNZHSwW
+
+  Number_: 22	Value__: 0.03943021
+  Type___: pubkeyhash	AddrBal: 0.03943021
+    17gnrkH5GEjRtUCcWEN4pbiDYMjbSYBnv1
+
+  Number_: 23	Value__: 0.0083234
+  Type___: pubkeyhash	AddrBal: 0.0083234
+    14RPDCEtu3vnzbEChBUgXqDxu7k1vwBDqC
+
+  Number_: 24	Value__: 0.00190049
+  Type___: scripthash	AddrBal: 0.00190049
+    3FW7LgZBG1gXgAJw76mnuHmuj6xUr1ubs6
+
+  Number_: 25	Value__: 0.00202387
+  Type___: scripthash	AddrBal: 0.00202387
+    33k3687cqpvehCNk7VGVGd37cpDXxDJJYv
+
+  Number_: 26	Value__: 0.00039275
+  Type___: pubkeyhash
+    1H4KWL3D4sZYYQvGk4GxHzPiW6Ex2PBJ7k
+
+  Number_: 27	Value__: 0.00057068
+  Type___: scripthash
+    3BdQJbVzVm4oxrmVWChqC4bdpJwv5dUdi6
+
+  Number_: 28	Value__: 0.00103797
+  Type___: scripthash
+    3HECufyRaByG5StYfV5bY1aS57uNBT9KTG
+
+  Number_: 29	Value__: 0.00690097
+  Type___: scripthash	AddrBal: 0.00690097
+    3NJFCfhhA2VZ2sZUSSXgh5vVtGd9qy5Wa8
+
+  Number_: 30	Value__: 0.00037988
+  Type___: scripthash	AddrBal: 0.00037988
+    3JNvfpsg6N4mjL3NqqirQLgWKZh4CfLmmX
+
+  Number_: 31	Value__: 0.00035817
+  Type___: scripthash
+    39GiEooaLbs4PsY8BYe4sGerFidrqHabXr
+
+  Number_: 32	Value__: 0.00591539
+  Type___: witness_v0_scripthash	AddrBal: 0.00591539
+    bc1qll82knkma8a9n6mm86fyjanyqwxylz35ss4lkkmhxpc6tthyeevq357y0k
+
+  Number_: 33	Value__: 0.00207711
+  Type___: witness_v0_scripthash
+    bc1ql3w0cgqknjleh2jr9jvgdz23sl3awzduzx0vr76ep2appx0rw7dsqxaxdl
+
+  Number_: 34	Value__: 0.0018296
+  Type___: witness_v0_keyhash	AddrBal: 0.0018296
+    bc1qdasynezckvz4n7jv4gfr4rzvnxe3l6q7yym4l2
+
+  Number_: 35	Value__: 0.00103849
+  Type___: pubkeyhash	AddrBal: 0.00103849
+    1MP1V1ucZy6pwZToSEpKfHCqyUApMGgyEx
+
+  Number_: 36	Value__: 0.00070595
+  Type___: scripthash	AddrBal: 0.00070595
+    32QDFrR5654GWAdtz7J57UKYAkyhGeLNaD
+
+  Number_: 37	Value__: 0.00179926
+  Type___: scripthash	AddrBal: 0.00179926
+    3JevwL9P5EuKno5hXHL9L7Wu8v2KzUR3kS
+
+  Number_: 38	Value__: 0.00078268
+  Type___: scripthash
+    34TZFT4V9qViNZaykWSbK9vYZoK9ui98QM
+
+  Number_: 39	Value__: 0.00010937
+  Type___: scripthash
+    36tJoHZAX499ont8d1mt9YVAcXB9qFZhsg
+
+  Number_: 40	Value__: 0.00220931
+  Type___: scripthash	AddrBal: 0.00220931
+    3KqJFsvtgs4aVhY5bU9M4hnM7VrjukAaM3
+
+  Number_: 41	Value__: 0.01092168
+  Type___: scripthash
+    3NFeNEbtFEmN4obSVJjVV7FZM9piGeYvp6
+
+  Number_: 42	Value__: 0.10423495
+  Type___: witness_v0_keyhash
+    bc1q9w6g9f3hdghf0xlsl9fpj3ppg7smhkex7h42x8
+
+  Number_: 43	Value__: 0.01672194
+  Type___: pubkeyhash	AddrBal: 0.01672194
+    1KQakMTJzLraC6bgBrLqYoFztxx3MDUNbz
+
+  Number_: 44	Value__: 0.01015192
+  Type___: pubkeyhash
+    12ai4LsaM6GANnJAVciPZn4d5193rcqTpE
+
+  Number_: 45	Value__: 0.00065592
+  Type___: scripthash
+    39ZskURqZnxX9bWW6ScsMmpq7BRpqFAMMf
+
+  Number_: 46	Value__: 0.00103875
+  Type___: scripthash
+    36pigNiMJkDUysr6UVmbRF2DV7YjGJCS1t
+
+  Number_: 47	Value__: 0.00059539
+  Type___: scripthash
+    3Ea4TFrzB4YJmA6Nu4cVrhi17qCEJwnwiw
+
+  Number_: 48	Value__: 0.00093556
+  Type___: scripthash
+    3F77VonaWp3jEyYoY2e6wmvM2ENnC1TSME
+
+  Number_: 49	Value__: 0.0005608
+  Type___: witness_v0_keyhash	AddrBal: 0.0005608
+    bc1q8mm456gmjdtv8yee9h0xhkm69qj9wrz88lezd2
+
+  Number_: 50	Value__: 0.00017707
+  Type___: scripthash	AddrBal: 0.00017707
+    3Nd16sbxTtNSXK4H2rvaby3hhNizsFqdY8
+
+  Number_: 51	Value__: 0.00037077
+  Type___: witness_v0_keyhash	AddrBal: 0.00037077
+    bc1q93mrauxhyflx0fjle64cz4qdlxpdscha67ped5
+
+  Number_: 52	Value__: 0.00843344
+  Type___: scripthash
+    3Aj8mdxKfLbghTJQwJqWUmL42zf1g2G41y
+
+  Number_: 53	Value__: 0.00053934
+  Type___: witness_v0_keyhash
+    bc1q9ewf5mjhk4e7aktr5vvgf56un358wsz7pldwm7
+
+  Number_: 54	Value__: 1.00267036
+  Type___: scripthash
+    31ng2E8LhwSAyFkLiWnZ4jaFZzd3LVGxC1
+
+  Number_: 55	Value__: 0.000403
+  Type___: scripthash	AddrBal: 0.000403
+    3JsAPxeEAEsAdBevXkfmNMTi14xKza9AWs
+
+  Number_: 56	Value__: 0.001036
+  Type___: scripthash	AddrBal: 0.001036
+    3QBFnQUVKyaXjjQMi7rR5TmyPuNJM8MPBx
+
+  Number_: 57	Value__: 0.00543668
+  Type___: witness_v0_keyhash	AddrBal: 0.00543668
+    bc1qxalx23svk2qtx37um8ac8gawm0cvnpkncs7u33
+
+  Number_: 58	Value__: 0.02282416
+  Type___: pubkeyhash	AddrBal: 0.02282416
+    1FYw2Vf8HJAG973qwVmcebopG6ucyCqZ3P
+
+  Number_: 59	Value__: 0.00198465
+  Type___: scripthash	AddrBal: 0.00198465
+    348gGcCD3fJ8qXTZe1gxYVW6XwakjhEmsS
+
+  Number_: 60	Value__: 0.00043621
+  Type___: scripthash	AddrBal: 0.00043621
+    3E8J5PKAjETQvTMKbp7EwMcPRisfVtLmgx
+
+  Number_: 61	Value__: 0.00839408
+  Type___: witness_v0_keyhash
+    bc1qj2gvqcqpd7rejtkf0gnt2e3flfr3rj6hmrepjx
+
+  Number_: 62	Value__: 0.00465499
+  Type___: scripthash
+    373H6b9DPkt7tVqAYiqg2Dm5ZSgtPkrvTW
+
+  Number_: 63	Value__: 0.00041489
+  Type___: witness_v0_keyhash	AddrBal: 0.00041489
+    bc1qkfpdyn2w9rfsy65mhu4s6ztafu925fz09rlzz3
+
+  Number_: 64	Value__: 0.00784687
+  Type___: scripthash	AddrBal: 0.00784687
+    38gcjHQ3hnhE1BGQNMhjMGjpjepbusEYUY
+
+  Number_: 65	Value__: 0.0011142
+  Type___: scripthash
+    3JSZCBjEyCxXY33qXoJQ15KXkBrYkdvhCi
+
+  Number_: 66	Value__: 0.01276291
+  Type___: witness_v0_keyhash	AddrBal: 0.01276291
+    bc1qan78k27rlfhm8mrwul7kk5808dnlr67078kj9r
+
+  Number_: 67	Value__: 0.00037374
+  Type___: pubkeyhash	AddrBal: 0.00037374
+    164toaH55gM1a3kp2VjZoHATz4o8Gy5hLb
+
+  Number_: 68	Value__: 0.00069632
+  Type___: scripthash	AddrBal: 0.00069632
+    3QynAofLW2iqmB4aq4V4q1PsuNxz5w4n5U
+
+  Number_: 69	Value__: 0.01038616
+  Type___: scripthash	AddrBal: 0.01038616
+    3LAWhNSr2ZvzFpMqUUXEr7HfeQunybum6G
+
+  Number_: 70	Value__: 0.00093417
+  Type___: witness_v0_keyhash
+    bc1q0fqgzzgrle9ksr3w07jr4jvzytcxqw9v0erafy
+
+  Number_: 71	Value__: 0.02071822
+  Type___: scripthash
+    3936E8bnYfpgQJTCp58f2xcCfCh5vjMn8M
+
+  Number_: 72	Value__: 0.00992947
+  Type___: witness_v0_keyhash	AddrBal: 0.00992947
+    bc1q85uhwlgqe4cf2t63u0wtvnk5nv74zavkpasrus
+
+  Number_: 73	Value__: 0.00088268
+  Type___: scripthash	AddrBal: 0.00088268
+    3Q2MKc75YztrMPnQCqYzyeExa6bWipmM53
+
+  Number_: 74	Value__: 0.00151434
+  Type___: scripthash	AddrBal: 0.00151434
+    3Nbk96YGbBdUcq8N6z2ghLxsrBxP5dpM8P
+
+  Number_: 75	Value__: 0.0011689
+  Type___: witness_v0_keyhash
+    bc1qyldgmg5pe7dgfns60v6pz0v236sunlk4gytn3v
+
+  Number_: 76	Value__: 0.00997187
+  Type___: pubkeyhash
+    1Q5pMg8HxJc9XBBnJATWXtvQwsuSKNuioo
+
+  Number_: 77	Value__: 0.00401668
+  Type___: witness_v0_keyhash	AddrBal: 0.00401668
+    bc1qc2405t2mukahldg4hkps0e37x3n7hm92mwqlpg
+
+  Number_: 78	Value__: 0.00436476
+  Type___: pubkeyhash	AddrBal: 0.00436476
+    18xwJbpZkLwSuAAtCkGXWqLGKiRBjGzqZk
+
+  Number_: 79	Value__: 0.00385327
+  Type___: scripthash	AddrBal: 0.00385327
+    34k4zSUFHAXweV9aULmnF2pBaSu5PH3s6v
+
+  Number_: 80	Value__: 0.00036768
+  Type___: witness_v0_keyhash
+    bc1qg87ggqxpvyydg6y22k6krcfl07vjcm9d7k98p8
+
+  Number_: 81	Value__: 0.00103816
+  Type___: scripthash	AddrBal: 0.00103816
+    3ML53jMTQeXqvRy6WqafoNQ5ixdXJwUvGY
+
+  Number_: 82	Value__: 0.00383996
+  Type___: scripthash	AddrBal: 0.00383996
+    3HWpzatrkuneVLAwQNcUwx5JYYR9oB1xq3
+
+  Number_: 83	Value__: 0.00131902
+  Type___: scripthash
+    3EzA1RShuT4JFcNHVjgRSmzfSjqfv1uFUk
+
+
+Transaction information
+Tx_Id___: 0853aecdda61f39dbf2a723aa478aa50a8d75c69a0f0a1b9b207a4a0e98fc42c
+Hash____: defd166b5ae4262685febe414b51018c5d10bb0e235d3a17c7ff8da279f9381e
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 0
+Version_: 1
+Confirma: 165
+Weight__: 11197 WU
+VirtSize: 2800 vB
+Size____: 2881 B
+Vout_Sum: 7.08066799
+Vin__Sum: +7.08086898
+Vout_Sum: +7.08066799
+Tx___Fee: +0.00020099
+FeeRates: 6.976 sat/B  7.178 sat/vB  1.795 sat/WU
+
+--------
+Input and output vectors
+Vins
+  TxIndex: b33933c10829cc7ac12973b07eceb4dff016c66788b1e032b8bbc92f1e8d765d
+  Sequenc: 4294967294	VoutNum: 0
+  Number_: 0	Value__: 0.02777528
+  Type___: witness_v0_keyhash
+    bc1qtxj0aq8j93he8dywhr0y7y4038m7f6tuwmcalw
+
+
+Vouts
+  Number_: 0	Value__: 0.015
+  Type___: witness_v0_keyhash
+    bc1qr793u23dpwx94xc9e735pjvwwga3hxs03frk72
+
+  Number_: 1	Value__: 0.01276516
+  Type___: witness_v0_keyhash
+    bc1qnltt37kwcse7hhgel7ke9rmqemfy7gtr8vtrhp
+
+
+Transaction information
+Tx_Id___: 7ba989c93eb18f83a39bc620e9b7d1261a68c7ec6d8f306a5fd9fd226f8b0a06
+Hash____: 89d5adda2f9a330307d93fe2d32564ad528f85b45d0f1f61d24b08f3abddcd89
+Blk_Hash: 00000000000000000007dcf0c0fd8dfe65e42e29559e9f4ea736fd11fc009437
+Time____: 1639521895	 2021-12-14T22:44:55Z
+Blk_Time: 1639521895	 2021-12-14T22:44:55Z
+LockTime: 714174
+Version_: 2
+Confirma: 165
+Weight__: 561 WU
+VirtSize: 141 vB
+Size____: 222 B
+Vout_Sum: 0.027765159999999997
+Vin__Sum: +0.02777528
+Vout_Sum: +0.02776516
+Tx___Fee: +0.00001012
+FeeRates: 4.558 sat/B  7.177 sat/vB  1.803 sat/WU
