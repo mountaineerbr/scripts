@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# v0.4.1  nov/2024  by mountaineerbr  GPLv3+
+# v0.5  nov/2024  by mountaineerbr  GPLv3+
 # Convert geocoordinates to various formats
 
 SCALE=${SCALE:-6}
@@ -105,19 +105,27 @@ ddm_degf()
 
 geoconvf()
 {
-	local arg sign Ah Ahh Ax Ay Az Bh Bhh Bx By Bz dd ddm ddfmt ddmfmt
+	local arg sign Ah Ahh Ax Ay Az Bh Bhh Bx By Bz dd ddm ddfmt ddmfmt loop
 
 	set -- ${@//[!0-9a-zA-Z.+-]/ }
 	for arg
-	do 	unset sign  #coordenate sign eater
+	do 	((++loop))
+		unset sign  #coordenate sign eater
 		case "$arg" in
+			+|[Nn]|[Nn]orth|[EeLl]|[Ee]ast|[NnEeLl+][0-9.]*|*[0-9.][NnEeLl])
+				sign=+;;
 			-|[Ss]|[Ss]outh|[WwOo]|[Ww]est|[SsWwOo-][0-9.]*|*[0-9.][SsWwOo])
 				sign=-;;
-			+|[Nn]|[Nn]orth|[EeLl]|[Ee]ast|[NnEeLl+][0-9.]*|*[0-9.][NnEeLl]|?*)
-				sign=+;;
 		esac
 		if [[ -n $sign ]]
-		then 	if [[ -z $Ah$Bx ]]
+		then 	if [[ -z $Ah$Bx ]] &&
+				#the missing sign problem
+				if [[ $arg = *[A-Za-z]* ]]
+				then 	:
+				elif ((loop==1))
+				then 	:
+				else 	false
+				fi
 			then 	Ah=$sign
 			elif [[ -z $Bh ]]
 			then 	Bh=$sign
