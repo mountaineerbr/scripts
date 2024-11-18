@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# v0.4  nov/2024  by mountaineerbr  GPLv3+
+# v0.4.1  nov/2024  by mountaineerbr  GPLv3+
 # Convert geocoordinates to various formats
 
 SCALE=${SCALE:-6}
@@ -113,7 +113,7 @@ geoconvf()
 		case "$arg" in
 			-|[Ss]|[Ss]outh|[WwOo]|[Ww]est|[SsWwOo-][0-9.]*|*[0-9.][SsWwOo])
 				sign=-;;
-			+|[Nn]|[Nn]orth|[EeLl]|[Ee]ast|[NnEeLl+][0-9.]*|*[0-9.][NnEeLl]|*)
+			+|[Nn]|[Nn]orth|[EeLl]|[Ee]ast|[NnEeLl+][0-9.]*|*[0-9.][NnEeLl]|?*)
 				sign=+;;
 		esac
 		if [[ -n $sign ]]
