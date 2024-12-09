@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # wf.sh  --  weather forecast from the norway meteorological institute
-# v0.5.3  jan/2024  by mountaineerbr
+# v0.5.4  dec/2024  by mountaineerbr
 #               __  ___                  
 # _______ ____ / /_/ _ |_    _____ ___ __
 #/ __/ _ `(_-</ __/ __ | |/|/ / _ `/ // /
@@ -306,9 +306,9 @@ gpshelperf()
 			printf "%s\t%s${HGT:+\t%s}\t%s\n" Latitude Longitude ${HGT:+Altitude} Name "$LAT" "$LNG" $HGT "$FORMATTED"
 		else  #single result
 			if [[ -n $OPENCAGEKEY ]]
-			then 	read -r LAT LNG < <(jq -r '.results[0].geometry|(.lat|tostring)+"\t"+(.lng|tostring)' <<<"$data")
+			then 	read -r LAT LNG x < <(jq -r '.results[0].geometry|(.lat|tostring)+"\t"+(.lng|tostring)' <<<"$data")
 				FORMATTED=$(jq -r '.results[0].formatted //empty' <<<"$data")
-			else 	read -r LAT LNG < <(jq -r '.[0]|(.lat|tostring)+"\t"+(.lon|tostring)+"\t"+.display_name' <<<"$data")
+			else 	read -r LAT LNG x < <(jq -r '.[0]|(.lat|tostring)+"\t"+(.lon|tostring)+"\t"+.display_name' <<<"$data")
 				FORMATTED=$(jq -r '.[0].display_name //empty' <<<"$data")
 			fi
 			printf "%s\t%s${HGT:+\t%s}\t%s\n" Latitude Longitude ${HGT:+Altitude} Name "$LAT" "$LNG" $HGT "$FORMATTED"
