@@ -1,6 +1,6 @@
-#!/usr/bin/env ksh
+#!/usr/bin/env bash
 # datediff.sh - Calculate time ranges between dates
-# v0.25  nov/2024  mountaineerbr  GPLv3+
+# v0.25.1  dec/2024  mountaineerbr  GPLv3+
 [[ -n $BASH_VERSION ]] && shopt -s extglob  #bash2.05b+/ksh93u+/zsh5+
 [[ -n $ZSH_VERSION  ]] && setopt NO_SH_GLOB KSH_GLOB KSH_ARRAYS SH_WORD_SPLIT GLOB_SUBST
 
@@ -1129,7 +1129,7 @@ function mainf
 	fi
 
 	#single unit time durations (when `bc' is available)
-	if ((OPTT || OPTVERBOSE<3))
+	if ((OPTT || OPTVERBOSE<2))
 	then 	if bc=( $(bc <<<" /* round argument 'x' to 'd' digits */
 			define r(x, d) {
 				auto r, s
@@ -1226,10 +1226,10 @@ function mainf
 			"${date2_iso8601_pr:-${date2_iso8601:-$inputB}}" ''${unix2:+$'\t'} "$unix2"  \
 			"${BOLD}RANGES${NC}"
 	fi
-	((OPTVERBOSE<2 || OPTVERBOSE>2)) && { 	((OPTVERBOSE>3)) && v= || v=' '  #AST `date -E' style
+	((OPTVERBOSE<1 || OPTVERBOSE>1)) && { 	((OPTVERBOSE>2)) && v= || v=' '  #AST `date -E' style
 		printf "%dY${v}%02dM${v}%02dW${v}%02dD${v}${v}%02dh${v}%02dm${v}%02ds\n" "${sh[@]}"
 	}
-	((OPTVERBOSE<3)) && printf '%s\n' "${range_pr:-$range secs}"
+	((OPTVERBOSE<2)) && printf '%s\n' "${range_pr:-$range secs}"
 
 	return ${ret:-0}
 }
@@ -1331,7 +1331,7 @@ fi
 #set single time unit
 opt="${opt:-${@: -1}}" opt="${opt//[$IFS]}"
 if [[ $opt$OPTFF = $GLOBOPT ]]
-then 	OPTT=1 OPTVERBOSE=2 OPTLAYOUT=
+then 	OPTT=1 OPTVERBOSE=1 OPTLAYOUT=
 	case $opt in
 		[yY]) 	OPTTy=1;;
 		[mM][oO]) 	OPTTmo=1;;
