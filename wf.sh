@@ -1,15 +1,6 @@
 #!/usr/bin/env bash
 # wf.sh  --  weather forecast from the norway meteorological institute
-# v0.5.4  dec/2024  by mountaineerbr
-#               __  ___                  
-# _______ ____ / /_/ _ |_    _____ ___ __
-#/ __/ _ `(_-</ __/ __ | |/|/ / _ `/ // /
-#\__/\_,_/___/\__/_/ |_|__,__/\_,_/\_, / 
-#                                 /___/  
-#                        __       _                  ___     
-#  __ _  ___  __ _____  / /____ _(_)__  ___ ___ ____/ _ )____
-# /  ' \/ _ \/ // / _ \/ __/ _ `/ / _ \/ -_) -_) __/ _  / __/
-#/_/_/_/\___/\_,_/_//_/\__/\_,_/_/_//_/\__/\__/_/ /____/_/   
+# v0.6  dec/2024  by mountaineerbr
 
 # Favourite Locations (globs)
 # name:latitude:longitude:altitude;
@@ -76,7 +67,8 @@ DESCRIPTION
 
 	Altitude must be provided with option -m, or set as last positional
 	parameter in meters such as 500m (main function only), otherwise
-	the script prompts for user input when necessary.
+	the script tries a request to Open-Elevation public API or prompts
+	the elevation to user interactively.
 
 	Set -g to generate X11 or terminal graphs (GNUPlot viewer). Set
 	option -gg to force print to dumb terminal.
@@ -212,13 +204,36 @@ statusf()
 	curl -\#fL -H "$UAG" 'https://api.met.no/weatherapi/locationforecast/2.0/status' | jq -e
 }
 
-#ask for location altitude / height
+#get for location altitude / height
+#usage: prompt_altitudef LAT LNG
 prompt_altitudef()
 {
+	if [[ -z $HGT && -n $1 && -n $2 ]]
+	then 	printf '%s\n' 'Open-Elevation' >&2;
+		HGT=$(
+		  curl -\# -fL -X POST https://api.open-elevation.com/api/v1/lookup \
+		    -H 'Accept: application/json' \
+		    -H 'Content-Type: application/json' \
+		    -d "{ \"locations\":
+		  [ { 	\"latitude\": ${1}, \"longitude\": ${2}
+		    } ] }" | jq -r '.results[0].elevation'
+		)
+	fi  #https://open-elevation.com/
+
+	if [[ -z $HGT && -n $1 && -n $2 ]]
+	then 	printf '%s\n' 'Open-Meteo' >&2;
+		HGT=$(
+		  curl -\# -fL "https://api.open-meteo.com/v1/elevation?latitude=${1}&longitude=${2}" | jq -r '.elevation[]'
+		)
+	fi  #https://open-meteo.com/
+	
 	if [[ -z $HGT ]]
 	then 	echo -n "Altitude (meters above sea level): "
 		read -r -e HGT
-	fi; HGT=${HGT%%[Mm]} HGT=${HGT:-0}
+	fi;
+
+	HGT=${HGT%%[Mm,.]*};
+	[[ -n $HGT ]] && printf 'Altitude: %d meters\n' "$HGT" >&2;
 }
 
 #remove accentuation
@@ -306,10 +321,9 @@ gpshelperf()
 			printf "%s\t%s${HGT:+\t%s}\t%s\n" Latitude Longitude ${HGT:+Altitude} Name "$LAT" "$LNG" $HGT "$FORMATTED"
 		else  #single result
 			if [[ -n $OPENCAGEKEY ]]
-			then 	read -r LAT LNG x < <(jq -r '.results[0].geometry|(.lat|tostring)+"\t"+(.lng|tostring)' <<<"$data")
+			then 	read -r LAT LNG FORMATTED < <(jq -r '.results[0].geometry|(.lat|tostring)+"\t"+(.lng|tostring)' <<<"$data")
 				FORMATTED=$(jq -r '.results[0].formatted //empty' <<<"$data")
-			else 	read -r LAT LNG x < <(jq -r '.[0]|(.lat|tostring)+"\t"+(.lon|tostring)+"\t"+.display_name' <<<"$data")
-				FORMATTED=$(jq -r '.[0].display_name //empty' <<<"$data")
+			else 	read -r LAT LNG FORMATTED < <(jq -r '.[0]|(.lat|tostring)+"\t"+(.lon|tostring)+"\t"+.display_name' <<<"$data")
 			fi
 			printf "%s\t%s${HGT:+\t%s}\t%s\n" Latitude Longitude ${HGT:+Altitude} Name "$LAT" "$LNG" $HGT "$FORMATTED"
 		fi
@@ -324,23 +338,24 @@ gpshelperf()
 mainf()
 {
 	local data altitude query jqout header
-	if [[ ${@:$#} = +([0-9.])[Mm] ]]
-	then 	HGT=${HGT:-${@:$#}} HGT=${HGT%%[Mm]}
+	if [[ ${@:$#} = +([0-9.,])[Mm] ]]
+	then 	HGT=${HGT:-${@:$#}} HGT=${HGT%%[Mm,.]*}
 		set -- "${@:1:$#-1}"
-		#printf '%s: %s\n' Altitude "$HGT" >&2
 	fi
 	query="$*"
 	[[ $query = *[[:alnum:]]* ]] || query='São Paulo'
-	[[ -n $HGT ]] && altitude="&altitude=$HGT"
 	[[ -n $OPTL ]] && local="|strptime(\"%Y-%m-%dT%H:%M:%SZ\")|mktime|strflocaltime(\"%Y-%m-%dT%H:%M:%S%Z\")"
 
 	if ! gpshelperf "$query"
 	then 	echo "$0: err: cannot get geo coordinates -- $query" >&2
 		return 1
 	fi
-	prompt_altitudef
+
+	prompt_altitudef "$LAT" "$LNG"
+	[[ -z $HGT ]] || altitude="&altitude=$HGT"
 
 	#get data
+	printf '%s\n' 'Meteorologisk Institutt Norway' >&2
 	data=$(curl -\# -fL --compressed -X GET -H "$UAG" -H 'Accept: application/json' "https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=${LAT}&lon=${LNG}${altitude}")
 	if ((OPTE))
 	then 	printf '%s\n' "$data"
@@ -382,7 +397,7 @@ mainf()
 	then 	column -et -N"$header" <<<"$jqout" | less -S
 	else 	printf '%s\n' "$header" "$jqout"
 	fi
-	echo "Lat: $LAT  Lng: $LNG  ${HGT:+Meters: $HGT  }${FORMATTED:-$query}" >&2
+	echo "Lat: $LAT  Lng: $LNG  ${HGT:+Alt: $HGT  }${FORMATTED:-$query}" >&2
 
 	#print gfx?
 	if ((OPTG))
@@ -463,7 +478,7 @@ do case $c in
 	h) echo "$HELP"; exit 0 ;;
 	k) OPTK=1 ;;  #forecast api status
 	l) OPTL=1 ;;  #local time
-	m) HGT=${OPTARG%%[Mm]};;  #altitude
+	m) HGT=${OPTARG%%[Mm,.]*};;  #altitude
 	s) ((++OPTS)) ;;  #sunrise, moon rise
 	v) grep -m1 '^# v[0-9]' "$0" ;exit ;;
 	[0-9.]) ((--OPTIN)) ;break;;
@@ -495,4 +510,14 @@ then 	gpshelperf "$@"
 #main, weather fun
 else 	mainf "$@"
 fi
+
+#               __  ___                  
+# _______ ____ / /_/ _ |_    _____ ___ __
+#/ __/ _ `(_-</ __/ __ | |/|/ / _ `/ // /
+#\__/\_,_/___/\__/_/ |_|__,__/\_,_/\_, / 
+#                                 /___/  
+#                        __       _                  ___     
+#  __ _  ___  __ _____  / /____ _(_)__  ___ ___ ____/ _ )____
+# /  ' \/ _ \/ // / _ \/ __/ _ `/ / _ \/ -_) -_) __/ _  / __/
+#/_/_/_/\___/\_,_/_//_/\__/\_,_/_/_//_/\__/\__/_/ /____/_/   
 
