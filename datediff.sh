@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/usr/bin/env ksh
 # datediff.sh - Calculate time ranges between dates
-# v0.25.1  dec/2024  mountaineerbr  GPLv3+
+# v0.25.3  dec/2024  mountaineerbr  GPLv3+
 [[ -n $BASH_VERSION ]] && shopt -s extglob  #bash2.05b+/ksh93u+/zsh5+
 [[ -n $ZSH_VERSION  ]] && setopt NO_SH_GLOB KSH_GLOB KSH_ARRAYS SH_WORD_SPLIT GLOB_SUBST
 
@@ -242,7 +242,7 @@ OPTIONS
 	-f FMT 	Input time format string (only with BSD \`date').
 	-R 	Print human time in RFC-5322 format (verbose).
 	-r, -@ 	Input DATES are UNIX times.
-	-tt 	Table layout display of single unit intervals.
+	-tt 	Table display of single unit intervals.
 	-u 	Set or print UTC time instead of local time.
 	-vvv 	Verbose level, change print layout of functions."
 
@@ -1342,6 +1342,7 @@ then 	OPTT=1 OPTVERBOSE=1 OPTLAYOUT=
 		[sS]) 	OPTTs=1;;
 	esac ;set -- "${@:1:$# -1}"  #zsh cannot take $#-1 with no space
 else 	OPTTy=1 OPTTmo=1 OPTTw=1 OPTTd=1 OPTTh=1 OPTTm=1 OPTTs=1
+	((OPTLAYOUT)) && OPTVERBOSE=1  #-t table view of single-unit results
 fi ;unset opt
 #caveat: `gnu date' understands `-d[a-z]', do `-d[a-z]0' to pass.
 
