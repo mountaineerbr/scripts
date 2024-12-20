@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # wf.sh  --  weather forecast from the norway meteorological institute
-# v0.6  dec/2024  by mountaineerbr
+# v0.7  dec/2024  by mountaineerbr
 
 # Favourite Locations (globs)
 # name:latitude:longitude:altitude;
@@ -32,10 +32,8 @@ tok[iy]o:35.6812665:139.757653:40"
 
 #script name
 SN="${0##*/}"
-
 #geocoordinate regex
 GEOREGEX='(-?[0-9]+([.][0-9]+)?)'
-
 #user agent (chrome win10)
 UAG='user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36'
 
@@ -45,15 +43,18 @@ HELP="NAME
 
 
 SYNOPSIS
-	$SN [-le] [-gg|-d DIR] [-m ALT] -- [\"LOC\"|[LAT] [LON]] [ALT[m]]
-	$SN -s [-m ALT] -- [\"LOC\"|[LAT] [LON]] [DATE] [DAYS] [OFFSET]
-	$SN -ce [CITY NAME]
+	$SN [-eu] [-gg|-d \"DIR\"] [-m ALT] -- [\"LOC\"|[LAT] [LON]] [ALTm] [DATE]
+	$SN -s [-m ALT] [\"LOC\"|[LAT] [LON]] [DATE] [DAYS] [OFFSET]
+	$SN -ce [LOCATION]
 	$SN [-khv]
 
-	Get weather and sunrise data from Meteorologisk Institutt Norway.
+	Get weather, sun and moon rise data from the Meteorologisk
+	Institutt of Norway.
 
-	ALT = Altitude, DIR = Directory,
-	LAT = Latitude, LON = Longitude, LOC = Location.
+
+	ALT = Altitude (meters), DATE = YYYY-MM-DD, DIR = Directory,
+	LOC = Location Name, LAT = Latitude, LON = Longitude,
+	OFFSET = [+-]HH:MM.
 
 
 DESCRIPTION
@@ -62,50 +63,60 @@ DESCRIPTION
 
 
 	Weather Forecast
+
 	Defaults function is to retrieve weather forecast information
 	and table output.
 
-	Altitude must be provided with option -m, or set as last positional
-	parameter in meters such as 500m (main function only), otherwise
-	the script tries a request to Open-Elevation public API or prompts
-	the elevation to user interactively.
+	Altitude must be provided with option -m, or set as positional
+	argument after the geo corrdinates or location name. If set as
+	positional parameter, it must follow the format \"500m\".
 
-	Set -g to generate X11 or terminal graphs (GNUPlot viewer). Set
-	option -gg to force print to dumb terminal.
+	If no altitude is provided, the script tries making a request to
+	Open-Elevation or Open-Meteo public APIs, or it prompts the elevation
+	to the user interactively.
 
-	Alternatively, set option -d\"DIRECTORY\" to save graph files
-	to a directory instead.
+	Set option -g to generate X11 or terminal graphs with GNUPlot.
+	Set options -gg to force print to dumb terminal.
 
-	Option -c queries and prints GPS coordinate information from
-	OpenStreetMap and OpenCageData APIs.
+	Alternatively, set option -d\"DIRECTORY\" to save graph image
+	files to a directory instead.
+
+	Option -u prints time in UTC instead of local time.
 
 	Option -k checks main weather API status.
 
+
+	Geo Coordinate APIs
+
+	This script queries OpenStreetMap (free) or OpenCageData for geo
+	coordinates, and Open-Elevation or Open-Meteo for altitude info.
 	
+	Option -c queries and prints GPS coordinate information only.
+
+
 	Sunrise and Moon Rise Times
-	Option -s retrieves information about sunrise and related times,
-	while option -ss retrieves information for the moon.
+
+	Option -s retrieves information about sunrise and moonrise
+	related times.
 	
 	Note that \"CITY NAME\" must be set as the first positional
 	argument, or set latitude and longitude as first and second
 	positional arguments.
 	
 	Further positional arguments are the date, and the time offset.
-
-	Set to empty \"\" if needed. This is a rough implementation!
+	Set to positional parameters to empty \"\" if needed.
 
 
 ENVIRONMENT
 	OPENCAGEKEY
 		API key from Open Cage (free).
 
-	WFAV
-		Favourite locations.
+	WFAV 	Favourite locations.
 
 		Each entry must have four fields separated by colons.
 		The first field is the location name (glob), the second
 		one is latitude, the third one is longitude and the
-		fourth is altitude (meters).
+		fourth is altitude (meters above sea level).
 
 		One entry per line, or multiple entries separated with
 		semicolon. Ex:
@@ -114,18 +125,18 @@ ENVIRONMENT
 
 
 SEE ALSO
-	<https://api.met.no/>
 	<https://api.met.no/weatherapi/documentation>
+	<https://www.openstreetmap.org>
 	<https://opencagedata.com/api>
+	<https://open-elevation.com>
+	<https://open-meteo.com>
 
 
 WARRANTY
 	Licensed under the GNU Public License v3 or better and is distrib-
 	uted without support or bug corrections.
    	
-	This script requires curl, jq and gnuplot to work properly.
-
-	If you found this useful, please consider sending feedback!  =)
+	This script requires cURL, JQ and GNUPlot to work properly.
 
 
 BUGS
@@ -143,19 +154,18 @@ OPTIONS
 	-e 	Print raw JSON.
 	-g 	Generate graphs, and open in X11 or print to terminal.
 	-gg 	Same as -g, but force printing to dumb terminal.
+	-h 	Print this help page.
 	-k 	Check weather forecast API status.
-	-l 	Print local time.
 	-m METRES
 		Set altitude, height (integer, metres).
-	-s [\"CITY NAME\"|[LAT] [LON]] [DATE] [OFFSET]
-		Sunrise and related status.
-	-ss 	Same as -s, but get status for moon rise.
-	-h 	Help page.
+	-s [\"LOCATION\"|[LAT] [LON]] [DATE] [OFFSET]
+		Sunrise and moonrise statuses.
+	-u 	Print UTC time.
 	-v 	Script version."
 
 
 #plot fun
-#-gg plot to dumb term
+#plot to dumb term
 #usage: plotf [TITLE] [XLABEL] [YLABEL]
 plotf()
 {
@@ -169,7 +179,7 @@ plotf()
 }
 _plotf() { 	[[ -n $DISPLAY ]] && plotx11f "$@" || plotf "$@" ;}
 
-#-g plot in X11 (gnuplot viewer)
+#plot in X11 (gnuplot viewer)
 plotx11f()
 {
 	gnuplot -p \
@@ -267,7 +277,7 @@ gpshelperf()
 		done <<<"${WFAV//;/$'\n'}"; ((x))
 	then 	printf '%s\n' 'Favourites' >&2
 		IFS=: read -r FORMATTED LAT LNG HGT x <<<"$REPLY"
-		FORMATTED="${FORMATTED//[[:punct:]]}"
+		FORMATTED=${FORMATTED//?\]} FORMATTED=${FORMATTED//[[:punct:]]}
 		printf "%s\t%s\t%s${HGT:+\t%s}\n" Name Latitude Longitude ${HGT:+Altitude} "$FORMATTED" "$LAT" "$LNG" $HGT
 	#https://stackoverflow.com/questions/3518504/regular-expression-for-matching-latitude-longitude-coordinates
 	else
@@ -283,8 +293,11 @@ gpshelperf()
 			#max string length 255 chars
 		fi
 
+		if ((OPTC && OPTE))
+		then 	printf '%s\n' "$data"
+			return
 		#-c print coordinates only?
-		if ((OPTC))
+		elif ((OPTC))
 		then 	if [[ -n $OPENCAGEKEY ]]
 			then 	printf '%s\t%s\t%s\t%s\n' Index Latitude Longitude Name
 				jq -r '.results[]|(.confidence|tostring)+"\t"+(.geometry.lat|tostring)+"\t"+(.geometry.lng|tostring)+"\t"+.formatted' <<<"$data"
@@ -337,17 +350,24 @@ gpshelperf()
 #meteorologisk institutt norway
 mainf()
 {
-	local data altitude query jqout header
-	if [[ ${@:$#} = +([0-9.,])[Mm] ]]
-	then 	HGT=${HGT:-${@:$#}} HGT=${HGT%%[Mm,.]*}
-		set -- "${@:1:$#-1}"
-	fi
+	local data altitude query jqout header ret
+
+	if [[ ${@:$#} = [0-9]*[Mm] ]]
+	then
+		HGT=${HGT:-${@:${#}}};
+		set -- "${@:1:${#}-1}";
+	elif ((${#}>1)) && [[ ${@:${#}-1:1} = [0-9]*[Mm] ]]
+	then
+		HGT=${HGT:-${@:${#}-1:1}};
+		set -- "${@:1:${#}-2}" "${@:${#}}";
+	fi; HGT=${HGT%%[Mm,.]*};
+
 	query="$*"
-	[[ $query = *[[:alnum:]]* ]] || query='São Paulo'
-	[[ -n $OPTL ]] && local="|strptime(\"%Y-%m-%dT%H:%M:%SZ\")|mktime|strflocaltime(\"%Y-%m-%dT%H:%M:%S%Z\")"
+	[[ $query = *[[:alpha:]][[:alpha:]]* ]] || query='São Paulo'
+	((OPTL)) || local="|strptime(\"%Y-%m-%dT%H:%M:%SZ\")|mktime|strflocaltime(\"%Y-%m-%dT%H:%M:%S%Z\")"
 
 	if ! gpshelperf "$query"
-	then 	echo "$0: err: cannot get geo coordinates -- $query" >&2
+	then 	! echo "$SN: err: cannot get geo coordinates -- $query" >&2
 		return 1
 	fi
 
@@ -357,12 +377,13 @@ mainf()
 	#get data
 	printf '%s\n' 'Meteorologisk Institutt Norway' >&2
 	data=$(curl -\# -fL --compressed -X GET -H "$UAG" -H 'Accept: application/json' "https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=${LAT}&lon=${LNG}${altitude}")
+	ret=$((ret+$?));
+
 	if ((OPTE))
 	then 	printf '%s\n' "$data"
 		return
 	fi
 
-	#jq '.properties.meta' <<< "$data" >&2  #concerns json field units
 	jqout=$(jq -r ".properties.timeseries[] |
 \"\(.time$local) \
 \(.data.instant.details |
@@ -385,13 +406,17 @@ mainf()
 	\"\(.precipitation_amount // \"?\")mm \
 \(.air_temperature_max // \"?\")ºC \
 \(.air_temperature_min // \"?\")ºC\")\"" <<<"$data")
-#OBS: there should be more response fields in next_1_hours and 6_hours, according to
-#the API scheme format. Those are available only for some geographical areas.
+	  ret=$((ret+$?));
+	#.properties.meta - concerns about value units.
+	#.probability_of_precipitation - only some locations.
+	#next_1_hours and next_6_hours may have additional data for some locations.
 	
-	#stats
-	header_long="Date,Temp,RelHumidity,DewPoint,FogArea,UVIndex,AirPressureAtSeaLevel,WindSpeed,WindDir,CloudAreaFraction,CloudHighFraction,CloudMediumFraction,CloudLowFraction,PrecipitationNext1h,PrecipitationNext6h,AirMaxNext6h,AirMinNext6h"
-	header=Date,Temp,RelHum,DewP,FogA,UV,AirPSea,WinSp,WinDir,ClArea,ClHigh,ClMed,ClLow,Pcpn1h,Pcpn6h,AirMax6h,AirMin6h
-
+	header_long="Date,Temp,RelHumidity,DewPoint,FogAreaFrac,UVIndex,AirPressureAtSeaLevel,WindSpeed,WindDir,CloudAreaFraction,CloudHighFraction,CloudMediumFraction,CloudLowFraction,Precipitation1h,Precipitation6h,AirMaxTemp6h,AirMinTemp6h"
+	header=Date,Temp,RelHum,DewP,FogAFrac,UV,AirPSea,WinSp,WinDir,ClArea,ClHigh,ClMed,ClLow,Pcpn1h,Pcpn6h,AirMax6h,AirMin6h
+	#1:Date    2:Temp    3:RelHum   4:DewP      5:FogA     6:UV
+	#7:AirPSea 8:WinSp   9:WinDir  10:ClArea   11:ClHigh  12:ClMed
+	#13:ClLow 14:Pcpn1h 15:Pcpn6h  16:AirMax6h 17:AirMin6h
+        
 	#print tables
 	if ((!OPTG)) && [[ -t 1 ]]
 	then 	column -et -N"$header" <<<"$jqout" | less -S
@@ -407,10 +432,11 @@ mainf()
 		colcutf  3 <<<"$jqout" | _plotf Humidity date % &&
 		colcutf  8 <<<"$jqout" | _plotf WindSpeed date m/s &&
 		colcutf  7 <<<"$jqout" | _plotf PressureAtSeaLevel date hPa &&
-		colcutf 15 <<<"$jqout" | _plotf 'Precipitation(6h)' date mm
+		colcutf 15 <<<"$jqout" | _plotf 'Precipitation(6h)' date mm &&
 		colcutf  2 <<<"$jqout" | _plotf Temperature date ºC
-	fi
-	return 0
+	fi 2>/dev/null || ! echo "$SN: err: GNUPlot" >&2;
+
+	return $((ret+$?))
 }
 
 #usage: colcutf [COL]
@@ -421,15 +447,9 @@ colcutf()
 
 #sunrise times
 #usage: sunrise ["CITY NAME"|[LAT] [LON]] [DATE] [OFFSET]
-#!#this function needs improvements
 sunrisef()
 {
-	local arg lat lon data date offset location endpoint n
-
-	if ((OPTS>1))
-	then 	endpoint=moon; echo Moon >&2;
-	else 	endpoint=sun; echo Sun >&2;
-	fi
+	local arg lat lon datas datam date offset location n
 
 	#use location name function if criteria met
 	for arg
@@ -439,47 +459,69 @@ sunrisef()
 		else 	break
 		fi
 	done
+
 	if gpshelperf "$location"
 	then 	set -- "" "" "${@:n+1}"
 	elif [[ ! $1 =~ ^$GEOREGEX$ ]] || [[ ! $2 =~ ^$GEOREGEX$ ]]
-	then 	echo "$0: err: unknown geo coordinates -- $1 $2" >&2
+	then 	! echo "$SN: err: unknown geo coordinates -- $1 $2" >&2
 		return 1
 	fi
 
 	#set parameters
-	offset="${3:-$(date +%Z:00)}"            #3
+	offset="${4:-$(date +%Z:00)}" || offset=$(printf '%(%Z:00)T' -1);
+	[[ $offset = [+-][0-9][0-9]:[0-9][0-9] ]] || echo "err: offset format -- \"[+-]HH:MM\"" >&2;
 	
-	date=$(date -d${3:-now} +%Y-%m-%d)       #3
+	date=$(date ${3:+ -d"$3"} +%Y-%m-%d) || date=$(printf '%(%Y-%m-%d)T' -1);
+
+	lat="${LAT:-$1}" lon="${LNG:-$2}";
 	
-	lat="${LAT:-$1}" lon="${LNG:-$2}"        #2 and 1
+	datam=$(curl -\# -fL -H "$UAG" "https://api.met.no/weatherapi/sunrise/3.0/moon?lat=${lat}&lon=${lon}&date=${date}&offset=${offset}")
+	datas=$(curl -\# -fL -H "$UAG" "https://api.met.no/weatherapi/sunrise/3.0/sun?lat=${lat}&lon=${lon}&date=${date}&offset=${offset}")
 
-
-	data=$(curl -\# -fL -H "$UAG" "https://api.met.no/weatherapi/sunrise/3.0/${endpoint}?lat=${lat}&lon=${lon}&date=${date}&offset=${offset}")
 	if ((OPTE))
-	then 	printf '%s\n' "$data"
-	else 	jq . <<<"$data"
+	then 	printf '%s\n' "$datas" "$datam";
+	else 	{
+		jq -r '
+		  [
+		    ["EVENT", "TIME", "AZIMUTH", "ELEVATION", "VISIBLE"],
+		    ["Moonrise", .properties.moonrise.time, .properties.moonrise.azimuth, "", ""],
+		    ["Moonset", .properties.moonset.time, .properties.moonset.azimuth, "", ""],
+		    ["High Moon", .properties.high_moon.time, "", .properties.high_moon.disc_centre_elevation, .properties.high_moon.visible],
+		    ["Low Moon", .properties.low_moon.time, "", .properties.low_moon.disc_centre_elevation, .properties.low_moon.visible]
+		  ]
+		  | (.[0], .[1:][]) | @tsv' <<<"$datam";
+		jq -r '
+		  [
+		    ["EVENT", "TIME", "AZIMUTH", "ELEVATION", "VISIBLE"],
+		    ["Sunrise", .properties.sunrise.time, .properties.sunrise.azimuth, "", ""],
+		    ["Sunset", .properties.sunset.time, .properties.sunset.azimuth, "", ""],
+		    ["Solar Noon", .properties.solarnoon.time, "", .properties.solarnoon.disc_centre_elevation, .properties.solarnoon.visible],
+		    ["Solar Midnight", .properties.solarmidnight.time, "", .properties.solarmidnight.disc_centre_elevation, .properties.solarmidnight.visible]
+		  ]
+		  | (.[0], .[1:][]) | @tsv' <<<"$datas";
+		} | column -t -s $'\t';
 	fi
 }
 
 
 #parse options
-while getopts bcd:eghklm:sv1234567890 c
+while getopts bcd:eghklum:sv1234567890 c
 do case $c in
 	b) unset OPENCAGEKEY;;
 	c) OPTC=1 ;;
 	d) if [[ -d $OPTARG ]]
 		then 	OPTG=1 TMPDIR="${OPTARG%/}"
 			_plotf() { 	plottofilef "$@" ;}
-		else 	echo "err: directory is required -- $OPTARG" >&2
+		else 	! echo "err: directory is required -- $OPTARG" >&2
 			exit 1
 		fi ;;
 	e) OPTE=1 ;;
 	g) ((OPTG++)) && _plotf() { 	plotf "$@" ;} ;;
 	h) echo "$HELP"; exit 0 ;;
 	k) OPTK=1 ;;  #forecast api status
-	l) OPTL=1 ;;  #local time
+	l|u) OPTL=1 ;;  #utc time
 	m) HGT=${OPTARG%%[Mm,.]*};;  #altitude
-	s) ((++OPTS)) ;;  #sunrise, moon rise
+	s) OPTS=1 ;;  #sunrise, moon rise
 	v) grep -m1 '^# v[0-9]' "$0" ;exit ;;
 	[0-9.]) ((--OPTIN)) ;break;;
 	\?) exit 1 ;;
@@ -490,10 +532,10 @@ unset c
 
 #check for required pkgs
 if ! command -v curl jq &>/dev/null
-then 	echo "$0: packages cURL and JQ are required" >&2
+then 	echo "$SN: packages cURL and JQ are required" >&2
 	exit 1
 elif ((OPTG)) && ! command -v gnuplot &>/dev/null
-then 	echo "$0: package GNUPlot is optionally required" >&2
+then 	echo "$SN: package GNUPlot is optionally required" >&2
 	unset OPTG
 fi
 
