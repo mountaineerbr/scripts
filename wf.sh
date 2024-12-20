@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # wf.sh  --  weather forecast from the norway meteorological institute
-# v0.7  dec/2024  by mountaineerbr
+# v0.7.1  dec/2024  by mountaineerbr
 
 # Favourite Locations (globs)
 # name:latitude:longitude:altitude;
@@ -412,7 +412,7 @@ mainf()
 	#next_1_hours and next_6_hours may have additional data for some locations.
 	
 	header_long="Date,Temp,RelHumidity,DewPoint,FogAreaFrac,UVIndex,AirPressureAtSeaLevel,WindSpeed,WindDir,CloudAreaFraction,CloudHighFraction,CloudMediumFraction,CloudLowFraction,Precipitation1h,Precipitation6h,AirMaxTemp6h,AirMinTemp6h"
-	header=Date,Temp,RelHum,DewP,FogAFrac,UV,AirPSea,WinSp,WinDir,ClArea,ClHigh,ClMed,ClLow,Pcpn1h,Pcpn6h,AirMax6h,AirMin6h
+	header=Date,Temp,RelHum,DewP,FogFrac,UV,AirPSea,WinSp,WinDir,ClArea,ClHigh,ClMed,ClLow,Pcpn1h,Pcpn6h,AirMax6h,AirMin6h
 	#1:Date    2:Temp    3:RelHum   4:DewP      5:FogA     6:UV
 	#7:AirPSea 8:WinSp   9:WinDir  10:ClArea   11:ClHigh  12:ClMed
 	#13:ClLow 14:Pcpn1h 15:Pcpn6h  16:AirMax6h 17:AirMin6h
@@ -432,6 +432,7 @@ mainf()
 		colcutf  3 <<<"$jqout" | _plotf Humidity date % &&
 		colcutf  8 <<<"$jqout" | _plotf WindSpeed date m/s &&
 		colcutf  7 <<<"$jqout" | _plotf PressureAtSeaLevel date hPa &&
+		colcutf 14 <<<"$jqout" | _plotf 'Precipitation(1h)' date mm &&
 		colcutf 15 <<<"$jqout" | _plotf 'Precipitation(6h)' date mm &&
 		colcutf  2 <<<"$jqout" | _plotf Temperature date ºC
 	fi 2>/dev/null || ! echo "$SN: err: GNUPlot" >&2;
