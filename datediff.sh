@@ -1,6 +1,6 @@
 #!/usr/bin/env ksh
 # datediff.sh - Calculate time ranges between dates
-# v0.25.3  dec/2024  mountaineerbr  GPLv3+
+# v0.26  dec/2024  mountaineerbr  GPLv3+
 [[ -n $BASH_VERSION ]] && shopt -s extglob  #bash2.05b+/ksh93u+/zsh5+
 [[ -n $ZSH_VERSION  ]] && setopt NO_SH_GLOB KSH_GLOB KSH_ARRAYS SH_WORD_SPLIT GLOB_SUBST
 
@@ -331,7 +331,7 @@ function datefun
 		then 	options="${options} -p %s"
 			set -- "${@/@/}"
 		elif ((!OPTF)) && [[ $1 != @(+%|-f)* ]] && [[ $2 = @(+%|-f)* ]]
-		then 	options="$options -p ${TIME_ISO8601_FMT:$start:$chars}"
+		then 	options="$options -p ${TIME_ISO8601_FMT:${start:-0}:${chars:-19}}"
 		fi
 		options="${options/@(-I@(date|hours|minutes|seconds)|-I)}"
 
@@ -789,6 +789,8 @@ function mainf
 	do 	eval "[[ \${$varname} = *[A-Za-z_]* ]] && continue"  #avoid printing errs
 		eval "(($varname=10#0\${$varname##[+-]}))";
 	done
+	((yearA<40000)) || echo "warning: ${yearA}: YEAR" >&2;  #slow
+	((yearB<40000)) || echo "warning: ${yearB}: YEAR" >&2;
 
 	#negative years
 	case "$inputA" in -?*) 	yearA=-$yearA;; esac;
@@ -820,7 +822,8 @@ function mainf
 			monthA>12 || monthB>12 || dayA>d1_mmd || dayB>d2_mmd
 			|| hourA>23 || hourB>23 || minA>59 || minB>59 || secA>59 || secB>59
 		))
-	then 	echo "err: illegal user input -- ISO-8601 DATE required" >&2 ;return 2
+	then 	echo "err: illegal user input -- ISO-8601 DATE or UNIX TIME required" >&2;
+		return 2;
 	fi
 
 	#offset and $TZ support
@@ -1288,22 +1291,22 @@ SCL="${SCL:-1}"     #scale defaults
 export TZ
 
 #test for BSD, GNU, AST or BUSYBOX date
-if [[ $DATE_CMD = [Ff][Aa][Ll][Ss][Ee] ]]
-then 	:
-elif [[ $DATE_CMD = *@(busy|toy)box* ]]
-then 	 DATE_CMD="${DATE_CMD% date} date" BUSYDATE=1
-elif ! ${DATE_CMD:=date} --version
-then 	if ${DATE_CMD%date}gdate --version
-	then 	DATE_CMD=gdate
-	elif ${DATE_CMD} -E
-	then 	ASTDATE=1 	
-	elif command -v ${DATE_CMD}
-	then 	BSDDATE=1
-	elif command -v busybox
-	then 	DATE_CMD="busybox date" BUSYDATE=1
-	else 	DATE_CMD=false
-	fi
-fi >/dev/null 2>&1
+[[ ${DATE_CMD:=date} = false ]] \
+|| var=$(${DATE_CMD} --version 2>&1 || { ${DATE_CMD} --help 2>&1; false; } ) \
+|| case "${var}" in
+	*-E,\ --elapsed*)  ASTDATE=1;;
+	*[Bb]usy[Bb]ox*)  DATE_CMD="busybox date" BUSYDATE=1;;
+	*[Tt]oy[Bb]ox*)  DATE_CMD="toybox date" BUSYDATE=1;;
+	*GNU\ [Cc]oreutils*)  DATE_CMD=gdate;;
+	*)
+	    if command -v ${DATE_CMD%%date}gdate
+	    then  DATE_CMD=gdate
+	    elif command -v ${DATE_CMD}
+	    then  BSDDATE=1
+	    else  DATE_CMD=false
+	    fi >/dev/null 2>&1
+	    ;;
+esac; unset var;
 
 #stdin input (skip it for option -F)
 [[ ${1//[$IFS]}$OPTFF = $GLOBOPT ]] && opt="$1" && shift
