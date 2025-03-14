@@ -1,250 +1,196 @@
 #!/usr/bin/env ksh
 # datediff.sh - Calculate time ranges between dates
-# v0.26  dec/2024  mountaineerbr  GPLv3+
+# v0.26.1  jan/2025  mountaineerbr  GPLv3+
 [[ -n $BASH_VERSION ]] && shopt -s extglob  #bash2.05b+/ksh93u+/zsh5+
 [[ -n $ZSH_VERSION  ]] && setopt NO_SH_GLOB KSH_GLOB KSH_ARRAYS SH_WORD_SPLIT GLOB_SUBST
 
 HELP="NAME
-	${0##*/} - Calculate time ranges/intervals between dates
+	${0##*/} - Calculate time ranges / intervals between dates
 
 
 SYNOPSIS
-	${0##*/} [-Rrttuvvv] [-NUM] [-f\"FMT\"] \"DATE1\" \"DATE2\" [UNIT]
+	${0##*/} [-Rrttuvvv] [-NUM] [-f\"FMT\"] \"DATE1\" \"DATE2\"
 	${0##*/} -FF [-vv] [[DAY_IN_WEEK] [DAY_IN_MONTH]] [START_DATE]
-	${0##*/} -eel [-v] YEAR..
+	${0##*/} [-ee|-l] [-v] YEAR..
 	${0##*/} -m [-v] DATE..
-	${0##*/} -h
 
 
 DESCRIPTION
-	Calculate time interval (elapsed) between DATE1 and DATE2 in var-
-	ious time units. The \`C-code date' programme is optionally run
-	to process input dates to the ISO-8601 format.
+	Calculate time interval (elapsed time) between DATE1 and DATE2
+	in various time units. The \`C-code date' programme is optionally
+	executed to process input dates in formats other than ISO-8601.
 
 	Other features include checking if YEAR is leap, printing Easter,
 	Carnaval, and Corpus Christi dates on a given YEAR, and the phase
 	of the moon at DATE.
 
 
-	Main Function
+DATE AND TIME CALCULATIONS
+	\`GNU date' accepts mostly free format human readable date strings.
+	If using \`FreeBSD date', input DATE strings must be ISO-8601
+	(\`YYYY-MM-DDThh:mm:ss') or other supported time formats, unless
+	option \`-f FMT' is set to the new input format.
 
-	In the main function, \`GNU date' accepts mostly free format human
-	readable date strings. If using \`FreeBSD date', input DATE strings
-	must be ISO-8601 (\`YYYY-MM-DDThh:mm:ss'), unless option \`-f FMT' is
-	set to a new input time format. If \`date programme' is not avail-
-	able then input must be formatted as ISO-8601 or UNIX time.
+	When \`C-code date' is not available, then input must be formatted
+	as ISO-8601 or UNIX time.
 
 	If DATE is not set, defaults to \`now'. If only one DATE is set,
 	the first one is assumed to be \`now' or \`1970'.
 
-	To flag DATE as UNIX time, prepend an at sign \`@' to it or set
-	option -r. Stdin input supports one DATE string per line (max two
-	lines) or two ISO-8601 DATES separated by space in a single line.
+	To flag DATE as UNIX time, prepend an at sign \`@' to the values or
+	set option -r. Stdin input is expected to have one DATE string per
+	line or two ISO-8601 DATES separated by space in a single line.
 	Input is processed in a best effort basis.
 
 
-	Main Output
-
+DATE AND TIME OUTPUT
 	Output RANGES section displays intervals in different units of
 	time (years, or months, or weeks, or days, or hours, or minutes,
 	or seconds alone). It also displays a compound time range with
-	all the above units into consideration to each other.
+	all the mentioned units taken into consideration to each other.
 
-	Single UNIT time periods can be displayed in table format -t and
-	their scale set with -NUM where NUM is an integer. Result least
-	significant digit is subject to rounding. When last positional
-	parameter UNIT is exactly one of \`Y', \`MO', \`W', \`D', \`H',
-	\`M', or \`S', only a single UNIT interval is printed.
+	Single UNIT time periods can be displayed in table format with
+	option -t. Decimal plates may be set with option -NUM where
+	NUM is an integer. Result is subject to	rounding.
+	
+	When last positional parameter UNIT is exactly one of \`Y', \`MO',
+	\`W', \`D', \`H', \`M', or \`S', only a single UNIT interval
+	is printed out.
 
-	Output DATES section prints two dates in ISO-8601 format or, if
-	option -R is set, RFC-5322 format.
+	Output DATES section shows the input dates in ISO-8601 format or,
+	if option -R is set, RFC-5322 format.
 
-	Option -u sets or prints dates in Coordinated Universal Time (UTC)
-	in the main function. This affects the \`C-code date' programme.
+	Option -u sets or prints dates in Coordinated Universal Time (UTC).
+	Note this affects the \`C-code date' programme, too.
 
-	Options -vvv filter the main output layout for specific timeframes.
+	Options -vvv filter output layout for specific time-frames.
 
 
-	Extra Functions
-
-	Option -e prints Easter date for given YEARs (for Western Churches)
+SPECIAL DATE FUNCTIONS
+	Option -e prints Easter dates for given YEARS (Western Church)
 	and option -ee also prints Carnaval and Corpus Christi dates.
 
-	Option -l checks if YEAR is leap. Set option -v to decrease ver-
-	bose. ISO-8601 system assumes proleptic Gregorian calendar, year
-	zero and no leap seconds.
+	Option -l checks if YEAR is leap. Set option -v to decrease verbose.
+	ISO-8601 system assumes proleptic Gregorian calendar, year zero,
+	and no leap seconds.
 
-	Option -m prints lunar phase at DATE as \`YYYY[-MM[-DD]]', auto
-	expansion takes place on partial DATE input. DATE ought to be UTC
-	time. Code snippet adapted from NetHack.
+	Option -m prints lunar phase for UTC DATE (\`YYYY[-MM[-DD]]').
+	Code snippet adapted from NetHack.
 
 	Option -F prints the date of next Friday the 13th, START_DATE must
-	be formated as \`YYYY[-MM[-DD]]'. Set twice to prints the following
-	10 matches. Optionally, set day in the week, such as Sunday, and
-	day number in month as first and second positional parameters.
+	be formatted as \`YYYY[-MM[-DD]]'. Set -FF to print the following
+	10 matches. Optionally, set day-in-week, such as Sunday, and
+	day-in-month as first and second positional parameters, respectively.
 
 
-	Timezone Offsets
+TIMEZONE OFFSETS
+	ISO DATE and POSIX \$TZ offsets are supported throughout this script.
+	
+	Environment \$TZ is read as POSIX offset when it holds a positive
+	or negative decimal number, such as _+03_ or _UTC+03_. POSIX time
+	zone definition by the \$TZ variable takes a different form from
+	ISO-8601 standards, so that ISO DATE UTC-03 is equivalent to setting
+	\$TZ=UTC+03.
 
-	DATE offsets as per ISO-8601 are supported throughout this script.
-	When environment \$TZ is a positive or negative decimal number, such
-	as \`UTC+3', it is read as offset. Variable \$TZ with timezone name
-	or ID (e.g. \`America/Sao_Paulo') is supported by \`C-code date'.
-
-	This script uses Bash/Ksh arithmetics to perform most time range
-	calculations, as long as input is a valid ISO-8601 date format.
+	Timezone names and IDs (e.g. \`America/Sao_Paulo') are supported
+	by \`C-code date' warping.
 
 
-	Debug and Test
+ENVIRONMENT
+ 	CFACTOR    Lunar phase correction factor. Defaults=\"-1892\".
 
+	DATE_CMD   \`C-code date' programme command. GNU, BSD, AST and
+	           Busybox \`date' are supported.
+
+	TZ         POSIX-style time zone offset.
+
+
+REFINEMENT RULES
+	\`Compound time range' calculations may result slightly different
+	intervals due to refinement logics. This script tried to mimic
+	\`Hroptatyr's datediff' refinement rules as often as possible.
+
+	Error rate of the main code is estimated to be lower than one
+	percent after extensive testing with selected and corner-case
+	sample dates. Check source code and repository for details.
+
+
+DIAGNOSTICS
 	Options -d and -dd execute result checks against \`C-code datediff'
 	and \`C-code date' programmes. Requires \`datediff.debug.sh'.
 
 	Option -D disables \`C-code date' warping and -DD disables Bash/
-	Ksh \`printf %()T' warping, too. This will have the script run and
-	process dates with only the shell built-in code instead of trying
-	to execute \`C-code date' for date processing and format conversion.
-
-
-	Project source is hosted at:
-
-	<https://gitlab.com/fenixdragao/shelldatediff>
-	<https://github.com/mountaineerbr/shellDatediff>
-
-
-ENVIRONMENT
- 	CFACTOR 	Correction factor used in the lunar phase func-
-			tion. Defaults=\"-1892\"
-
-	DATE_CMD 	Path to \`C-code date' programme. GNU, BSD, AST
-			and Busybox \`date' are supported.
-
-	TZ 		Offset time. POSIX time zone definition by the
-			\$TZ variable takes a different form from ISO-8601
-			standards, so that ISO UTC-03 is equivalent to
-			setting \$TZ=UTC+03. Only the \`C-code date'
-			programme can parse timezone names and IDS.
-
-
-REFINEMENT RULES
-	Some date intervals can be calculated in more than one way depend-
-	ing on the logic used in the \`compound time range' display. We
-	decided to mimic \`Hroptatyr's datediff' refinement rules as often
-	as possible.
-
-	Script error rate of the core code is estimated to be lower than
-	one percent after extensive testing with selected and corner-case
-	sample dates and times. Check script source code for details.
-
-
-SEE ALSO
-	\`Datediff' from \`dateutils', by Hroptatyr.
-	<www.fresse.org/dateutils/>
-
-	\`PDD' from Jarun
-	<github.com/jarun/pdd>
-
-	\`AST date' elapsed time option -E
-	<github.com/att/ast>
-
-	\`Units' from GNU.
-	<https://www.gnu.org/software/units/>
-
-	Do calendrical savants use calculation to answer date questions?
-	A functional magnetic resonance imaging study, Cowan and Frith, 2009.
-	<https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2677581/#!po=21.1864>
-
-	Calendrical calculation, Dershowitz and Reingold, 1990
-	<http://www.cs.tau.ac.il/~nachum/papers/cc-paper.pdf>
-	<https://books.google.com.br/books?id=DPbx0-qgXu0C>
-
-	How many days are in a year? Manning, 1997.
-	<https://pumas.nasa.gov/files/04_21_97_1.pdf>
-
-	Iana Time zone database
-	<https://www.iana.org/time-zones>
-
-	Fun with Date Arithmetic (see replies)
-	<https://linuxcommando.blogspot.com/2009/11/fun-with-date-arithmetic.html>
-
-	Tip: Division is but subtractions and multiplication but additions.
-	--Lost reference
+	Ksh \`printf %()T' warping, too.
 
 
 WARRANTY
 	Licensed under the GNU General Public License 3 or better. This
-	software is distributed without support or bug corrections. Many
-	thanks for all whose advice improved this script from c.u.shell.
+	software is distributed without support or bug corrections.
 
 	Bash2.05b+, Ksh93 or Zsh is required. \`Bc' or Ksh is required
 	for single-unit calculations. FreeBSD12+ or GNU \`date' is
 	optionally required.
 
+	Many thanks for all advice from c.u.shell!
+
+
+PROJECT SOURCE
+	<https://gitlab.com/fenixdragao/shelldatediff>
+	<https://github.com/mountaineerbr/shellDatediff>
+
 
 EXAMPLES
-	Leap year check
-	${0##*/} -l 2000
-	${0##*/} -l {1980..2000}
-	echo 2000 | ${0##*/} -l
+	Leap year check:
+	${0##*/} -l {1990..2000}
 
-	Moon phases for January 1996
+	Moon phases for January or full year:
 	${0##*/} -m 1996-01
+	${0##*/} -m 1996
 
-	Print following Friday, 13th
-	${0##*/} -F
-	Print following Sunday, 12th after 1999
-	${0##*/} -F sun 12 1999
+	Print following Friday, 13th:
+	${0##*/} -F Fri 13 1999
+	${0##*/} -F sun  9 1999-02-01
 
-	Single unit time periods
-	${0##*/} 2022-03-01T00:00:00 2022-03-01T10:10:10 m  #(m)ins
-	${0##*/} '10 years ago'  mo                         #(mo)nths
-	${0##*/} 1970-01-01  2000-02-02  y                  #(y)ears
+	Single-unit time periods:
+	${0##*/} 1970-01-01  2000-02-02  y    #(y)ears
 
-	Time ranges/intervals
-	${0##*/} 2020-01-03T14:30:10 2020-12-24T00:00:00
-	${0##*/} 0921-04-12 1999-01-31
+	Date intervals / time ranges:
 	echo 1970-01-01 2000-02-02 | ${0##*/} 
-	TZ=UTC+3 ${0##*/}  2020-01-03T14:30:10-06  2021-12-30T21:00:10-03:20
+	${0##*/} 2020-01-03T14:30:10  2020-12-24T00:00:00
+	TZ=UTC+03  ${0##*/}  2020-01-03T14:30:10-06  2021-12-30T21:00:10-03
 
-	\`GNU date' warping
+	\`GNU date':
 	${0##*/} 'next monday'
-	${0##*/} 2019/6/28  1Aug
 	${0##*/} '5min 34seconds'
-	${0##*/} 1aug1990-9month now
-	${0##*/} -- -2week-3day
-	${0##*/} -- \"today + 1day\" @1952292365
-	${0##*/} -2 -- '1hour ago 30min ago'
-	${0##*/}  today00:00  '12 May 2020 14:50:50'
-	${0##*/} '2020-01-01 - 6months' 2020-01-01
-	${0##*/} '05 jan 2005' 'now - 43years -13 days'
-	${0##*/} -u 2023-01-14T11:20:00Z '2023-01-14T11:20:00Z + 5 hours'
-	${0##*/} @1561243015 @1592865415
+	${0##*/} '2019/6/28'  '1Aug'
+	${0##*/} '2020-01-01 - 6months'  '2020-01-01'
+	${0##*/} @1561243015  @1592865415
 
-	\`BSD date' warping
-	${0##*/} -f'%m/%d/%Y' 6/28/2019  9/04/1970 
-	${0##*/} -r 1561243015 1592865415
-	${0##*/}  200002280910.33  0003290010.00
+	\`BSD date':
+	${0##*/} -f'%m/%d/%Y'  '6/28/2019'  '9/04/1970 '
+	${0##*/} -r 1561243015  1592865415
 	${0##*/} -- '-v +2d' '-v -3w'
 
 
 OPTIONS
-	Extra Functions
-	-e 	Print Western Easter date.
-	-ee 	Print Carnaval, Easter and Corpus Christi dates.
-	-FF 	Print following Friday the 13th date.
-	-h 	Print this help page.
-	-l 	Check if YEAR is leap year.
-	-m      Print lunar phase at DATE (ISO UTC time).
+	Special Date Functions
+	-e 	Easter date (Western Church).
+	-ee 	Carnaval, Easter and C. Christi dates.
+	-F, -FF Following Friday the 13th dates.
+	-h 	This help page.
+	-l 	Leap year check.
+	-m      Lunar phase calendar.
 
-	Main Function
-	-[0-9] 	Set scale for single unit intervals.
-	-DDdd 	Debug, check help page.
-	-f FMT 	Input time format string (only with BSD \`date').
-	-R 	Print human time in RFC-5322 format (verbose).
-	-r, -@ 	Input DATES are UNIX times.
-	-tt 	Table display of single unit intervals.
-	-u 	Set or print UTC time instead of local time.
-	-vvv 	Verbose level, change print layout of functions."
+	Date and Time Calculations
+	-[0-9] 	Scale factor for single-unit results.
+	-DDdd 	Debug, check documentation for details.
+	-f FMT 	Input time format spec (BSD \`date').
+	-R 	Output RFC-5322 format dates.
+	-r, -@ 	Input dates are UNIX times.
+	-t, -tt	Table display of single-unit intervals.
+	-u 	Set UTC time instead of local time.
+	-vvv 	Change print layout, verbose levels."
+
 
 # TESTING SCRIPTS
 # The project is hosted at <https://github.com/mountaineerbr/shellDatediff>.
@@ -265,11 +211,8 @@ OPTIONS
 #
 # Because the start date is ``Dec 31st'', one can consider a full month
 # count only at ``Apr 30th'' or `Apr 31st' which does not exist but is
-# equivalent to ``May 1st''.
-#
-# Different results from `C-code datediff' in compound range are not
-# necessarily errors and may be considered correct because of different
-# refinement rules.
+# equivalent to ``May 1st''. These results are considered correct because
+# of different refinement rules.
 
 
 #globs
@@ -1432,7 +1375,8 @@ then 	for DATE_Y  #fill in months and days
 		done
 	done
 elif ((OPTFF))
-then 	friday_13th "$@"
+then
+	friday_13th "$@"
 else
 	 
 	((DEBUG)) && . datediff.debug.sh || DEBUG= ;
