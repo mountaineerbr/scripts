@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # wf.sh  --  weather forecast from the norway meteorological institute
-# v0.7.1  dec/2024  by mountaineerbr
+# v0.8  apr/2025  by mountaineerbr
 
 # Favourite Locations (globs)
 # name:latitude:longitude:altitude;
@@ -309,9 +309,9 @@ gpshelperf()
 			then 	jq -e '.results[1]' <<<"$data"
 			else 	jq -e '.[1]' <<<"$data"
 			fi >/dev/null 2>&1
-		then
+		then 
 			if [[ -n $OPENCAGEKEY ]]
-			then 	jqout=$(jq -r '.results[]|(.components|(.town//.city//.village)+", "+.state+", "+.country)+"\t"+(.geometry.lat|tostring)+"\t"+(.geometry.lng|tostring)+"\t"+.formatted' <<<"$data")
+			then 	jqout=$(jq -r '.results[]|(.components|(._normalized_city//.town//.city//.municipality//.village)+", "+(.state//.province//.neighbourhood)+", "+.country)+"\t"+(.geometry.lat|tostring)+"\t"+(.geometry.lng|tostring)+"\t"+.formatted' <<<"$data")
 			else 	jqout=$(jq -r '.[]|(if .display_name | length > 66 then
 				(.display_name|.[0:33])+".."+(.display_name|.[-33:])
 				else
@@ -363,7 +363,7 @@ mainf()
 	fi; HGT=${HGT%%[Mm,.]*};
 
 	query="$*"
-	[[ $query = *[[:alpha:]][[:alpha:]]* ]] || query='São Paulo'
+	[[ $query = *[[:alnum:]][[:alnum:]]* ]] || query='São Paulo'
 	((OPTL)) || local="|strptime(\"%Y-%m-%dT%H:%M:%SZ\")|mktime|strflocaltime(\"%Y-%m-%dT%H:%M:%S%Z\")"
 
 	if ! gpshelperf "$query"
