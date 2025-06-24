@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # aur.sh - list aur packges
-# v0.1.12  june/2023  by mountaineerbr  GPLv3+
+# v0.1.13  june/2025  by mountaineerbr  GPLv3+
 
 #chrome on windows 10
 UAG='user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36'  #;UAG='user-agent: Mozilla/5.0 Gecko'
@@ -45,7 +45,8 @@ SYNOPSIS
 OPTIONS
 	-h 	This help page.
 	-l 	Update disc cache file immediately.
-	-p 	Print package PKGBUILD (AUR or GitLab).
+	-p 	Print package PKGBUILD (GitLab or AUR).
+	-pp 	Same as -p, force PKGBUILD from AUR.
 	-u 	Check for system package updates."
 
 
@@ -164,19 +165,20 @@ pkgbf()
 	urlb=https://aur.archlinux.org/packages
 	urlc=https://gitlab.archlinux.org/archlinux/packaging/packages/${1}/-/raw/main/PKGBUILD
 
-	if page=$(cachef "$url?h=${1}")
-		[[ $page =~ \<div\ class=[\'\"]error[\'\"]\>[Ii]nvalid\ [Bb]ranch: ]]
-	then
-		if page=$(curl -f\# "$urlc")
-			[[ $page =~ \<html\> ]]
-		then 	if [[ $(PKGOPT=1 aurf "${1}" n p) =~ \<\a\ href=\"/packages/([^\"/]*)\"\> ]] &&
-				[[ $(cachef "$urlb/${BASH_REMATCH[1]}") =~ \<\a\ href=\"/pkgbase/([^\"/]*)\"\> ]]
-			then 	echo "match: ${BASH_REMATCH[1]}"
-				page=$(cachef "$url?h=${BASH_REMATCH[1]}")
-			else 	return 2
-			fi
+	if ((OPTP<2)) && page=$(curl -f\# "$urlc")  #gitlab
+		[[ $page =~ \<html[^\>]*\> ]]
+	then 	if [[ $(PKGOPT=1 aurf "${1}" n p) =~ \<\a\ href=\"/packages/([^\"/]*)\"\> ]] &&
+			[[ $(cachef "$urlb/${BASH_REMATCH[1]}") =~ \<\a\ href=\"/pkgbase/([^\"/]*)\"\> ]]
+		then 	echo "match: ${BASH_REMATCH[1]}"
+			page=$(cachef "$url?h=${BASH_REMATCH[1]}")
 		fi
 	fi
+
+	if [[ ! ${page} =~ pkg[bn]a[sm]e= ]] && page=$(cachef "$url?h=${1}")  #aur
+		[[ $page =~ \<div\ class=[\'\"]error[\'\"]\>[Ii]nvalid\ [Bb]ranch: ]]
+	then 	return 2
+	fi
+
 	echo "$page"
 }
 
