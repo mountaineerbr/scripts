@@ -85,14 +85,11 @@ NAME | DESCRIPTION
 
 Some scripts require API keys.
 Please create free API keys and add them to shell environment or set
-them in the script head source code. Demo api keys were added to the scripts,
-however they may stop working at any time or get rate limited quickly.
+them in the script head source code.
 
 Alguns scripts requerem chaves de API.
 Por favor, crie chaves de API grátis e as adicione no ambiente da shell
-ou as configure na cabeça do código-fonte dos scripts. Chaves para fins
-de demonstração foram adicionadas aos scripts, porém elas podem parar 
-de funcionar a qualquer momento ou serem limitadas rapidamente.
+ou as configure na cabeça do código-fonte dos scripts.
 
 
 ## FURTHER HELP AND EXAMPLES / MAIS AJUDA E EXEMPLOS
