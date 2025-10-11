@@ -1,9 +1,9 @@
 # scripts
 Shell script collection
 
----
-
+<!--
 # This repo __[moved to GitLab](https://gitlab.com/mountaineerbr/scripts/)__.
+-->
 
 ---
 
