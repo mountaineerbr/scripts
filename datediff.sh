@@ -1,6 +1,6 @@
 #!/usr/bin/env ksh
 # datediff.sh - Calculate time ranges between dates
-# v0.27  jun/2025  mountaineerbr  GPLv3+
+# v0.27.1  oct/2025  mountaineerbr  GPLv3+
 [[ -n $BASH_VERSION ]] && shopt -s extglob  #bash2.05b+/ksh93u+/zsh5+
 [[ -n $ZSH_VERSION  ]] && setopt NO_SH_GLOB KSH_GLOB KSH_ARRAYS SH_WORD_SPLIT GLOB_SUBST
 
@@ -96,7 +96,7 @@ TIMEZONE OFFSETS
 	offsets seen in timestamps, so that \`\$TZ=+03' means \`ISO UTC-03'.
 
 	Timezone names and IDs (e.g. \`America/Sao_Paulo') are supported
-	by wrapping \`C-code date' for processing user input.
+	by warping \`C-code date' for processing user input.
 
 
 ENVIRONMENT
@@ -358,6 +358,7 @@ function is_leapyear_verbose
 {
 	typeset year
 	year="$1"
+
 	if is_leapyear $year
 	then 	((OPTVERBOSE)) || printf 'leap year -- %4s\n' $year
 	else 	((OPTVERBOSE)) || printf 'not leap year -- %4s\n' $year
@@ -438,6 +439,7 @@ function get_day_in_week
 	set -- "${1:-0}";
 	((unix=10#${1##[+-]}));
 	[[ $1 = -* ]] && unix=-$unix;
+
 	echo ${DAY_OF_WEEK[( ( (unix+(unix<0?1:0))/(24*60*60))%7 +(unix<0?6:7))%7]}
 }
 
@@ -510,6 +512,7 @@ function get_timef
 {
 	typeset input fmt
 	input=${1#@}  fmt="${2:-${TIME_ISO8601_FMT}}"
+
 	if ((OPTDD))
 	then 	echo $EPOCH ;false
 	elif [[ -n $ZSH_VERSION ]]
@@ -1142,7 +1145,7 @@ function mainf
 			((OPTLAYOUT>1)) && { 	p= q=. ;for ((p=0;p<SCL;++p)) ;do q="${q}0" ;done
 				range_pr="${range_pr// ./0.}" range_pr="${range_pr}${q}" ;}
 		fi
-		unset SS SSS
+		unset SS SSS p q
 	fi
 
 	#set printing array with shell results
@@ -1153,11 +1156,12 @@ function mainf
 	# Debugging
 	if ((DEBUG))
 	then
-		#!#
+		#!# requires datediff.debug.sh
 		unix1=$unix1 unix2=$unix2 tzA=$tzA tzB=$tzB TZs=$TZs \
 		date1_iso8601_pr="$date1_iso8601_pr" date1_iso8601="$date1_iso8601" \
 		date2_iso8601_pr="$date2_iso8601_pr" date2_iso8601="$date2_iso8601" \
 		debugf "$@"  || [[ $DATE_CMD = false ]] || printf "${BOLD}Debug:${NC} \`C-code date' is set!\\n" >&2;
+		#inline the function body here for performance
 	fi
 	
 	#print results
@@ -1332,6 +1336,7 @@ then
 		#set dates for datefun() processing
 		((${#2})) && [[ $2 != *[!0-9@.+-]* ]] &&
 		  set -- "${@:1:1}" @"${2##@}" "${@:3}";
+
 		((${#1})) && [[ $1 != *[!0-9@.+-]* ]] &&
 		  set -- @"${1##@}" "${@:2}";
 	fi
@@ -1397,3 +1402,10 @@ else
 
 	mainf "$@"
 fi
+
+#     ,.---.,
+#    /  \ /  \\  shell
+#   || + x - ||
+#   \\  /.\  /
+#     `'---'; datediff.sh
+#
