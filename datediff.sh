@@ -1,6 +1,6 @@
 #!/usr/bin/env ksh
 # datediff.sh - Calculate time ranges between dates
-# v0.27.1  oct/2025  mountaineerbr  GPLv3+
+# v0.28  oct/2025  mountaineerbr  GPLv3+
 [[ -n $BASH_VERSION ]] && shopt -s extglob  #bash2.05b+/ksh93u+/zsh5+
 [[ -n $ZSH_VERSION  ]] && setopt NO_SH_GLOB KSH_GLOB KSH_ARRAYS SH_WORD_SPLIT GLOB_SUBST
 
@@ -199,27 +199,30 @@ OPTIONS
 	-vvv 	Change print layout, verbose levels."
 
 
-# TESTING SCRIPTS
+# TESTING SUMMARY
+# Testing scripts and a lot more notes are available at the project repository.
 # The project is hosted at <https://github.com/mountaineerbr/shellDatediff>.
-# Complementary code for testing and a lot more notes are hosted there.
 #
-# Error rate for the compound range calculation stabilises at about .6%
-# of all tested dates. A little over half of the errors is due to
-# `C-code datediff' printing results with more than 4 weeks (instead of
-# it adding to months). All other differences occur with ``end-of-month
-# vs start-of-month'' dates, such as days `29, 30 or 31' of one date
-# against days `1, 2 or 3' of the other date.
+# Compound range calculation diverges from the reference `c-code datediff'
+# implementation in approximately 0.6% of all tested date pairs. These are
+# not considered errors, but rather differences in refinement rules.
+#
+# Most differences at the time of testing were due to edge cases involving
+# month boundaries, such as days `29, 30, or 31' of one date against days
+# `1, 2, or 3' of the other. The divergences occur when this script favours
+# a more granular result of four full weeks and a few remainder days instead
+# of rolling them into an extra month.
 #
 # For example the following dates:
-#      ``1988-01-31T07:00:00Z  vs  1988-12-05T11:00:00Z''
-# which results differ as:
-#      sh =  0Y 2M 4W 3D  4H 0MIN 0S
-#      dd =  0y 3m 0w 0d  4h 0min 0s
+#      ``1988-01-31T07:00:00-00  vs  1988-05-01T11:00:00-00''
 #
-# Because the start date is ``Dec 31st'', one can consider a full month
-# count only at ``Apr 30th'' or `Apr 31st' which does not exist but is
-# equivalent to ``May 1st''. These results are considered correct because
-# of different refinement rules.
+# which results differ as:
+#      shell  =  0Y 2M 4W 3D  4H 0MIN 0S
+#      c-code =  0y 3m 0w 0d  4h 0min 0s
+#
+# As the start date is ``Jan 31st'', counting another full month can only
+# be considered at ``Apr 30th'' or ``May 1st''. Nonetheless, both results
+# are considered valid under their respective calculation logic.
 
 
 #globs
