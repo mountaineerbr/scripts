@@ -1,4 +1,4 @@
-#!/usr/bin/env ksh
+#!/usr/bin/env bash
 # datediff.sh - Calculate time ranges between dates
 # v0.28  oct/2025  mountaineerbr  GPLv3+
 [[ -n $BASH_VERSION ]] && shopt -s extglob  #bash2.05b+/ksh93u+/zsh5+
