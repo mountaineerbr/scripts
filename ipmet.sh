@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# v0.4.5  by mountaineerbr  GPLv3+
+# v0.5  dec-2005  by mountaineerbr  GPLv3+
 # imagens de radar do ipmet e simepar
 # Instituto de Pesquisas Meteorológicas (UNESP)
 # Sistema de Tecnologia e Monitoramento Ambiental do Paraná
@@ -27,13 +27,19 @@ HELP=" 	ipmet.sh -- Imagens de Radar do IPMET e SIMPEPAR
 	ipmet.sh [-ss] [-L TEMPO] 
 	
 	O script puxa a última imagem de radar do IPMET ou SIMEPAR e a
-	abre com $IMGVIEWER . Por padrão, acessa o radar do IPMET.
+	abre com um visualizador de imagem. Por padrão, acessa o radar
+	do IPMET.
 
 	Pode-se puxar imagens repetidamente com a opção -l e setar o
 	tempo entre reconexões com opção -L TEMPO, em que TEMPO é um
 	argumento entendido por \`sleep'.
 
-	Diretório de cache: $TEMPD .
+	O parâmetro de ambiente \$IMGVIEWER deve conter um programa
+	para visualizar a imagem; Declare como \`:' para não abrir
+	automaticamente; atual: \`$IMGVIEWER'.
+
+	Diretório de cache pode ser alterado com \$TMPDIR;
+	atual: \`$TEMPD'.
 
 
 	Opções
@@ -138,6 +144,6 @@ else
 	then 	simeparf;
 	else 	ipmetf;
 	fi &&
-	( "$IMGVIEWER" "$TEMPFILE" & )
+	( ! command -v "$IMGVIEWER" >/dev/null || "$IMGVIEWER" "$TEMPFILE" & )
 fi
 
