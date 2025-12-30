@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # wf.sh  --  weather forecast from the norway meteorological institute
-# v0.8  apr/2025  by mountaineerbr
+# v0.9  jan/2026  by mountaineerbr
 
 # Favourite Locations (globs)
 # name:latitude:longitude:altitude;
@@ -86,10 +86,20 @@ DESCRIPTION
 	Option -k checks main weather API status.
 
 
+	Open-Meteo API
+
+	To request the weather forecast (table output), use -w. This behaves
+	similarly to the default Norwegian Meteorological Institute mode.
+	Combine with -g to generate graphs.
+
+	To print a summary of current weather conditions, use -ww.
+
+
 	Geo Coordinate APIs
 
 	This script queries OpenStreetMap (free) or OpenCageData for geo
-	coordinates, and Open-Elevation or Open-Meteo for altitude info.
+	coordinates (when envar \$OPENCAGEKEY is set), and
+	Open-Elevation or Open-Meteo for altitude info.
 	
 	Option -c queries and prints GPS coordinate information only.
 
@@ -97,7 +107,7 @@ DESCRIPTION
 	Sunrise and Moon Rise Times
 
 	Option -s retrieves information about sunrise and moonrise
-	related times.
+	related times (from the Norway Institute of Meteorology).
 	
 	Note that \"CITY NAME\" must be set as the first positional
 	argument, or set latitude and longitude as first and second
@@ -159,9 +169,11 @@ OPTIONS
 	-m METRES
 		Set altitude, height (integer, metres).
 	-s [\"LOCATION\"|[LAT] [LON]] [DATE] [OFFSET]
-		Sunrise and moonrise statuses.
-	-u 	Print UTC time.
-	-v 	Script version."
+		Sunrise and moonrise status.
+	-u 	Use UTC time.
+	-v 	Script version.
+	-w 	Forecast from Open-Meteo (use -g for graphs).
+	-ww 	Current weather conditions from Open-Meteo."
 
 
 #plot fun
@@ -249,7 +261,10 @@ prompt_altitudef()
 #remove accentuation
 rmaccent()
 {
-	sed 'y/äÄáÁàÀãÃâÂëËéÉèÈẽẼêÊïÏíÍìÌĩĨîÎöÖóÓòÒõÕôÔüÜúÚùÙũŨûÛçÇñÑ/aAaAaAaAaAeEeEeEeEeEiIiIiIiIiIoOoOoOoOoOuUuUuUuUuUcCnN/' || cat
+	iconv -f utf-8 -t ascii//TRANSLIT 2>/dev/null ||
+	perl -Mutf8 -CS -pe 'tr/äÄáÁàÀãÃâÂëËéÉèÈẽẼêÊïÏíÍìÌĩĨîÎöÖóÓòÒõÕôÔüÜúÚùÙũŨûÛçÇñÑ/aAaAaAaAaAeEeEeEeEeEiIiIiIiIiIoOoOoOoOoOuUuUuUuUuUcCnN/' 2>/dev/null || 
+	sed -e 'y/äÄáÁàÀãÃâÂëËéÉèÈẽẼêÊïÏíÍìÌĩĨîÎöÖóÓòÒõÕôÔüÜúÚùÙũŨûÛçÇñÑ/aAaAaAaAaAeEeEeEeEeEiIiIiIiIiIoOoOoOoOoOuUuUuUuUuUcCnN/' 2>/dev/null ||
+	cat
 }
 
 #retrieve coordinates by location name and set vars
@@ -385,28 +400,27 @@ mainf()
 	fi
 
 	jqout=$(jq -r ".properties.timeseries[] |
-\"\(.time$local) \
-\(.data.instant.details |
-	\"\(.air_temperature // \"?\")ºC \
-\(.relative_humidity // \"?\")% \
-\(.dew_point_temperature // \"?\")ºC \
-\(.fog_area_fraction // \"?\") \
-\(.ultraviolet_index_clear_sky // \"?\")UV \
-\(.air_pressure_at_sea_level // \"?\")hPa \
-\(.wind_speed // \"?\")m/s \
-\(.wind_from_direction // \"?\")º \
-\(.cloud_area_fraction // \"?\")% \
-\(.cloud_area_fraction_high // \"?\")% \
-\(.cloud_area_fraction_medium // \"?\")% \
-\(.cloud_area_fraction_low // \"?\")%\"
-		) \
-\(.data.next_1_hours.details |
-	\"\(.precipitation_amount // \"?\")mm\") \
-\(.data.next_6_hours.details |
-	\"\(.precipitation_amount // \"?\")mm \
-\(.air_temperature_max // \"?\")ºC \
-\(.air_temperature_min // \"?\")ºC\")\"" <<<"$data")
-	  ret=$((ret+$?));
+	  (.data.instant.details // {}) as \$i |
+	  (.data.next_1_hours.details // {}) as \$n1 |
+	  (.data.next_6_hours.details // {}) as \$n6 |
+	  \"\(.time${local}) \
+	\(\$i.air_temperature // \"?\")ºC \
+	\(\$i.relative_humidity // \"?\")% \
+	\(\$i.dew_point_temperature // \"?\")ºC \
+	\(\$i.fog_area_fraction // \"?\") \
+	\(\$i.ultraviolet_index_clear_sky // \"?\")UV \
+	\(\$i.air_pressure_at_sea_level // \"?\")hPa \
+	\(\$i.wind_speed // \"?\")m/s \
+	\(\$i.wind_from_direction // \"?\")º \
+	\(\$i.cloud_area_fraction // \"?\")% \
+	\(\$i.cloud_area_fraction_high // \"?\")% \
+	\(\$i.cloud_area_fraction_medium // \"?\")% \
+	\(\$i.cloud_area_fraction_low // \"?\")% \
+	\(\$n1.precipitation_amount // \"?\")mm \
+	\(\$n6.precipitation_amount // \"?\")mm \
+	\(\$n6.air_temperature_max // \"?\")ºC \
+	\(\$n6.air_temperature_min // \"?\")ºC\"" <<<"$data")
+	ret=$((ret+$?));
 	#.properties.meta - concerns about value units.
 	#.probability_of_precipitation - only some locations.
 	#next_1_hours and next_6_hours may have additional data for some locations.
@@ -436,6 +450,137 @@ mainf()
 		colcutf 15 <<<"$jqout" | _plotf 'Precipitation(6h)' date mm &&
 		colcutf  2 <<<"$jqout" | _plotf Temperature date ºC
 	fi 2>/dev/null || ! echo "$SN: err: GNUPlot" >&2;
+
+	return $((ret+$?))
+}
+
+#open-meteo
+mainf_omf()
+{
+	local data altitude query jqout header url ret
+	local _z _tz_hour sign val tz
+
+	if [[ ${@:$#} = [0-9]*[Mm] ]]
+	then
+		HGT=${HGT:-${@:${#}}};
+		set -- "${@:1:${#}-1}";
+	elif ((${#}>1)) && [[ ${@:${#}-1:1} = [0-9]*[Mm] ]]
+	then
+		HGT=${HGT:-${@:${#}-1:1}};
+		set -- "${@:1:${#}-2}" "${@:${#}}";
+	fi; HGT=${HGT%%[Mm,.]*};
+
+	query="$*"
+	[[ $query = *[[:alnum:]][[:alnum:]]* ]] || query='São Paulo'
+
+	if ! gpshelperf "$query"
+	then 	! echo "$SN: err: cannot get geo coordinates -- $query" >&2
+		return 1
+	fi
+
+	#prompt_altitudef "$LAT" "$LNG"
+	[[ -z $HGT ]] || altitude="$HGT"
+
+	if ((OPTL))
+	then
+		tz="GMT"
+	else  #timezone
+		if (( BASH_VERSINFO[0] >= 4 )); then
+		    _z=$(printf '%(%z)T' -1)
+		else
+		    _z=$(date +%z)
+		fi
+
+		# 2. Extract the sign and the hour
+		# We take the first 3 characters: -03 or +05
+		_tz_hour=${_z:0:3}
+		
+		# 3. Format for Open-Meteo (GMT-3)
+		# Strip leading zero from the hour if it's not the only digit
+		# e.g., -03 becomes -3, +05 becomes +5
+		# Using parameter expansion to strip '0' after the sign
+		sign=${_tz_hour:0:1}
+		val=${_tz_hour:1:2}
+		tz="GMT${sign}${val##0}"
+	fi
+
+	#get data
+	printf '%s\n' 'Open-Meteo' >&2
+	if ((OPTW>1))
+	then
+		#current weather
+		url="https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LNG}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m,precipitation,cloud_cover&timezone=${tz}&elevation=${altitude:-nan}"
+
+		data=$(curl -\# -fL --compressed -X GET -H "$UAG" -H 'Accept: application/json' "$url")
+		ret=$((ret+$?));
+
+		if ((OPTE))
+		then 	printf '%s\n' "$data"
+			return
+		fi
+		echo "Lat: $LAT  Lng: $LNG  ${HGT:+Alt: $HGT  }${FORMATTED:-$query}" >&2
+
+		jq -r '
+		  (.current // {}) as $c |
+		  (.current_units // {}) as $u |
+		  [
+		    ["METRIC", "VALUE", "UNIT"],
+		    ["------", "-----", "----"],
+		    ["Cloud_Cover", ($c.cloud_cover // "?"), ($u.cloud_cover // "")],
+		    ["Precipitation", ($c.precipitation // "?"), ($u.precipitation // "")],
+		    ["Wind_Direction", ($c.wind_direction_10m // "?"), ($u.wind_direction_10m // "")],
+		    ["Wind_Speed", ($c.wind_speed_10m // "?"), ($u.wind_speed_10m // "")],
+		    ["Humidity", ($c.relative_humidity_2m // "?"), ($u.relative_humidity_2m // "")],
+		    ["Temperature", ($c.temperature_2m // "?"), ($u.temperature_2m // "")]
+		  ] | .[] | @tsv
+		' <<<$data | column -t -s $'\t' || ! jq . <<<$data >&2;
+	else
+		#detailed forecast
+		url="https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LNG}&daily=precipitation_sum,precipitation_hours&hourly=temperature_2m,relative_humidity_2m,precipitation,pressure_msl,cloud_cover,wind_speed_80m&timezone=${tz}&elevation=${altitude:-nan}&forecast_days=16"
+
+		data=$(curl -\# -fL --compressed -X GET -H "$UAG" -H 'Accept: application/json' "$url")
+		ret=$((ret+$?));
+
+		if ((OPTE))
+		then 	printf '%s\n' "$data"
+			return
+		fi
+
+		jqout=$(jq -r '
+		  (.hourly // {}) as $h | (.hourly_units // {}) as $u |
+		  ["TIMESTAMP", "TEMPERATURE", "HUMIDITY", "PRECIP", "PRESSURE", "CLOUDS", "WIND"],
+		  ["---------", "-----------", "--------", "------", "--------", "------", "----"],
+		  (range($h.time // [] | length) as $i | [
+		    ($h.time[$i] // "?"),
+		    "\($h.temperature_2m[$i] // "?") \($u.temperature_2m // "")",
+		    "\($h.relative_humidity_2m[$i] // "?") \($u.relative_humidity_2m // "")",
+		    "\($h.precipitation[$i] // "?") \($u.precipitation // "")",
+		    "\($h.pressure_msl[$i] // "?") \($u.pressure_msl // "")",
+		    "\($h.cloud_cover[$i] // "?") \($u.cloud_cover // "")",
+		    "\($h.wind_speed_80m[$i] // "?") \($u.wind_speed_80m // "")"
+		  ])
+		  | @tsv
+		' <<<$data)
+		ret=$((ret+$?));
+
+		#print tables
+		if ((!OPTG)) && [[ -t 1 ]]
+		then 	column -t -s $'\t' <<<"$jqout" | less -S
+		else 	printf '%s\n' "$jqout"
+		fi
+		echo "Lat: $LAT  Lng: $LNG  ${HGT:+Alt: $HGT  }${FORMATTED:-$query}" >&2
+
+		#print gfx?
+		if ((OPTG))
+		then 	jqout=$(tr \? 0 <<<"$jqout" | tr -d 'msº°%UVChPakm/h')  #fix input for graphs
+			colcutf  6 <<<"$jqout" | _plotf CloudAreaFraction date % &&
+			colcutf  3 <<<"$jqout" | _plotf Humidity date % &&
+			colcutf  7 <<<"$jqout" | _plotf WindSpeed date km/h &&
+			colcutf  5 <<<"$jqout" | _plotf PressureAtSeaLevel date hPa &&
+			colcutf  4 <<<"$jqout" | _plotf 'Precipitation' date mm &&
+			colcutf  2 <<<"$jqout" | _plotf Temperature date ºC
+		fi 2>/dev/null || ! echo "$SN: err: GNUPlot" >&2;
+	fi
 
 	return $((ret+$?))
 }
@@ -506,9 +651,9 @@ sunrisef()
 
 
 #parse options
-while getopts bcd:eghklum:sv1234567890 c
+while getopts bcd:eghklum:svw1234567890 c
 do case $c in
-	b) unset OPENCAGEKEY;;
+	b) OPENCAGEKEY= OPENCAGE_API_KEY= ;;
 	c) OPTC=1 ;;
 	d) if [[ -d $OPTARG ]]
 		then 	OPTG=1 TMPDIR="${OPTARG%/}"
@@ -524,12 +669,15 @@ do case $c in
 	m) HGT=${OPTARG%%[Mm,.]*};;  #altitude
 	s) OPTS=1 ;;  #sunrise, moon rise
 	v) grep -m1 '^# v[0-9]' "$0" ;exit ;;
+	w) ((++OPTW)) ;;
 	[0-9.]) ((--OPTIN)) ;break;;
 	\?) exit 1 ;;
    esac
 done
 shift $((OPTIND - 1))
 unset c
+
+OPENCAGEKEY=${OPENCAGEKEY:-$OPENCAGE_API_KEY};
 
 #check for required pkgs
 if ! command -v curl jq &>/dev/null
@@ -539,6 +687,7 @@ elif ((OPTG)) && ! command -v gnuplot &>/dev/null
 then 	echo "$SN: package GNUPlot is optionally required" >&2
 	unset OPTG
 fi
+
 
 #call opt fun
 #-k check weather api status
@@ -550,6 +699,9 @@ then 	sunrisef "$@"
 #-c gps helper
 elif ((OPTC))
 then 	gpshelperf "$@"
+#open-meteo
+elif ((OPTW))
+then 	mainf_omf "$@"
 #main, weather fun
 else 	mainf "$@"
 fi

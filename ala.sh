@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ala.sh -- arch linux archive explorer, search and download
-# v0.16.11  nov/2023  by castaway
+# v0.17  jan/2026  by castaway
 
 #defaults
 #script name
@@ -10,7 +10,7 @@ SN="${0##*/}"
 DEFALADATE=last
 
 #calculate size of the following repos
-DEFCALCREPOS=( core extra community multilib )
+DEFCALCREPOS=( core extra multilib )
 
 #default ala server
 URL=https://archive.archlinux.org
@@ -43,7 +43,7 @@ URL1=$URL/packages  URL2=$URL/repos  URL3=$URL/iso
 CACHEDIR="${TMPDIR:-/tmp}/$SN".tmp
 
 #more defaults
-AUTOREPOS=( core extra community )
+AUTOREPOS=( core extra )
 VALIDREPOS='pool|sources|community|community-staging|community-testing|core|extra|gnome-unstable|kde-unstable|multilib|multilib-staging|multilib-testing|staging|testing|core-testing|extra-testing|core-staging|extra-testing'
 MONTHSF='january|february|march|april|may|june|july|august|september|october|november|december'
 MONTHS='jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec'
@@ -71,9 +71,9 @@ HELP="NAME
 SYNOPSIS
 	$SN  [-2p]        [.|/|a-z|PKGNAME|URLPATH]
 	$SN  [-2d]        [DATE] [REPO] [x86_64|i686] [..]
-	$SN  [-2d] [-cc]  [DATE] [REPOS]
+	$SN  [-2d] -c     [DATE] [REPOS]
 	$SN  [-2d] -i     [DATE|URLPATH]
-	$SN  [-2d] [-kk]  [DATE] [REPOS] [x86_64|i686] [[.|*] PKGNAME] 
+	$SN  [-2d] -kk    [DATE] [REPOS] [x86_64|i686] [[.|*] PKGNAME] 
 	$SN  [-2d] -u     [DATES]
 	$SN  -nn          [NUM]
 	$SN  -hov
@@ -135,17 +135,15 @@ DESCRIPTION
 
 	To navigate into specific subrepos/subfolders, use a relative
 	url path such as DATE/REPO in which REPO is one listed under a
-	DATE, such as: core, extra, community, community-staging,
-	community-testing, gnome-unstable, kde-unstable, multilib,
-	multilib-staging, multilib-testing, staging and testing.
+	DATE, such as: core, extra, or multilib and their -staging and
+	-testing counterparts.
 
 	To list all packages at ALA and their versions, set operator \`.'
 	with no further positional arguments. To calculate the size of
 	repositories (core, extra, etc) of a specific DATE use option -c.
 	Default repos to option -c are ${DEFCALCREPOS[*]} . Some other
 	repos can be included in the sum function, check the script source
-	code, section defaults. Pass twice to get data from repo.db.tar.gz
-	files of repos instead from repo html pages.
+	code, section defaults. This reads file sizes from repo.db.tar.gz.
 
 	Option -k dumps package information of a repo database .db file
 	from a given DATE or special repo.  PACKAGENAME must be last po-
@@ -239,9 +237,9 @@ USAGE EXAMPLES
 		
 
 	    Here, we want to calculate sizes of only extra and
-	    community  repos from the special date repo last
+	    multilib repos from the special date repo last
 		
-	    	$ $SN -c last extra community
+	    	$ $SN -c last extra multilib
 
 
 	(3) Navigate downwards levels and autocomplete path of a
@@ -251,10 +249,6 @@ USAGE EXAMPLES
 	    	$ $SN 2020/01/01/core..
 	    	$ $SN 2020/01/01/core/os/x86_64/
 	
-		$ $SN last/community..
-	    	$ $SN last/community/os/x86_64/
-
-
 	(4) Print repo packages from a DATE, when no repo is given,
 	    default repos accessed are ( ${AUTOREPOS[*]} ):
 		
@@ -271,10 +265,10 @@ USAGE EXAMPLES
 
 
 		Dump information of all packages starting with firefox
-		in extra and community repos of $DEFALADATE:
+		in extra and multilib repos within the $DEFALADATE archive
+		(may use basic globbing in package name):
 
-		$ $SN -k community extra  firefox
-		$ $SN -k extra  'firefox-[0-9]'
+		$ $SN -k extra multilib  'wine*'
 
 
 	(6) Get detailed information of all packages of a REPO (core)
@@ -337,14 +331,13 @@ OPTIONS
 	Functions
 	-a 	   List all packages from AUR.
 	-c  [DATE] [REPOS]
-		   Calculate REPOS sizes from DATE; file sizes from webpage;
-		   defaults DATE=$DEFALADATE, REPOS=( ${AUTOREPOS[*]} ).
-	-cc [DATE] [REPOS]
-		   Same as -c but file sizes are from db.tar.gz.
+		   Calculate REPOS sizes from DATE; default DATE=$DEFALADATE,
+		   CALCREPOS=( ${AUTOREPOS[*]} ).
 	-i  DATE   Use the ISO archives.
 	-kK [DATE] [REPOS] [i686|x86_64] PKGNAME
-		   Dump information of packages; defaults DATE=$DEFALADATE ,
-		   REPOS=( ${AUTOREPOS[*]} ); -K dumps more info.
+		   Dump information of packages; default DATE=$DEFALADATE,
+		   CALCREPOS=( ${AUTOREPOS[*]} ).
+	-K         Same as -k, but dumps more info.
 	-u, -s [DATES] 
 		   Print update and sync times of a DATE repo."
 
@@ -570,7 +563,7 @@ checkdatef() {
 #-c calculate repo sizes
 calcf() {
 	local arg date i
-	local URLADD PAGE PROC SIZESUM PKGS SIGPKGS PKGSUM SIGPKGSUM TSSUM SIZES SSUM
+	local URLADD PKGSUM TSSUM SIZES SSUM
 
 	#test if there is any user repo name input
 	#is calling REPOS directly? forgot DATE info?
@@ -609,81 +602,36 @@ calcf() {
 	URLADD=$(consolidatepf "$URL2/$1")
 
 	#how to get data?
-	#from html pages
-	if ((COPT==1))
-	then
-		#header
-		printf '%s\n''<%s>\n' 'Arch Linux Archive' "$URLADD"
-		
-		#calc sizes of repos
-		for i in "${CALCREPOS[@]}"
-		do 	printf 'wait \r' >&2
-
-			#get repo list
-			PAGE=$( cachef 3 "$URLADD/$i/os/x86_64/" )
-			
-			#calc size in the 4th column
-			PROC=( $(
-				#try to print only the sizes column
-				"${WBROWSERDEF[@]}" <<<"$PAGE" |
-					awk "{ print \$NF }" | 
-					sed -e 's/\r//g ;s/-//g ;/^[[:space:]]*$/d' \
-					-e 's/K/*1000/ ;s/M/*1000000/g ;s/G/*1000000000/g ;/[^0-9*]/ d'
-			) )
-
-			#sum sizes
-			SIZESUM=$( bc <<<"(${PROC[@]/%/+}0)/1000000" ) #bytes to Kb
-
-			#calc stats
-			PKGS=$(grep -Ec '\.pkg\.tar\.(gz|xz|zst)"' <<<"$PAGE")
-			SIGPKGS=$(grep -Ec '\.pkg\.tar\.(gz|xz|zst)\.sig"' <<<"$PAGE")
-
-			#arrange repo name to print
-			i="${i:0:11}"
-			printf '%s    \t%5dMB  %5d pkgs  %5d sigs\n' "${i^^}" "$SIZESUM" "$PKGS" "$SIGPKGS"
-			
-			#grand total sums for next iteration
-			PKGSUM=$((PKGSUM+PKGS))
-			SIGPKGSUM=$((SIGPKGSUM+SIGPKGS))
-			TSSUM=$((TSSUM+SIZESUM))
-		done
-
-		#total
-		printf 'TOTAL   \t%5dGB  %5d pkgs  %5d sigs\n' "$( bc <<<"$TSSUM/1000" )" "$PKGSUM" "$SIGPKGSUM"
-	
 	#the following alternative method uses
 	#db.tar.gz files from each repo
-	else
-		#header
-		printf '%s\n''%s\n''<%s/*/repo.db.tar.gz>\n' \
-			'Arch Linux Archive' \
-			'Sigs are ignored' \
-			"$URLADD"
+	#header
+	printf '%s\n''\n''<%s/*/repo.db.tar.gz>\n' \
+		'Arch Linux Archive' \
+		"$URLADD"
 
-		for i in "${CALCREPOS[@]}"; do
-			printf 'wait\r' >&2
+	for i in "${CALCREPOS[@]}"; do
+		printf 'wait\r' >&2
 
-			#get repo list
-			SIZES=( $( cachef 3 "$URLADD/$i/os/x86_64/${i}.db.tar.gz" |
-					tar --extract --wildcards -Ozf - '*/desc' 2>/dev/null |
-					sed -n '/%CSIZE%/{n;p}' ) )
-			#bsdtar -xf - -O '*/desc'
-			
-			#sum sizes
-			SSUM=$( bc <<<"(${SIZES[@]/%/+}0)/1000000" ) #bytes to Kb
+		#get repo list
+		SIZES=( $( cachef 3 "$URLADD/$i/os/x86_64/${i}.db.tar.gz" |
+				tar --extract --wildcards -Ozf - '*/desc' 2>/dev/null |
+				sed -n '/%CSIZE%/{n;p}' ) )
+		#bsdtar -xf - -O '*/desc'
+		
+		#sum sizes
+		SSUM=$( bc <<<"(${SIZES[@]/%/+}0)/1000000" ) #bytes to Kb
 
-			#arrange repo name to print
-			i="${i:0:11}"
-			printf '%s    \t%5dMB  %5d pkgs\n' "${i^^}" "$SSUM" "${#SIZES[@]}"
-			
-			#grand total sums for next iteration
-			PKGSUM=$((${#SIZES[@]}+PKGSUM))
-			TSSUM=$((TSSUM+SSUM))
-		done
+		#arrange repo name to print
+		i="${i:0:11}"
+		printf '%s    \t%5dMB  %5d pkgs\n' "${i^^}" "$SSUM" "${#SIZES[@]}"
+		
+		#grand total sums for next iteration
+		PKGSUM=$((${#SIZES[@]}+PKGSUM))
+		TSSUM=$((TSSUM+SSUM))
+	done
 
-		#total
-		printf 'TOTAL   \t%5dGB  %5d pkgs\n' "$( bc <<<"$TSSUM/1000" )" "$PKGSUM"
-	fi
+	#total
+	printf 'TOTAL   \t%5dGB  %5d pkgs\n' "$( bc <<<"$TSSUM/1000" )" "$PKGSUM"
 }
 
 #-k: pkg dump
@@ -904,7 +852,7 @@ searchf() {
 			if [[ "$LASTARG" = @(pool|sources) ]] && 
 				[[ "$*" = @(last|week|month) || "${*//[^0-9]}" -gt 20181231 || -n "$OPT3" ]]
 			then
-				for COMPLETE in /community/ /packages/
+				for COMPLETE in /packages/  #/community/
 				do 	{
 						#set url
 						URLADD="$URL2/${*}/$LASTARG/$COMPLETE"
