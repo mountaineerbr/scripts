@@ -1,9 +1,14 @@
 #!/usr/bin/env zsh
-# v0.1.1  aug/2025  by mountaineerbr
+# v0.1.2  aug/2025  by mountaineerbr
 # dump some google weather api info
 # requires google api key and weather api access enabled
 #https://developers.google.com/maps/documentation/weather/current-conditions
 #https://developers.google.com/maps/documentation/weather/daily-forecast
+
+if [[ -z "${GOOGLE_API_KEY:-}" ]]; then
+  print -u2 "Error: GOOGLE_API_KEY environment variable is not set."
+  exit 1
+fi
 
 if command -v google_geocode.zsh >/dev/null 2>&1 &&
 	GPS=$(google_geocode.zsh "$@")

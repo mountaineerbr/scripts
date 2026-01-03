@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # wf.sh  --  weather forecast from the norway meteorological institute
-# v0.9  jan/2026  by mountaineerbr
+# v0.9.1  jan/2026  by mountaineerbr
 
 # Favourite Locations (globs)
 # name:latitude:longitude:altitude;
@@ -577,7 +577,7 @@ mainf_omf()
 			colcutf  3 <<<"$jqout" | _plotf Humidity date % &&
 			colcutf  7 <<<"$jqout" | _plotf WindSpeed date km/h &&
 			colcutf  5 <<<"$jqout" | _plotf PressureAtSeaLevel date hPa &&
-			colcutf  4 <<<"$jqout" | _plotf 'Precipitation' date mm &&
+			colcutf  4 <<<"$jqout" | _plotf 'Precipitation(1h)' date mm &&
 			colcutf  2 <<<"$jqout" | _plotf Temperature date ºC
 		fi 2>/dev/null || ! echo "$SN: err: GNUPlot" >&2;
 	fi
