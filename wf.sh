@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # wf.sh  --  weather forecast from the norway meteorological institute
-# v0.9.1  jan/2026  by mountaineerbr
+# v0.9.2  jan/2026  by mountaineerbr
 
 # Favourite Locations (globs)
 # name:latitude:longitude:altitude;
@@ -536,7 +536,7 @@ mainf_omf()
 		' <<<$data | column -t -s $'\t' || ! jq . <<<$data >&2;
 	else
 		#detailed forecast
-		url="https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LNG}&daily=precipitation_sum,precipitation_hours&hourly=temperature_2m,relative_humidity_2m,precipitation,pressure_msl,cloud_cover,wind_speed_80m&timezone=${tz}&elevation=${altitude:-nan}&forecast_days=16"
+		url="https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LNG}&daily=precipitation_sum,precipitation_hours&hourly=temperature_2m,relative_humidity_2m,precipitation,pressure_msl,cloud_cover,wind_speed_80m&daily=precipitation_sum&timezone=${tz}&elevation=${altitude:-nan}&forecast_days=16"
 
 		data=$(curl -\# -fL --compressed -X GET -H "$UAG" -H 'Accept: application/json' "$url")
 		ret=$((ret+$?));
@@ -547,14 +547,15 @@ mainf_omf()
 		fi
 
 		jqout=$(jq -r '
-		  (.hourly // {}) as $h | (.hourly_units // {}) as $u |
-		  ["TIMESTAMP", "TEMPERATURE", "HUMIDITY", "PRECIP", "PRESSURE", "CLOUDS", "WIND"],
-		  ["---------", "-----------", "--------", "------", "--------", "------", "----"],
+		  (.hourly // {}) as $h | (.hourly_units // {}) as $u | (.daily // {}) as $d | (.daily_units // {}) as $du |
+		  ["TIMESTAMP", "TEMPERATURE", "HUMIDITY", "PRECIP", "D_PRECIP", "PRESSURE", "CLOUDS", "WIND"],
+		  ["---------", "-----------", "--------", "------", "--------", "--------", "------", "----"],
 		  (range($h.time // [] | length) as $i | [
 		    ($h.time[$i] // "?"),
 		    "\($h.temperature_2m[$i] // "?") \($u.temperature_2m // "")",
 		    "\($h.relative_humidity_2m[$i] // "?") \($u.relative_humidity_2m // "")",
 		    "\($h.precipitation[$i] // "?") \($u.precipitation // "")",
+		    "\($d.precipitation_sum[$i/24|floor] // "?") \($du.precipitation_sum // "")",
 		    "\($h.pressure_msl[$i] // "?") \($u.pressure_msl // "")",
 		    "\($h.cloud_cover[$i] // "?") \($u.cloud_cover // "")",
 		    "\($h.wind_speed_80m[$i] // "?") \($u.wind_speed_80m // "")"
@@ -573,11 +574,12 @@ mainf_omf()
 		#print gfx?
 		if ((OPTG))
 		then 	jqout=$(tr \? 0 <<<"$jqout" | tr -d 'msº°%UVChPakm/h')  #fix input for graphs
-			colcutf  6 <<<"$jqout" | _plotf CloudAreaFraction date % &&
+			colcutf  7 <<<"$jqout" | _plotf CloudAreaFraction date % &&
 			colcutf  3 <<<"$jqout" | _plotf Humidity date % &&
-			colcutf  7 <<<"$jqout" | _plotf WindSpeed date km/h &&
-			colcutf  5 <<<"$jqout" | _plotf PressureAtSeaLevel date hPa &&
-			colcutf  4 <<<"$jqout" | _plotf 'Precipitation(1h)' date mm &&
+			colcutf  8 <<<"$jqout" | _plotf WindSpeed date km/h &&
+			colcutf  6 <<<"$jqout" | _plotf PressureAtSeaLevel date hPa &&
+			colcutf  5 <<<"$jqout" | _plotf 'Precipitation(daily)' date mm &&
+			colcutf  4 <<<"$jqout" | _plotf 'Precipitation(hourly,previous)' date mm &&  #previous hour of precipitation
 			colcutf  2 <<<"$jqout" | _plotf Temperature date ºC
 		fi 2>/dev/null || ! echo "$SN: err: GNUPlot" >&2;
 	fi
