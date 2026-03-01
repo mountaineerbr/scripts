@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # wf.sh  --  weather forecast from the norway meteorological institute
-# v0.9.3  jan/2026  by mountaineerbr
+# v0.9.4  mar/2026  by mountaineerbr
 
 # Favourite Locations (globs)
 # name:latitude:longitude:altitude;
@@ -434,7 +434,7 @@ mainf()
 	#print tables
 	if ((!OPTG)) && [[ -t 1 ]]
 	then 	column -et -N"$header" <<<"$jqout" | less -S
-	else 	printf '%s\n' "$header" "$jqout"
+	else 	printf '%s\n' "${header//,/$'\t'}" "$jqout"
 	fi
 	echo "Lat: $LAT  Lng: $LNG  ${HGT:+Alt: $HGT  }${FORMATTED:-$query}" >&2
 
