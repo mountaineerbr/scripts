@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Uol.sh -- Puxa cotações do portal do UOL
-# v0.2.25  jan/2021  by mountaineer_br
+# uol.sh -- Puxa cotações do portal do UOL
+# v0.3  mar/2026  by mountaineer_br
 
 #defaults
 #column separator for the -a opt
@@ -11,6 +11,9 @@ SCRIPT="${BASH_SOURCE[0]}"
 LASTLINES=2004
 RED='\e[1;31;40m'
 ENDC='\e[0m'
+
+#user agent
+UAG='User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0'
 
 #make sure locale is set correctly
 export LC_NUMERIC=C
@@ -379,7 +382,8 @@ lstocksf() {
 
 # Cotação dos metais
 metf() {
-	#get data
+	local COT array
+	#get data - incredibly rate-limited server-side
 	COT="$(${YOURAPP} "https://economia.uol.com.br/cotacoes/")"
 	
 	#Debug?
@@ -388,18 +392,34 @@ metf() {
 		exit
 	fi
 
-	printf "UOL - Metais Preciosos\n"
+	printf "UOL - Commodities\n"
+
+	set -f;
+	array=( $(
+	sed -e 's/>/>\n/g' <<<$COT | sed -ne '/^[[:space:]]*Commodities[[:space:]]*</,/^  <tr>/ p' |
+	sed -e 's/<[^>]*>//g' -e '/^[[:space:]]*$/d' -e 's/^[[:space:]][[:space:]]*//g';
+	) );
+	set +f;
+	#fragile html scraping
+	#array:15: Commodities VARIAÇÃO VENDA Petróleo +0,89% US$ 83,274 Ouro -0,72% US$ 5129,190 Prata -1,38% US$ 82,910
 	
-	hf <<<"${COT}" |
-		grep -Eo 'Ouro.{117}' |
-		grep -e 'US$' -e '%' |
-		sed -e 's/[0-9]\s/&\n/g' -e 's/^\s\s*//' -e 's/US\$//g' |
-		grep -Evi '(desce|sobre|d.lar|bolsa|melhor|pior|setor|tem|p.blico|privado|V)' |
-		column -et -N'METAL,VAR,VENDA(US$/OZ)'
-	
-	grep -o "Câmbio\s*Atualizado em..............." <<<"${COT}" |
-		sed -e 's/\s\s*/ /g' -e 's/Atualizado/atualizado/'
+	if ((!${#array[@]}))
+	then
+		! printf '%s\n' "${COT}" >&2;
+	elif ((${#array[@]}>10)) && ((${#array[@]}<20))  #15
+	then
+		{
+		printf '%s\t%s\t%s\n' "${array[@]:0:3}";
+		printf '%s\t%s\t%s %s\n' "${array[@]:3}";
+		} | { 	column -t -s $'\t' || cat ;};
+	else
+		printf '%s\n' "${array[@]}";
+
+	fi
+
+	printf '<%s>\n' "https://economia.uol.com.br/cotacoes/" >&2;
 }
+
 
 # Test for must have packages 
 if command -v curl &>/dev/null; then
