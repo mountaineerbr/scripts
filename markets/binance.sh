@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Binance.sh  --  Market data from Binance public APIs
-# v0.13.16  feb/2023  by mountaineerbr
+# v0.14  mar/2026  by mountaineerbr
 
 #defaults
 
@@ -439,6 +439,9 @@ infof() {
 	then "${WEBSOCATC[@]}" "$ADDR" ;echo ;exit
 	fi
 
+	local max ret;
+	trap 'trap - INT; exit' INT;
+	while
 	#heading
 	printf -- 'Detailed stream of %s %s\n' "${2^^}" "${3^^}"
 	printf -- 'Price, quantity, quote quantity and time\n'
@@ -446,6 +449,14 @@ infof() {
 	#open websocket
 	"${WEBSOCATC[@]}" "$ADDR" |
 		jq --unbuffered -r '"P: \(.p|.[0:11])\tQ: \(.q|.[0:11])\tPQ: \(((.p|tonumber)*(.q|tonumber))|tostring|.[0:10])\t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"'
+	do
+		ret=$?;
+		((++max)); ((max<1024)) || exit $ret;
+		echo 'retry delay..' >&2;
+		sleep 20;
+	done;
+	trap - INT;
+	return $ret;
 }
 
 #-s -w stream of prices
@@ -485,6 +496,9 @@ socketf() {
 	then "${WEBSOCATC[@]}" "$ADDR" ;echo ;exit
 	fi
 
+	local max ret;
+	trap 'trap - INT; exit' INT;
+	while
 	#heading
 	printf 'Stream of %s %s\n' "${2^^}" "${3^^}"
 	#open websocket
@@ -492,6 +506,14 @@ socketf() {
 		while read
 		do printf "\n${FSTR}" "$REPLY"
 		done | "${COLORC[@]}"
+	do
+		ret=$?;
+		((++max)); ((max<1024)) || exit $ret;
+		echo 'retry delay..' >&2;
+		sleep 20;
+	done;
+	trap - INT;
+	return $ret;
 }
 #stdbuf -i0 -o0 -e0 cut -c-8
 
@@ -521,6 +543,9 @@ bookdf() {
 	then "${WEBSOCATC[@]}" "$ADDR" ;echo ;exit
 	fi
 
+	local max ret;
+	trap 'trap - INT; exit' INT;
+	while
 	#heading
 	printf 'Order book %s %s\n' "${2^^}" "${3^^}"
 	printf 'Price and quantity\n'
@@ -540,6 +565,14 @@ bookdf() {
 		)'
 
 	echo
+	do
+		ret=$?;
+		((++max)); ((max<1024)) || exit $ret;
+		echo 'retry delay..' >&2;
+		sleep 20;
+	done;
+	trap - INT;
+	return $ret;
 }
 
 #-bb order book total sizes
@@ -627,6 +660,9 @@ tickerf() {
 	then "${WEBSOCATC[@]}" "$ADDR" ;echo ;exit
 	fi
 
+	local max ret;
+	trap 'trap - INT; exit' INT;
+	while
 	#open websocket and process data
 	"${WEBSOCATC[@]}" "$ADDR" |
 		jq -r '"","---",
@@ -652,6 +688,14 @@ tickerf() {
 			"LastTrad: \(.c|tonumber)  Qty: \(.Q)"'
 
 	echo
+	do
+		ret=$?;
+		((++max)); ((max<1024)) || exit $ret;
+		echo 'retry delay..' >&2;
+		sleep 20;
+	done;
+	trap - INT;
+	return $ret;
 }
 
 #-l list markets and prices
@@ -679,7 +723,7 @@ lcoinsf() {
 }
 
 
-
+AUTOR=( );
 #parse options
 while getopts 1234567890abBcdeofhjlnistuvVwrXz opt
 do
@@ -688,7 +732,7 @@ do
 			SCL="$SCL$opt"
 			;;
 		a) 	#autoreconnect
-			AUTOR=( - autoreconnect: )
+			AUTOR=( autoreconnect: --autoreconnect-delay-millis 20000 - )
 			;;
 		b) #order book depth view
 			((++BOPT))
@@ -794,7 +838,7 @@ if [[ -n "$IOPT$SOPT$BOPT$TOPT" && -z "$CURLOPT" ]]
 then
 	#choose websocat or wscat
 	if ((XOPT==0)) && command -v websocat &>/dev/null
-	then WEBSOCATC=( websocat -nt --ping-interval 20 -E --ping-timeout 42 ${AUTOR[0]} )
+	then WEBSOCATC=( websocat -nt --ping-interval 20 -E --ping-timeout 42 ${AUTOR[@]:1} )
 	elif command -v wscat &>/dev/null
 	then WEBSOCATC=( wscat -c ) ;unset AUTOR
 	else
@@ -807,7 +851,7 @@ then
 	fi
 
 	#set websocket address
-	WSSADD="${AUTOR[1]}wss://stream.binance.${WHICHB}:9443/ws/"
+	WSSADD="${AUTOR[0]}wss://stream.binance.${WHICHB}:9443/ws/"
 fi
 
 #make printf string (1)

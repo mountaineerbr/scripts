@@ -66,15 +66,16 @@ NAME | DESCRIPTION
 :-------------|:-----------
 [bakkt.sh](markets/bakkt.sh) | Price and contract/volume tickers from bakkt public api
 [binance.sh](markets/binance.sh) |  Binance public API, crypto converter, prices, book depth, coin ticker
-[brasilbtc.sh](markets/brasilbtc.sh) | Fetches bitcoin rates from brazilian exchanges public apis. Puxa cotações de bitcoin de agências de câmbio brasileiras de apis públicas
+[bitstamp.sh](markets/bitstamp.sh) | Live price stream from Bitstamp api
 [cgk.sh](markets/cgk.sh) | <Coinggecko.com> public api, convert one crypto, bank/fiat currency or metal into any another, market ticker, cryptocurrency ticker. This is my favorite everyday-use script for all-currency rates!
 [cmc.sh](markets/cmc.sh) |  <Coinmarketcap.com> convert any amount of one crypto, bank/fiat currency or metal into any another, NON-public api access
 [novad.sh](markets/novad.sh) | Puxa dados das apis públicas da NovaDax brasileira. fetch public api data from NovaDax brazilian enchange
-[stocks.sh](markets/stocks.sh) | <Financialmodelingprep.com> latest and historical stock and major index rates
 [uol.sh](markets/uol.sh) | Fetches rates from uol service provider public api. Puxa dados de páginas da api pública do uol economia
 [whalealert.sh](markets/whalealert.sh) | Data from whale-alert.io free api with the latest whale transactions.
 [yahooscrape.sh](markets/yahooscrape.sh) | Scrape some Yahoo! Finance tickers
-<!-- [myc.sh](markets/myc.sh) | Mycurrency.net public api, central bank currency rate converter -->
+
+<!-- [brasilbtc.sh](markets/brasilbtc.sh) | Fetches bitcoin rates from brazilian exchanges public apis. Puxa cotações de bitcoin de agências de câmbio brasileiras de apis públicas -->
+<!-- [stocks.sh](markets/stocks.sh) | <Financialmodelingprep.com> latest and historical stock and major index rates -->
 
 
 ## API KEYS / CHAVES DE API
