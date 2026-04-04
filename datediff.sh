@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # datediff.sh - Calculate time ranges between dates
-# v0.28  oct/2025  mountaineerbr  GPLv3+
+# v0.29  mar/2026  mountaineerbr  GPLv3+
 [[ -n $BASH_VERSION ]] && shopt -s extglob  #bash2.05b+/ksh93u+/zsh5+
 [[ -n $ZSH_VERSION  ]] && setopt NO_SH_GLOB KSH_GLOB KSH_ARRAYS SH_WORD_SPLIT GLOB_SUBST
 
@@ -254,7 +254,7 @@ CFACTOR="${CFACTOR--1892}"  #moon phase correction factor
 function datefun
 {
 	typeset options input_fmt globtest ar chars start variable_iso
-	input_fmt="${INPUT_FMT:-${TIME_ISO8601_FMT%??}}"
+	input_fmt="${INPUT_FMT:-${TIME_ISO8601_FMT%%??}}"
 	[[ $1 = -[uRIv]* ]] && options="$1" && shift
 
 	#ISO8601 variable length
@@ -274,7 +274,7 @@ function datefun
 		if [[ ${1:-+%} != @(+%|@|-f)* && $1${OPTF+x} != +([0-9])?(.[0-9][0-9]) ]]  #[[[[[cc]yy]mm]dd]HH]MM[.ss]
 		then 	set -- -f"${input_fmt}" "$@"
 		elif [[ $1 = @* ]]
-		then 	set -- "-r${1#@}" "${@:2}"
+		then 	set -- "-r${1##@}" "${@:2}"
 		fi
 		${DATE_CMD} ${options} -j "$@"
 	elif ((ASTDATE))
@@ -514,7 +514,7 @@ function phase_of_the_moon 		#0-7, with 0: new, 4: full
 function get_timef
 {
 	typeset input fmt
-	input=${1#@}  fmt="${2:-${TIME_ISO8601_FMT}}"
+	input=${1##@}  fmt="${2:-${TIME_ISO8601_FMT}}"
 
 	if ((OPTDD))
 	then 	echo $EPOCH ;false
@@ -538,14 +538,14 @@ function get_unixf
 #usage: unix_toiso [-R] UNIX [+1|-1] [tzXh] [$tzXm] [tzXs] [+1|-1] [TZh] [$TZm] [TZs]
 function unix_toiso
 {
-	typeset unix unix_adj y_test mo_test d_test max_mday max_yday daysum optr neg_tz tzh tzm tzs TZ_neg TZ_pos TZh TZm TZs noTZs
+	typeset unix unix_adj y_test mo_test d_test max_mday max_yday daysum optr neg_tz tzh tzm tzs TZ_neg TZ_pos TZh TZm TZs trim
 	[[ $1 = -R ]] && { 	optr=1 ;shift ;}
 	
 	((unix=10#0${1##[+-]}));
 	[[ $1 = -* ]] && unix=-$unix;
 
 	neg_tz=${2:--1} tzh=$3 tzm=$4 tzs=$5
-	TZ_neg=${6:--1} TZh=$7 TZm=$8 TZs=$9
+	TZ_neg=${6:--1} TZh=${7:-0} TZm=${8:-0} TZs=$9
 	
 	TZ_pos=${TZ_neg/-/+} TZ_pos=${TZ_pos##$TZ_neg} TZ_pos=${TZ_pos:-${TZ_neg/+/-}}
 	((unix+=( ( (tzh*60*60)+(tzm*60)+tzs)*neg_tz)-( ( (TZh*60*60)+(TZm*60)+TZs)*TZ_neg) ))
@@ -591,18 +591,18 @@ function unix_toiso
 		((s_test=unix))
 	fi
 
-	((TZs)) || noTZs='?????'
+	((TZs)) || TZs= trim='?????'
 	if ((optr))
-	then 	printf "${TIME_RFC5322_FMT_PF%$noTZs}\n" \
+	then 	printf "${TIME_RFC5322_FMT_PF%%$trim}\n" \
 			"$(get_day_in_week $unix_adj)" \
 			"${d_test}" "$(monthconv $mo_test)" "$y_test" \
 			"$h_test" "$m_test" "$s_test" \
-			"$TZ_pos" "$TZh" "$TZm" ${TZs#0}
+			"$TZ_pos" "$TZh" "$TZm" ${TZs##0}
 	else
-		printf "${TIME_ISO8601_FMT_PF%$noTZs}\n" \
+		printf "${TIME_ISO8601_FMT_PF%%$trim}\n" \
 			"$y_test" "$mo_test" "${d_test}" \
 			"$h_test" "$m_test" "$s_test" \
-			"$TZ_pos" "$TZh" "$TZm" ${TZs#0}
+			"$TZ_pos" "$TZh" "$TZm" ${TZs##0}
 	fi
 }
 
@@ -630,7 +630,7 @@ function friday_13th
 
 	[[ $1 = $glob2 ]] && { 	d_tgt=$1 && shift ;} || d_tgt=13
 	IFS="$IFS$SEP" ;set -- $@ ;(($#)) || set -- $(IFS=$' \t\n' get_timef) ;IFS=$' \t\n'
-	day="${3#0}"    month="${2#0}"      year="${1##*(0)}"
+	day="${3##0}"    month="${2##0}"      year="${1##*(0)}"  #year=$((10#${1:-0}))
 	day="${day:-1}" month="${month:-1}" year="${year:-0}"
 	
 	unix=$(datefun ${year}-${month}-${day} +%s) ||
@@ -680,7 +680,7 @@ function prHelpf
 	fi
 
 	#(A)
-	SS=  val=${1#-} val=${val#0} valx=${val//[0.]} int=${val%.*}
+	SS=  val=${1##-} val=${val##0} valx=${val//[0.]} int=${val%.*}
 	[[ $val = *.* ]] && dec=${val#*.} dec=${dec//0}
 	[[ -n $1 && -n $OPTT ]] || ((valx)) || return
 	(( int>1 || ( (int==1) && (dec) ) )) && SS=s
@@ -1053,7 +1053,7 @@ function mainf
 	((range = (d_sum * 3600 * 24) + (h * 3600) + (m * 60) + s))
 
 	#generate unix times arithmetically?
-	((GETUNIX)) && { 	echo ${neg_range%1}${range} ;unset GETUNIX ;return ${ret:-0} ;}
+	((GETUNIX)) && { 	echo ${neg_range%%1}${range} ;unset GETUNIX ;return ${ret:-0} ;}
 	if [[ -z $unix2 ]]
 	then 	if ((
 			(yearA>1970 ? yearA-1970 : 1970-yearA)
@@ -1181,7 +1181,7 @@ function mainf
 		fi
 
 		printf '%s%s\n%s%s%s\n%s%s%s\n%s\n'  \
-			"${BOLD}DATES${NC}" "${neg_range%1}"  \
+			"${BOLD}DATES${NC}" "${neg_range%%1}"  \
 			"${date1_iso8601_pr:-${date1_iso8601:-$inputA}}" ''${unix1:+$'\t'} "$unix1"  \
 			"${date2_iso8601_pr:-${date2_iso8601:-$inputB}}" ''${unix2:+$'\t'} "$unix2"  \
 			"${BOLD}RANGES${NC}"
