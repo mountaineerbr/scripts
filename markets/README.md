@@ -12,7 +12,6 @@ Shell scripts related to finance, stocks, and cryptocurrency
 
 NAME | DESCRIPTION
 :-------------|:-----------
-[bakkt.sh](bakkt.sh) | Price and contract/volume tickers from bakkt public api
 [binance.sh](binance.sh) |  Binance public API, crypto converter, prices, book depth, coin ticker
 [bitstamp.sh](bitstamp.sh) | Live price stream from Bitstamp api
 [cgk.sh](cgk.sh) | <Coinggecko.com> public api, convert one crypto, bank/fiat currency or metal into any another, market ticker, cryptocurrency ticker. This is my favorite everyday-use script for all-currency rates!
@@ -22,6 +21,7 @@ NAME | DESCRIPTION
 [whalealert.sh](whalealert.sh) | Data from whale-alert.io free api with the latest whale transactions.
 [yahooscrape.sh](yahooscrape.sh) | Scrape some Yahoo! Finance tickers
 
+<!-- [bakkt.sh](bakkt.sh) | Price and contract/volume tickers from bakkt public api -->
 <!-- [brasilbtc.sh](brasilbtc.sh) | Fetches bitcoin rates from brazilian exchanges public apis. Puxa cotações de bitcoin de agências de câmbio brasileiras de apis públicas -->
 <!-- [myc.sh](myc.sh) | <Mycurrency.net> public api, central bank currency rate converter -->
 <!--
