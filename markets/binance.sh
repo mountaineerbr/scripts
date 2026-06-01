@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Binance.sh  --  Market data from Binance public APIs
-# v0.14  mar/2026  by mountaineerbr
+# v0.14.1  jun/2026  by mountaineerbr
 
 #defaults
 
@@ -956,7 +956,7 @@ else
 		fi
 
 		BRATE=$(jq -r .price <<<"$DATA")
-		R="$(bc <<<"scale=16 ; ( $1 ) * ( $REVMKT $BRATE )")" || exit
+		R="$(bc <<<"scale=16 ; ( $1 ) * ( $REVMKT ${BRATE:-0} )")" || exit
 	else
 		#try setting the bank function automatically?
 		#call national currency function
@@ -966,6 +966,6 @@ else
 	fi
 
 	#calc and printf results
-	printf "${FSTR}\n" "$R"
+	printf "${FSTR}\n" "${R:-0}"
 fi
 

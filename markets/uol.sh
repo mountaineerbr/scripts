@@ -411,7 +411,7 @@ metf() {
 		{
 		printf '%s\t%s\t%s\n' "${array[@]:0:3}";
 		printf '%s\t%s\t%s %s\n' "${array[@]:3}";
-		} | { 	column -t -s $'\t' || cat ;};
+		} | { 	column -t -s $'\t' || ! cat ;};
 	else
 		printf '%s\n' "${array[@]}";
 

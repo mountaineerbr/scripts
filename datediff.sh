@@ -1,77 +1,79 @@
 #!/usr/bin/env bash
 # datediff.sh - Calculate time ranges between dates
-# v0.29  mar/2026  mountaineerbr  GPLv3+
+# v0.30  jun/2026  mountaineerbr  GPLv3+
 [[ -n $BASH_VERSION ]] && shopt -s extglob  #bash2.05b+/ksh93u+/zsh5+
 [[ -n $ZSH_VERSION  ]] && setopt NO_SH_GLOB KSH_GLOB KSH_ARRAYS SH_WORD_SPLIT GLOB_SUBST
 
+SCRIPT="${0##*/}"
 HELP="NAME
-	${0##*/} - Calculate time ranges / intervals between dates
+	${SCRIPT} - Calculate time ranges / intervals between dates
 
 
 SYNOPSIS
-	${0##*/} [-Rrttuvvv] [-NUM] [-f\"FMT\"] \"DATE1\" \"DATE2\"
-	${0##*/} -FF [-vv] [[DAY_IN_WEEK] [DAY_IN_MONTH]] [START_DATE]
-	${0##*/} [-ee|-l] [-v] YEAR..
-	${0##*/} -m [-v] DATE..
+	${SCRIPT} [-Rrttuvvv] [-NUM] [-f\"FMT\"] \"DATE1\" \"DATE2\"
+	${SCRIPT} -FF [-v] [[DAY_IN_WEEK] [DAY_IN_MONTH]] [START_DATE]
+	${SCRIPT} -ee [-v] YEAR..
+	${SCRIPT} -l [-v] YEAR..
+	${SCRIPT} -m [-v] DATE..
 
 
 DESCRIPTION
-	Calculate time interval (elapsed time) between DATE1 and DATE2
-	in various time units. The \`C-code date' programme is optionally
-	leveraged to process input dates in formats other than ISO-8601
-	and UNIX time.
+	Calculate the time interval (elapsed time) between two DATES
+	in various time range units.
 
-	Special functions include checking for leap years, generating
-	dates for Easter, Carnaval, and Corpus Christi, and calculating
-	the phase of the moon for a specified date.
+	Special functions include calculating dates for Easter, Carnaval,
+	and Corpus Christi, generating lunar calendars, finding the next
+	Friday 13th (or other weekday-on-date combination), and checking
+	for leap years.
+
+	\`C-code date' is optionally leveraged to process input dates in
+	formats other than ISO-8601 and UNIX time (native support).
 
 
 DATE AND TIME CALCULATIONS
-	\`GNU date' accepts mostly free format human readable date strings.
-	If using \`FreeBSD date', input DATE strings must be ISO-8601
-	(\`YYYY-MM-DDThh:mm:ss') or other supported time formats, unless
-	option \`-f FMT' is set to the new input format.
-
-	When \`C-code date' is not available, then input must be formatted
-	as ISO-8601 or UNIX time.
-
 	If DATE is not set, defaults to \`now'. If only one DATE is set,
-	the first one is assumed to be \`now' (or \`1970' as last fallback).
+	the first one is assumed to be \`now' (or \`1970' as fallback).
 
 	To flag DATE as UNIX time, prepend an at sign \`@' to the DATE or
-	set option -r. Stdin input is expected to have one DATE string per
-	line or two ISO-8601 DATES separated by space in a single line.
-	Input is processed in a best-effort basis.
+	set option -r.
+
+	\`GNU date' accepts mostly free format human readable date strings,
+	and \`FreeBSD date' input format may be set with option \`-f FORMAT'.
+
+	Standard input is expected to contain one DATE string per line or
+	two ISO-8601 DATES separated by space in a single line. Input is
+	processed in a best-effort basis.
 
 
 DATE AND TIME OUTPUT
 	Output RANGES section displays intervals in different units of
-	time (years, or months, or weeks, or days, or hours, or minutes,
-	or seconds alone). It also displays a compound time range,
-	considering all units relative to each other.
+	time (years, or months, or weeks..). It also displays a compound
+	time range considering all units relative to each other.
 
 	Single UNIT time periods can be displayed in table format with
-	option -t. Decimal plates can be set with option -NUM where
-	NUM is an integer. Results are subject to rounding.
-	
+	option -t. Decimal plates for float results can be set with option
+	-NUM where NUM is an integer. Results are subject to rounding.
+
 	When the last positional parameter UNIT is exactly one of \`Y',
 	\`MO', \`W', \`D', \`H', \`M', or \`S', only a single UNIT interval
 	is printed.
 
-	Output DATES section shows the input dates in ISO-8601 format or,
-	if option -R is set, RFC-5322 format.
+	Output DATES section shows the input dates in UNIX and ISO-8601
+	formats or in RFC-5322 format when option -R is set.
 
-	Option -u sets or prints dates in Coordinated Universal Time (UTC).
-	Note this affects the \`C-code date' programme, too.
+	Option -u sets script operation in Coordinated Universal Time (UTC).
+	Note this affects how \`C-code date' functions.
 
-	Options -v, -vv, -vvv filter and modify output layout of results.
+	Option -v prints single‑unit ranges alone (e.g. \`1 day, 24 hours..').
+	Option -vv prints the compound range alone (e.g. \`6Y 11M 01W 06D'),
+	and setting -vvv removes spaces (e.g. \`6Y11M01W06D') (AST style).
 
 
 SPECIAL DATE FUNCTIONS
 	Option -e prints Easter dates for given YEARS (Western Church)
 	and option -ee also prints Carnaval and Corpus Christi dates.
 
-	Option -l checks if YEAR is leap. Option -v decreases verbosity.
+	Option -l checks if YEAR is leap. Option -v changes verbose mode.
 	ISO-8601 system assumes proleptic Gregorian calendar, year zero,
 	and no leap seconds.
 
@@ -80,8 +82,8 @@ SPECIAL DATE FUNCTIONS
 
 	Option -F prints the date of next Friday the 13th, START_DATE must
 	be formatted as \`YYYY[-MM[-DD]]'. Set -FF to print the following
-	10 matches. Optionally, set day-in-week, such as Sunday, and
-	day-in-month as first and second positional parameters, respectively.
+	ten matches. Optionally, set day-in-week and day-in-month
+	(e.g. \`Sun 01  [START_DATE]').
 
 
 TIMEZONE OFFSETS
@@ -96,33 +98,15 @@ TIMEZONE OFFSETS
 	offsets seen in timestamps, so that \`\$TZ=+03' means \`ISO UTC-03'.
 
 	Timezone names and IDs (e.g. \`America/Sao_Paulo') are supported
-	by warping \`C-code date' for processing user input.
+	by warping \`C-code date'.
 
 
 ENVIRONMENT
 	DATE_CMD   Path to the \`C-code date' binary. GNU, BSD,
 	           AST and Busybox \`date' are supported.
 
-	TZ         POSIX time zone offset. Numeric offset must be in
+	TZ         POSIX timezone offset. Numeric offset must be in
 	           the format \`[+|-]HH[:MM]' or \`UTC[+|-]HH[:MM]'.
-
-
-REFINEMENT RULES
-	\`Compound time range' calculations may result in slightly different
-	intervals due to refinement logic. This script attempts to mimic
-	\`Hroptatyr's datediff' refinement rules where applicable.
-
-
-DIAGNOSTICS
-	Option -d runs diagnostic checks on compound time range results
-	against \`C-code datediff'. Set -dd to exit immediately (debug data
-	is dumped only on failure). Requires \`datediff.debug.sh'.
-
-	Option -D disables external \`C-code date' for input date parsing,
-	and -DD also disables shell time-related builtins.
-
-        Lunar phase calculations incorporate an internal empirical constant.
-        Environment \$CFACTOR offers an override. Default is \"-1892\".
 
 
 DEPENDENCIES
@@ -135,83 +119,93 @@ DEPENDENCIES
 	to parse input dates in various formats.
 
 
+DIAGNOSTICS
+	Option -D inhibits \`C-code date' on input date parsing, and if
+	set twice further disables shell time builtins.
+
+	Option -d runs checks on the compound time range results against
+	\`C-code' \`datediff' and \`date'. Setting this twice exits immedi-
+	ately, debug dumps only on failure. Requires \`datediff.debug.sh'.
+
+
 WARRANTY
 	Distributed as free software under the GNU GPLv3+.
 	This programme comes with absolutely no warranty.
-
-	Many thanks for all advice from c.u.shell!
 
 
 PROJECT SOURCE
 	<https://gitlab.com/fenixdragao/shelldatediff>
 	<https://github.com/mountaineerbr/shellDatediff>
 
+	Many thanks for all advice from \`c.u.shell'!
+
 
 EXAMPLES
 	Leap year check:
-	${0##*/} -l {1990..2000}
+	${SCRIPT} -l {1990..2000}
 
 	Moon phases for January or full year:
-	${0##*/} -m 1996-01
-	${0##*/} -m 1996
+	${SCRIPT} -m 1996-01
+	${SCRIPT} -m 1996
 
-	Print following Friday, 13th:
-	${0##*/} -F Fri 13 1999
-	${0##*/} -F sun  9 1999-02-01
+	Print next Friday, 13th:
+	${SCRIPT} -F Fri 13 1999
+	${SCRIPT} -F sun  9 1999-02-01
 
 	Single-unit time periods:
-	${0##*/} 1970-01-01  2000-02-02  y    #(y)ears
+	${SCRIPT} 1970-01-01  2000-02-02  y    #(y)ears
 
 	Date intervals / time ranges:
-	echo 1970-01-01 2000-02-02 | ${0##*/} 
-	${0##*/} 2020-01-03T14:30:10  2020-12-24T00:00:00
-	TZ=UTC+03  ${0##*/}  2020-01-03T14:30:10-06  2021-12-30T21:00:10-03
+	echo 1970-01-01 2000-02-02 | ${SCRIPT}
+	${SCRIPT} 2020-01-03T14:30:10  2020-12-24T00:00:00
+	TZ=UTC+03  ${SCRIPT}  2020-01-03T14:30:10-06  2021-12-30T21:00:10-03
 
 	\`GNU date':
-	${0##*/} 'next monday'
-	${0##*/} '5min 34seconds'
-	${0##*/} '2019/6/28'  '1Aug'
-	${0##*/} '2020-01-01 - 6months'  '2020-01-01'
-	${0##*/} @1561243015  @1592865415
+	${SCRIPT} 'next monday'
+	${SCRIPT} '5min 34seconds'
+	${SCRIPT} '2019/6/28'  '1Aug'
+	${SCRIPT} '2020-01-01 - 6months'  '2020-01-01'
+	${SCRIPT} @1561243015  @1592865415
 
 	\`BSD date':
-	${0##*/} -f'%m/%d/%Y'  '6/28/2019'  '9/04/1970 '
-	${0##*/} -r 1561243015  1592865415
-	${0##*/} -- '-v +2d' '-v -3w'
+	${SCRIPT} -f'%m/%d/%Y'  '6/28/2019'  '9/04/1970 '
+	${SCRIPT} -r 1561243015  1592865415
+	${SCRIPT} -- '-v +2d' '-v -3w'
 
 
 OPTIONS
+	Miscellaneous
+	-h         This help page.
+	-k         Turn off text highlighting.
+	-R         Output RFC-5322 format dates.
+	-v         Decrease or change verbose mode.
+
 	Special Date Functions
-	-e 	Easter date (Western Church).
-	-ee 	Carnaval, Easter and Corpus Christi dates.
-	-F, -FF Following Friday the 13th dates.
-	-h 	This help page.
-	-l 	Leap year check.
-	-m      Lunar phase calendar.
+	-e         Easter date (Western Church).
+	-ee        Carnaval, Easter and Corpus Christi dates.
+	-F,  -FF   Next Friday the 13th dates.
+	-l         Leap year check.
+	-m         Lunar phase calendar.
 
 	Date and Time Calculations
-	-[0-9]  Scale factor (decimal plates) for single-unit results.
-	-f FMT 	Input time format specification (\`BSD date').
-	-R 	Output RFC-5322 format dates.
-	-r, -@ 	Input dates are UNIX times.
-	-t, -tt	Table display of single-unit intervals.
-	-u 	Set UTC time instead of local time.
-	-vvv 	Change print layout, verbose levels."
+	-[0-9]     Decimal plates for single-unit float results.
+	-f FORMAT  Input time format specification (\`BSD date').
+	-r,  -@    Input dates are UNIX time.
+	-t,  -tt   Table display of single-unit intervals.
+	-u         Operate in UTC instead of local time.
+	-v         Show single‑unit ranges only.
+	-vv, -vvv  Show compound time range only."
 
 
 # TESTING SUMMARY
-# Testing scripts and a lot more notes are available at the project repository.
-# The project is hosted at <https://github.com/mountaineerbr/shellDatediff>.
+# Shell arithmetics have been verified correct against the C-code
+# `datediff' reference, specially the compund range. Remaining
+# divergences are but differences in the refinement logic of results.
 #
-# Compound range calculation diverges from the reference `c-code datediff'
-# implementation in approximately 0.6% of all tested date pairs. These are
-# not considered errors, but rather differences in refinement rules.
-#
-# Most differences at the time of testing were due to edge cases involving
-# month boundaries, such as days `29, 30, or 31' of one date against days
-# `1, 2, or 3' of the other. The divergences occur when this script favours
-# a more granular result of four full weeks and a few remainder days instead
-# of rolling them into an extra month.
+# Most differences are due to edge cases involving month boundaries,
+# such as days `29, 30, or 31' and days `1, 2, or 3' of the other date,
+# and funky offsets. Divergences occur when the shell favours more granular
+# results, specially at the month, weeks and remainder days boundary.
 #
 # For example the following dates:
 #      ``1988-01-31T07:00:00-00  vs  1988-05-01T11:00:00-00''
@@ -220,16 +214,20 @@ OPTIONS
 #      shell  =  0Y 2M 4W 3D  4H 0MIN 0S
 #      c-code =  0y 3m 0w 0d  4h 0min 0s
 #
-# As the start date is ``Jan 31st'', counting another full month can only
-# be considered at ``Apr 30th'' or ``May 1st''. Nonetheless, both results
-# are considered valid under their respective calculation logic.
+# With the `start date' at ``Jan 31st'', counting a full month backwards
+# from the `end date' lands on either ``Apr 30th'' or ``May 1st''.
+# Both are valid by their own logic.
+#
+# Testing scripts and a lot more notes are available at the project repository.
+# The project is hosted at <https://github.com/mountaineerbr/shellDatediff>.
 
 
 #globs
 SEP='Tt/.:+-'
 EPOCH=1970-01-01T00:00:00
 GLOBOPT='@(y|mo|w|d|h|m|s|Y|MO|W|D|H|M|S)'
-GLOBUTC='*(+|-)@(?([Uu])[Tt][Cc]|?([Uu])[Cc][Tt]|?([Gg])[Mm][Tt]|Z|z)'  #see bug ``*?(exp)'' in bash2.05b extglob; [UG] are marked optional for another hack in this script 
+GLOBUTC='*(+|-)@(?([Uu])[Tt][Cc]|?([Uu])[Cc][Tt]|?([Gg])[Mm][Tt]|Z|z)'
+#^^see bug ``*?(exp)'' in bash2.05b extglob; ?([UG]) needed for a hack later.
 GLOBTZ="?($GLOBUTC)?(+|-)@(2[0-4]|?([01])[0-9])?(?(:?([0-5])[0-9]|:60)?(:?([0-5])[0-9]|:60)|?(?([0-5])[0-9]|60)?(?([0-5])[0-9]|60))"
 GLOBDATE='?(+|-)+([0-9])[/.-]@(1[0-2]|?(0)[1-9])[/.-]@(3[01]|?(0)[1-9]|[12][0-9])'
 GLOBTIME="@(2[0-4]|?([01])[0-9]):?(?([0-5])[0-9]|60)?(:?([0-5])[0-9]|:60)?($GLOBTZ)"
@@ -243,7 +241,6 @@ TIME_ISO8601_FMT='%Y-%m-%dT%H:%M:%S%z'
 TIME_RFC5322_FMT='%a, %d %b %Y %H:%M:%S %z'
 TIME_ISO8601_FMT_PF='%04d-%02d-%02dT%02d:%02d:%02d%.1s%02d:%02d:%02d'
 TIME_RFC5322_FMT_PF='%.3s, %02d %.3s %04d %02d:%02d:%02d %.1s%02d:%02d:%02d'
-CFACTOR="${CFACTOR--1892}"  #moon phase correction factor
 
 
 # Choose between GNU/BSD/AST/BUSYBOX date
@@ -323,7 +320,7 @@ function month_maxday
 	((month=10#${1}));
 	((year= 10#${2##[+-]}));
 	[[ $2 = -* ]] && year=-$year;
-	
+
 	if ((month==2)) && is_leapyear $year
 	then 	echo 29
 	else 	echo ${YEAR_MONTH_DAYS[month-1]}
@@ -339,7 +336,7 @@ function year_days_adj
 	((month=10#${1}));
 	((year= 10#${2##[+-]}));
 	[[ $2 = -* ]] && year=-$year;
-	
+
 	if ((month<=2)) && is_leapyear $year
 	then 	echo 366
 	else 	echo 365
@@ -363,24 +360,54 @@ function is_leapyear_verbose
 	year="$1"
 
 	if is_leapyear $year
-	then 	((OPTVERBOSE)) || printf 'leap year -- %4s\n' $year
-	else 	((OPTVERBOSE)) || printf 'not leap year -- %4s\n' $year
+	then 	((OPTVERBOSE)) || printf "leap year -- ${BOLD}%4s${NC}\n" "$year"
+	else 	((OPTVERBOSE)) || printf "not leap year -- %4s\n" "$year"
 		false
 	fi
 }
 #https://stackoverflow.com/questions/32196629/my-shell-script-for-checking-leap-year-is-showing-error
 
-#Easter date in a given year
-#usage: easterf [YEAR]
+# #Easter date in a given year
+# #usage: easter [YEAR]
+# function easter
+# {
+# 	echo ${1:?year required} '[ddsf[lfp[too early
+# ]Pq]s@1583>@
+# ddd19%1+sg100/1+d3*4/12-sx8*5+25/5-sz5*4/lx-10-sdlg11*20+lz+lx-30%
+# d[30+]s@0>@d[[1+]s@lg11<@]s@25=@d[1+]s@24=@se44le-d[30+]s@21>@dld+7%-7+
+# [March ]smd[31-[April ]sm]s@31<@psnlmPpsn1z>p]splpx' | dc
+# }
+# #Dershowitz' and Reingold' Calendrical Calculations
+
 function easterf
 {
-	echo ${1:?year required} '[ddsf[lfp[too early
-]Pq]s@1583>@
-ddd19%1+sg100/1+d3*4/12-sx8*5+25/5-sz5*4/lx-10-sdlg11*20+lz+lx-30%
-d[30+]s@0>@d[[1+]s@lg11<@]s@25=@d[1+]s@24=@se44le-d[30+]s@21>@dld+7%-7+
-[March ]smd[31-[April ]sm]s@31<@psnlmPpsn1z>p]splpx' | dc
+	typeset Y a b c d e f g h i k L m mo month day
+	Y=${1:?year required}
+
+	if ((Y < 1583))
+	then 	printf '%d\ntoo early\n' "$Y" >&2
+		return 2
+	fi
+
+	((a = Y % 19))
+	((b = Y / 100))
+	((c = Y % 100))
+	((d = b / 4))
+	((e = b % 4))
+	((f = (b + 8) / 25))
+	((g = (b - f + 1) / 3))
+	((h = (19*a + b - d - g + 15) % 30))
+	((i = c / 4))
+	((k = c % 4))
+	((L = (32 + 2*e + 2*i - h - k) % 7))
+	((m = (a + 11*h + 22*L) / 451))
+	((month = (h + L - 7*m + 114) / 31))
+	((day  = ( (h + L - 7*m + 114) % 31) + 1))
+
+	((month==3)) && mo='March' || mo='April'
+	printf '%d %s %d\n' "$day" "$mo" "$Y"
 }
-#Dershowitz' and Reingold' Calendrical Calculations book
+#Anonymous Gregorian algorithm (Meeus/Jones/Butcher)
 
 #Carnaval and Corpus Christi in a given year
 #usage: carnavalf [YEAR]
@@ -388,17 +415,15 @@ function carnavalf
 {
 	typeset year month day unix1 unixEaster unixCarnaval unixCorpus
 
-	{ 	read day
-		read month year
-	} < <(easterf "$@")
-	
+	read day month year < <(easterf "$@")
+
 	((${#day}==2)) || day=0$day
 	month=$(monthconv $month)
 
-	unixEaster=$(get_unixf $year-$month-$day)
+	unixEaster=$(get_unixf $year-$month-$day) || return $?  #utc
 	((unixCarnaval=unixEaster-(47*24*60*60) ))
 	((unixCorpus=unixEaster+(60*24*60*60) ))
-	
+
 	if ((OPTRR))
 	then
 		printf '%.16s\t%.16s\t%.16s\n' \
@@ -446,8 +471,8 @@ function get_day_in_week
 	echo ${DAY_OF_WEEK[( ( (unix+(unix<0?1:0))/(24*60*60))%7 +(unix<0?6:7))%7]}
 }
 
-#get the value of a day in the year
-#usage: get_day_in_year year month day
+#days since January 1 (range: 0-365)
+#usage: get_day_in_year [day] [month] [year]
 function get_day_in_year
 {
 	typeset day month year month_test daysum
@@ -462,11 +487,11 @@ function get_day_in_year
 	done
 	((month>2)) && is_leapyear $year && ((daysum++))
 
-	echo $((day+daysum))
+	echo $((day + daysum - 1))
 }
 
-#return phase of the moon, UTC time
-#usage: phase_of_the_moon year [month] [day]
+#return lunar phase, UTC time
+#usage: phase_of_the_moon [day] [month] [year]
 function phase_of_the_moon 		#0-7, with 0: new, 4: full
 {
 	typeset day month year diy goldn epact
@@ -475,13 +500,12 @@ function phase_of_the_moon 		#0-7, with 0: new, 4: full
 	((month=10#${2}));
 	((year= 10#${3##[+-]}));
 	[[ $3 = -* ]] && year=-$year;
-	((year+=CFACTOR))  #correction factor: -1892
 
-	diy=$(get_day_in_year "$day" "$month" "$year")
-	((goldn = (year % 19) + 1))
+	diy=$(get_day_in_year "$day" "$month" "$year")  # lt->tm_yday
+	((goldn = ( (year - 1900) % 19) + 1))  # lt->tm_year
 	((epact = (11 * goldn + 18) % 30))
 	(((epact == 25 && goldn > 11) || epact == 24 )) && ((epact++))
-	
+
 	case $(( ( ( ( ( (diy + epact) * 6) + 11) % 177) / 22) & 7)) in
 		0) 	set -- 'New Moon'        ;; # ~.0
 		1) 	set -- 'Waxing Crescent' ;;
@@ -493,10 +517,13 @@ function phase_of_the_moon 		#0-7, with 0: new, 4: full
 		7) 	set -- 'Waning Crescent' ;;
 	esac
 	#Bash's integer division truncates towards zero as in C
+
+	#skip consecutive repetitive phases
 	[[ $* = "$PHASE_SKIP" ]] && return || PHASE_SKIP="$*";
+
 	if ((OPTVERBOSE))
-	then 	printf '%s\n' "$*"
-	else 	printf '%04d-%02d-%02d  %s\n' "$((year-CFACTOR))" "$month" "$day" "$*"
+	then 	printf "%s\n" "$*"
+	else 	printf "%04d-%02d-%02d  ${BOLD}%s${NC}\n" "$year" "$month" "$day" "$*"
 	fi
 }
 #<https://nethack.org/>
@@ -506,8 +533,9 @@ function phase_of_the_moon 		#0-7, with 0: new, 4: full
 #<https://www.nora.ai/competition/fishai-dataset-competition/about-the-dataset/>
 #<https://www.kaggle.com/datasets/lsind18/full-moon-calendar-1900-2050>
 #<https://www.fullmoon.info/en/fullmoon-calendar_1900-2050.html>
-#Correction Factor was calculated comparing with USNO Navy data.
-#also see explanation in Dershowitz and Reingold's: 8.1 Orthodox Easter
+#see Dershowitz and Reingold's: 8.1 Orthodox Easter
+#tests performed against USNO Navy data. calculated lunar phases may be
+#up to 3 days earlier and at most 2 days later than usno phase model.
 
 #print (current) time
 #usage: get_timef [unix_time] [print_format]
@@ -516,8 +544,8 @@ function get_timef
 	typeset input fmt
 	input=${1##@}  fmt="${2:-${TIME_ISO8601_FMT}}"
 
-	if ((OPTDD))
-	then 	echo $EPOCH ;false
+	if ((OPTDD)) #debug option
+	then 	! echo $EPOCH
 	elif [[ -n $ZSH_VERSION ]]
 	then 	zmodload -aF zsh/datetime b:strftime && strftime "$fmt" $input
 	elif [[ -n $BASH_VERSION ]]
@@ -538,15 +566,15 @@ function get_unixf
 #usage: unix_toiso [-R] UNIX [+1|-1] [tzXh] [$tzXm] [tzXs] [+1|-1] [TZh] [$TZm] [TZs]
 function unix_toiso
 {
-	typeset unix unix_adj y_test mo_test d_test max_mday max_yday daysum optr neg_tz tzh tzm tzs TZ_neg TZ_pos TZh TZm TZs trim
+	typeset unix unix_adj y_test mo_test d_test h_test m_test s_test max_mday max_yday daysum optr neg_tz tzh tzm tzs TZ_neg TZ_pos TZh TZm TZs trim
 	[[ $1 = -R ]] && { 	optr=1 ;shift ;}
-	
+
 	((unix=10#0${1##[+-]}));
 	[[ $1 = -* ]] && unix=-$unix;
 
 	neg_tz=${2:--1} tzh=$3 tzm=$4 tzs=$5
 	TZ_neg=${6:--1} TZh=${7:-0} TZm=${8:-0} TZs=$9
-	
+
 	TZ_pos=${TZ_neg/-/+} TZ_pos=${TZ_pos##$TZ_neg} TZ_pos=${TZ_pos:-${TZ_neg/+/-}}
 	((unix+=( ( (tzh*60*60)+(tzm*60)+tzs)*neg_tz)-( ( (TZh*60*60)+(TZm*60)+TZs)*TZ_neg) ))
 	unix_adj=$unix
@@ -554,7 +582,7 @@ function unix_toiso
 	if ((unix<0))
 	then 	y_test=1969 mo_test=12 d_test=31
 		max_mday=31 max_yday=365
-	
+
 		while ((unix<-max_yday*24*60*60))
 		do 	((daysum+=max_yday, unix+=max_yday*24*60*60))
 			((--y_test))
@@ -573,7 +601,7 @@ function unix_toiso
 	else
 		y_test=1970 mo_test=1 d_test=1
 		max_mday=31 max_yday=365
-	
+
 		while ((unix>=max_yday*24*60*60))
 		do 	((daysum+=max_yday, unix-=max_yday*24*60*60))
 			((++y_test))
@@ -610,52 +638,63 @@ function unix_toiso
 #usage: friday_13th [weekday_name] [day] [start_year]
 function friday_13th
 {
-	typeset glob1 glob2 dow_name d_tgt diw_tgt day month year unix diw d_away maxday skip n
-	dow_name=("${DAY_OF_WEEK[@]}") ;DAY_OF_WEEK=(0 1 2 3 4 5 6)
-	glob1='[SsMmTtWwFf]*' glob2='?([0-3])[0-9]'
+	typeset glob1 glob2 d_tgt diw_tgt diw_ind diw day month year unix d_away maxday skip n
+	glob1='[SsMmTtWwFf]*' glob2='@(3[01]|?(0)[1-9]|[12][0-9])'
+	diw_ind=(0 1 2 3 4 5 6)
 
 	#set day of week and day of month
 	[[ $2 = $glob1 ]] && set -- "${@:2:1}" "${@:1:1}" "${@:3}"
 	if [[ $1 = $glob1 ]]
 	then 	case $1 in
-			[Ss][Aa]*) 	diw_tgt=${DAY_OF_WEEK[2]};;
-			[Ff]*) 	diw_tgt=${DAY_OF_WEEK[1]};;
-			[Tt][Hh]*) 	diw_tgt=${DAY_OF_WEEK[0]};;
-			[Ww]*) 	diw_tgt=${DAY_OF_WEEK[6]};;
-			[Tt]*) 	diw_tgt=${DAY_OF_WEEK[5]};;
-			[Mm]*) 	diw_tgt=${DAY_OF_WEEK[4]};;
-			[Ss]*) 	diw_tgt=${DAY_OF_WEEK[3]};;
+			[Ss][Aa]*) 	diw_tgt=${diw_ind[2]};;
+			[Ff]*) 	diw_tgt=${diw_ind[1]};;
+			[Tt][Hh]*) 	diw_tgt=${diw_ind[0]};;
+			[Ww]*) 	diw_tgt=${diw_ind[6]};;
+			[Tt]*) 	diw_tgt=${diw_ind[5]};;
+			[Mm]*) 	diw_tgt=${diw_ind[4]};;
+			[Ss]*) 	diw_tgt=${diw_ind[3]};;
 		esac ;shift
 	fi ;diw_tgt=${diw_tgt:-1}
 
-	[[ $1 = $glob2 ]] && { 	d_tgt=$1 && shift ;} || d_tgt=13
-	IFS="$IFS$SEP" ;set -- $@ ;(($#)) || set -- $(IFS=$' \t\n' get_timef) ;IFS=$' \t\n'
-	day="${3##0}"    month="${2##0}"      year="${1##*(0)}"  #year=$((10#${1:-0}))
-	day="${day:-1}" month="${month:-1}" year="${year:-0}"
-	
-	unix=$(datefun ${year}-${month}-${day} +%s) ||
-		unix=$(get_unixf ${year}-${month}-${day}) || return $?
+	[[ $1 = $glob2 ]] && { 	d_tgt=${1##0} && shift ;} || d_tgt=13
+	IFS="$IFS$SEP" ;set -- $@ ;  #prepare input or default epoch
+	(($#)) || set -- $(IFS=$' \t\n' get_timef) ;
+	(($#)) || set -- ${EPOCH:0:10} ;IFS=$' \t\n' ;
 
-	while diw=$(get_day_in_week $((unix+(d_away*24*60*60) )) )
-	do 	if ((diw==diw_tgt && day==d_tgt))
-		then 	if ((!(d_away+OPTVERBOSE+OPTFF-1) ))
-			then 	printf "${TIME_RFC5322_FMT_PF:0:20} is today!\n" \
-				"${dow_name[diw_tgt]}" "$day" "${MONTH_OF_YEAR[month-1]}" "$year"
+	day="${3##0}"   month="${2##0}"     year=$((10#${1:-0}))
+	day="${day:-1}" month="${month:-1}" year="${year:-0}"
+	[[ $1 = -* ]] && year=-$year
+
+	unix=$(TZ=UTC datefun ${year}-${month}-${day} +%s) ||
+		unix=$(get_unixf ${year}-${month}-${day}) || return $?
+	#Force UTC to prevent `Midnight Drift' over different time offsets
+
+	d_away=0 n=0 skip=0
+	while diw=$( DAY_OF_WEEK=("${diw_ind[@]}");
+		get_day_in_week $((unix+(d_away*24*60*60) )) )
+	do
+		maxday=$(month_maxday $month $year)
+		if ((diw==diw_tgt && day==d_tgt && d_tgt<=maxday))
+		then
+			if ((!(d_away+OPTVERBOSE+OPTFF-1) ))
+			then 	printf "${BOLD}${TIME_RFC5322_FMT_PF:0:20}${NC} is ${BOLD}today${NC}!\n" \
+				"${DAY_OF_WEEK[diw_tgt]}" "$day" "${MONTH_OF_YEAR[month-1]}" "$year"
 			elif ((OPTVERBOSE))
-			then 	printf "${TIME_ISO8601_FMT_PF:0:14}\n" "$year" "$month" "$day"
-			else 	printf "${TIME_RFC5322_FMT_PF:0:20} is %4d days away\n" \
-				"${dow_name[diw_tgt]}" "$day" "${MONTH_OF_YEAR[month-1]}" "$year" "$d_away"
+			then 	printf "${BOLD}${TIME_ISO8601_FMT_PF:0:14}${NC}\n" "$year" "$month" "$day"
+			else 	printf "${BOLD}${TIME_RFC5322_FMT_PF:0:20}${NC} is %4d days away\n" \
+				"${DAY_OF_WEEK[diw_tgt]}" "$day" "${MONTH_OF_YEAR[month-1]}" "$year" "$d_away"
 			fi
 			((++n))
 			((OPTFF==1||(OPTFF==2&&n>=10) )) && break
 		fi
+
 		if ((day<d_tgt))  #days away
-		then 	((d_away=d_tgt-day, day=d_tgt, skip=1))
-		elif 	maxday=$(month_maxday $month $year)
-			((day>d_tgt))
-		then 	((d_away=(maxday-day+d_tgt), day=d_tgt))
+		then 	((d_away+=d_tgt-day, day=d_tgt, skip=1))
+		elif 	((day>d_tgt))
+		then 	((d_away+=(maxday-day+d_tgt), day=d_tgt))
 		else 	((d_away+=maxday))
 		fi
+
 		if ((!skip))
 		then 	((month==12)) && ((++year))
 			((month=(month==12?1:month+1) ))
@@ -665,12 +704,13 @@ function friday_13th
 
 #printing helper
 #(A). check if floating point in $1 is `>0', set return signal and $SS to `s' when `>1.0'.
-#usage: prHelpf 1.23
+# usage: prHelpf 1.23
 #(B). set padding of $1 length until [max] chars and set $SSS.
-#usage: prHelpf 1.23  [max]
+# usage: prHelpf 1.23  [max]
 function prHelpf
 {
 	typeset val valx int dec  x z
+
 	#(B)
 	if (($# >1))
 	then 	SSS=  x=$(( ${2} - ${#1} ))
@@ -690,8 +730,7 @@ function prHelpf
 #datediff fun
 function mainf
 {
-	${DEBUG:+unset} \
-	typeset date1_iso8601 date2_iso8601 unix1 unix2 inputA inputB range neg_range yearA monthA dayA hourA minA secA tzA neg_tzA tzAh tzAm tzAs yearB monthB dayB hourB minB secB tzB neg_tzB tzBh tzBm tzBs years_between y_test leapcount daycount_leap_years daycount_years fullmonth_days fullmonth_days_save monthcount month_test month_tgt d1_mmd d2_mmd date1_month_max_day date3_month_max_day date1_year_days_adj d_left y mo w d h m s bc bcy bcmo bcw bcd bch bcm range_pr sh d_left_save d_sum date1_iso8601_pr date2_iso8601_pr yearAtz monthAtz dayAtz hourAtz minAtz secAtz yearBtz monthBtz dayBtz hourBtz minBtz secBtz range_check now globtest varname buf var ok ar ret n p q r v TZh TZm TZs TZ_neg TZ_pos spcr  #SS SSS
+	typeset date1_iso8601 date2_iso8601 unix1 unix2 inputA inputB range neg_range yearA monthA dayA hourA minA secA tzA neg_tzA tzAh tzAm tzAs yearB monthB dayB hourB minB secB tzB neg_tzB tzBh tzBm tzBs years_between y_test leapcount daycount_leap_years daycount_years fullmonth_days fullmonth_days_save monthcount month_test month_tgt d1_mmd d2_mmd date1_month_max_day date3_month_max_day date1_year_days_adj d_left y mo w d h m s bc bcy bcmo bcw bcd bch bcm range_pr sh d_left_save d_sum date1_iso8601_pr date2_iso8601_pr yearAtz monthAtz dayAtz hourAtz minAtz secAtz yearBtz monthBtz dayBtz hourBtz minBtz secBtz range_check now globtest varname buf var ok ar ret n p q r v TZh TZm TZs TZ_neg TZ_pos spcr
 
 	(($# == 1)) && set -- '' "$1"
 
@@ -742,11 +781,11 @@ function mainf
 	for varname in yearA monthA dayA hourA minA secA  \
 		yearB monthB dayB hourB minB secB  \
 		tzAh tzAm tzAs  tzBh tzBm tzBs  TZh TZm TZs
-	do 	eval "[[ \${$varname} = *[A-Za-z_]* ]] && continue"  #avoid printing errs
-		eval "(($varname=10#0\${$varname##[+-]}))";
+	do
+		eval "[[ \${$varname} = *[A-Za-z_]* ]] || (($varname=10#0\${$varname##[+-]}))";
 	done
-	((yearA<40000)) || echo "warning: ${yearA}: YEAR" >&2;  #slow
-	((yearB<40000)) || echo "warning: ${yearB}: YEAR" >&2;
+	((yearA<40000)) || echo "warning: year: ${yearA}" >&2;  #slow
+	((yearB<40000)) || echo "warning: year: ${yearB}" >&2;
 
 	#negative years
 	[[ $inputA = -?* ]] && yearA=-$yearA;
@@ -822,7 +861,7 @@ function mainf
 			elif ((min${v}tz>59))
 			then 	((hour${v}tz+=(min${v}tz/60) , min${v}tz%=60))
 			fi
-			
+
 			#hourAtz hourBtz
 			((hour${v}tz+=hour${v}-(tz${v}h*neg_tz${v}) ))
 			if ((hour${v}tz<0))
@@ -845,7 +884,7 @@ function mainf
 			then 	((++month${v}tz))
 				((day${v}tz%=var))
 			fi
-			
+
 			#monthAtz monthBtz
 			((month${v}tz+=month${v}))
 			if ((month${v}tz<1))
@@ -895,10 +934,9 @@ function mainf
 			tzA tzAh tzAm tzAs neg_tzA date1_iso8601 date1_iso8601_pr UNIX1
 		do      #swap $varA/$varB or $var1/$var2 values
 			[[ $varname = *A* ]] &&  p=A q=B  ||  p=1 q=2
-			eval "buf=\"\$$varname\""
-			eval "$varname=\"\$${varname/$p/$q}\" ${varname/$p/$q}=\"\$buf\""
+			eval "buf=\"\$$varname\"; $varname=\"\$${varname/$p/$q}\"; ${varname/$p/$q}=\"\$buf\""
 		done
-		unset varname p q
+		varname= p= q=
 		set -- "$2" "$1" "${@:3}"
 	fi
 
@@ -952,7 +990,7 @@ function mainf
 
 	#days left
 	if ((yearA==yearB && monthA==monthB))
-	then 	
+	then
 		((d_left = (dayB - dayA) ))
 		((d_left_save = d_left))
 	elif ((dayA<dayB))
@@ -966,7 +1004,7 @@ function mainf
 		((d_left = ( (date3_month_max_day>=dayA) ? (date3_month_max_day-dayA) : (date1_month_max_day-dayA) ) + dayB ))
 		((d_left_save = (date1_month_max_day-dayA) + dayB ))
 		if ((dayA>date3_month_max_day && date3_month_max_day<date1_month_max_day && dayB>1))
-		then 
+		then
 			((dayB>=dayA-date3_month_max_day)) &&  ##addon2 -- prevents negative days
 			((d_left -= date1_month_max_day-date3_month_max_day))
 			((d_left==0 && ( (24-hourA)+hourB<24 || ( (24-hourA)+hourB==24 && (60-minA)+minB<60 ) || ( (24-hourA)+hourB==24 && (60-minA)+minB==60 && (60-secA)+secB<60 ) ) && (++d_left) ))  ##addon3 -- prevents breaking down a full month
@@ -996,7 +1034,7 @@ function mainf
 	fi
 
 
-	((h += (24-hourA)+hourB))
+	((h += (24-hourA)+hourB, ok = 0))
 	if ((h && h<24))
 	then 	if ((d_left))
 		then 	((--d_left , ++ok))
@@ -1021,7 +1059,7 @@ function mainf
 		fi
 	fi
 	((m %= 60))
-	
+
 	((s = (60-secA)+secB))
 	if ((s && s<60))
 	then 	if ((m))
@@ -1074,7 +1112,7 @@ function mainf
 		if ((OPTRR))  #make RFC-5322 format string
 		then 	if ! { 	date2_iso8601_pr=$(get_timef "$unix2" "$TIME_RFC5322_FMT") &&
 				date1_iso8601_pr=$(get_timef "$unix1" "$TIME_RFC5322_FMT") ;}
-			then 	
+			then
 				date2_iso8601_pr=$(unix_toiso -R "$unix2" \
 					"$neg_tzB" "$tzBh" "$tzBm" "$tzBs" \
 					"$TZ_neg"  "$TZh"  "$TZm"  "$TZs"
@@ -1099,7 +1137,7 @@ function mainf
 				s = scale
 				scale = d
 				r = r*10/10
-				scale = s  
+				scale = s
 				return r
 			};
 			scale = ($SCL + 1);
@@ -1110,7 +1148,7 @@ function mainf
 			r( (${range:-0} / (60 * 60)) , $SCL);   /**  HOURS  **/
 			r( (${range:-0} / 60) , $SCL);     /** MINUTES **/")
 			)
-		then 	bcy=${bc[0]} bcmo=${bc[1]} bcw=${bc[2]} bcd=${bc[3]} bch=${bc[4]} bcm=${bc[5]} 
+		then 	bcy=${bc[0]} bcmo=${bc[1]} bcw=${bc[2]} bcd=${bc[3]} bch=${bc[4]} bcm=${bc[5]}
 			#ARRAY:  0=YEARS  1=MONTHS  2=WEEKS  3=DAYS  4=HOURS  5=MINUTES
 		else 	typeset -F $SCL bcy bcmo bcw bcd bch bcm
 			bcy="${years_between:-0} + ( (${range:-0} - ( (${daycount_years:-0} + ${daycount_leap_years:-0}) * 24 * 60 * 60.) ) / (${date1_year_days_adj:-0} * 24 * 60 * 60.) )"  #YEARS
@@ -1131,60 +1169,61 @@ function mainf
 			prHelpf ${OPTTd:+${bcd}} && range_pr="${range_pr}${range_pr:+$spcr}${bcd} day$SS"
 			prHelpf ${OPTTh:+${bch}} && range_pr="${range_pr}${range_pr:+$spcr}${bch} hour$SS"
 			prHelpf ${OPTTm:+${bcm}} && range_pr="${range_pr}${range_pr:+$spcr}${bcm} min$SS"
-			prHelpf $range  ;((!OPTT||OPTTs)) && range_pr="$range_pr${range_pr:+$spcr}$range sec$SS"
+			prHelpf $range  ;((!OPTT||OPTTs)) && range_pr="${range_pr}${range_pr:+$spcr}$range sec$SS"
 			((OPTT&&OPTV)) && range_pr="${range_pr%[$IFS]*}"  #remove unit name
 		else 	#layout two
 			((n = ${#range}+SCL+1)) #range in seconds is the longest string
-			prHelpf ${bcy} $n && range_pr="${BOLD}Year$SS${NC}"$'\t'$SSS${bcy}
-			prHelpf ${bcmo} $n && range_pr="$range_pr"$'\n'"${BOLD}Month$SS${NC}"$'\t'$SSS${bcmo}
-			prHelpf ${bcw} $n && range_pr="$range_pr"$'\n'"${BOLD}Week$SS${NC}"$'\t'$SSS${bcw}
-			prHelpf ${bcd} $n && range_pr="$range_pr"$'\n'"${BOLD}Day$SS${NC}"$'\t'$SSS${bcd}
-			prHelpf ${bch} $n && range_pr="$range_pr"$'\n'"${BOLD}Hour$SS${NC}"$'\t'$SSS${bch}
-			prHelpf ${bcm} $n && range_pr="$range_pr"$'\n'"${BOLD}Min$SS${NC}"$'\t'$SSS${bcm}
+			prHelpf ${bcy} $n && range_pr="${BOLD}Year${SS:- }${NC}   $SSS${bcy}" #|3|spaces
+			prHelpf ${bcmo} $n && range_pr="${range_pr}"$'\n'"${BOLD}Month${SS:- }${NC}  $SSS${bcmo}" #|2|
+			prHelpf ${bcw} $n && range_pr="${range_pr}"$'\n'"${BOLD}Week${SS:- }${NC}   $SSS${bcw}" #|3|
+			prHelpf ${bcd} $n && range_pr="${range_pr}"$'\n'"${BOLD}Day${SS:- }${NC}    $SSS${bcd}" #|4|
+			prHelpf ${bch} $n && range_pr="${range_pr}"$'\n'"${BOLD}Hour${SS:- }${NC}   $SSS${bch}" #|3|
+			prHelpf ${bcm} $n && range_pr="${range_pr}"$'\n'"${BOLD}Min${SS:- }${NC}    $SSS${bcm}" #|4|
 			prHelpf $range $((n - (SCL>0 ? (SCL+1) : 0) ))
-			range_pr="$range_pr"$'\n'"${BOLD}Sec$SS${NC}"$'\t'$SSS$range
+			range_pr="${range_pr}"$'\n'"${BOLD}Sec${SS:- }${NC}    $SSS$range" #|4|
 			range_pr="${range_pr##*([$IFS])}"
 			#https://www.themathdoctors.org/should-we-put-zero-before-a-decimal-point/
 			((OPTLAYOUT>1)) && { 	p= q=. ;for ((p=0;p<SCL;++p)) ;do q="${q}0" ;done
 				range_pr="${range_pr// ./0.}" range_pr="${range_pr}${q}" ;}
 		fi
-		unset SS SSS p q
+		SSS= SS= spcr= p= q=
 	fi
 
 	#set printing array with shell results
 	sh=("$y" "$mo" "$w" "$d"  "$h" "$m" "$s")
 	((y<0||mo<0||w<0||d<0||h<0||m<0||s<0)) && ret=${ret:-1}  #negative unit error
 	[[ $bcy$bcmo$bcw$bcd$bch$bcm$range = *-* ]] && ret=${ret:-1}
-	
+
 	# Debugging
 	if ((DEBUG))
 	then
 		#!# requires datediff.debug.sh
+		#replace with the function body here for performance!
 		unix1=$unix1 unix2=$unix2 tzA=$tzA tzB=$tzB TZs=$TZs \
 		date1_iso8601_pr="$date1_iso8601_pr" date1_iso8601="$date1_iso8601" \
 		date2_iso8601_pr="$date2_iso8601_pr" date2_iso8601="$date2_iso8601" \
-		debugf "$@"  || [[ $DATE_CMD = false ]] || printf "${BOLD}Debug:${NC} \`C-code date' is set!\\n" >&2;
-		#inline the function body here for performance
+		debugf "$@"  || [[ $DATE_CMD = false ]] || printf "${BOLD}Debug:${NC} \`C-code date' is set!\n" >&2;
+
 	fi
-	
+
 	#print results
 	if ((!OPTVERBOSE))
-	then 	if [[ -z $date1_iso8601_pr$date1_iso8601 ]] 
+	then 	if [[ -z $date1_iso8601_pr$date1_iso8601 ]]
 		then 	date1_iso8601=$(unix_toiso "$unix1" \
 				"$neg_tzA" "$tzAh" "$tzAm" "$tzAs" \
 				"$TZ_neg"  "$TZh"  "$TZm"  "$TZs")
 		fi
-		if [[ -z $date2_iso8601_pr$date2_iso8601 ]] 
+		if [[ -z $date2_iso8601_pr$date2_iso8601 ]]
 		then 	date2_iso8601=$(unix_toiso "$unix2" \
 				"$neg_tzB" "$tzBh" "$tzBm" "$tzBs" \
 				"$TZ_neg"  "$TZh"  "$TZm"  "$TZs")
 		fi
 
-		printf '%s%s\n%s%s%s\n%s%s%s\n%s\n'  \
-			"${BOLD}DATES${NC}" "${neg_range%%1}"  \
+		printf "${BOLD}%s%s${NC}\n%s%s%s\n%s%s%s\n${BOLD}%s${NC}\n"  \
+			"DATES" "${neg_range%%1}"  \
 			"${date1_iso8601_pr:-${date1_iso8601:-$inputA}}" ''${unix1:+$'\t'} "$unix1"  \
 			"${date2_iso8601_pr:-${date2_iso8601:-$inputB}}" ''${unix2:+$'\t'} "$unix2"  \
-			"${BOLD}RANGES${NC}"
+			"RANGES"
 	fi
 	((OPTVERBOSE<1 || OPTVERBOSE>1)) && { 	((OPTVERBOSE>2)) && v= || v=' '  #AST `date -E' style
 		printf "%dY${v}%02dM${v}%02dW${v}%02dD${v}${v}%02dh${v}%02dm${v}%02ds\n" "${sh[@]}"
@@ -1194,12 +1233,14 @@ function mainf
 	return ${ret:-0}
 }
 
-#Execute result checks against `datediff' and `date'.
+#checks against c-code `datediff' and `date'
 function debugf { 	! : ;}
+#source `datediff.debug.sh'
 
 
 ## Parse options
-while getopts 01234567890DdeFf:hlmRr@tuv opt
+BOLD= NC= RET= SSS= SS= Z=
+while getopts 0123456789DdeFf:hklmRr@tuv opt
 do 	case $opt in
 		[0-9]) 	SCL="$SCL$opt"
 			;;
@@ -1221,6 +1262,8 @@ do 	case $opt in
 				break
 			done <"$0"
 			echo "$HELP" ;exit
+			;;
+		k) 	OPTK=1
 			;;
 		l) 	OPTL=1  OPTE=
 			;;
@@ -1246,6 +1289,8 @@ shift $((OPTIND -1)); unset opt
 SCL="${SCL:-1}"     #scale defaults
 ((OPTU)) && TZ=UTC  #set UTC time zone
 export TZ
+#bold colour highlighting
+((OPTK)) || [[ ! -t 1 ]] || BOLD=$'\033[0;1m' NC=$'\033[m'
 
 # test `c-code date' implementations
 # definitions required in datefun()
@@ -1271,31 +1316,43 @@ then 	BUSYDATE=1;   #TOYBOX
 else 	DATE_CMD=false;
 fi >/dev/null 2>&1
 
-#stdin input (skip it for option -F)
-[[ ${1//[$IFS]}$OPTFF = $GLOBOPT ]] && opt="$1" && shift
+#check whether first pos arg is single time unit option
+if [[ ${1//[$IFS]}$OPTFF = $GLOBOPT ]]
+then 	opt="${1//[$IFS]}"
+	shift
+fi
+
+#stdin, skips with -F
 if ((!($# +OPTFF) )) && [[ ! -t 0 ]]
 then
-	globtest="*([$IFS])@($GLOBDATE?(+([$SEP])$GLOBTIME)|$GLOBTIME)*([$IFS])@($GLOBDATE?(+([$SEP])$GLOBTIME)|$GLOBTIME)?(+([$IFS])$GLOBOPT)*([$IFS])"  #glob for two ISO8601 dates and possibly pos arg option for single unit range
+	#glob for two ISO8601 dates
+	globtest="*([$IFS])@($GLOBDATE?(+([$SEP])$GLOBTIME)|$GLOBTIME)*([$IFS])@($GLOBDATE?(+([$SEP])$GLOBTIME)|$GLOBTIME)*([$IFS])"
+
 	while IFS= read -r || [[ -n $REPLY ]]
 	do 	ar=($REPLY) ;((${#ar[@]})) || continue
 		if ((!$#))
 		then 	set -- "$REPLY" ;((OPTL)) && break
 			#check if arg contains TWO ISO8601 dates and break
-			if ((${#ar[@]}==3||${#ar[@]}==2)) && [[ \ $REPLY = @(*[$IFS]$GLOBOPT*|$globtest) ]]
-			then 	set -- $REPLY  ;[[ $1 = $GLOBOPT ]] || break
+			if ((${#ar[@]}==2)) && [[ \ $REPLY = $globtest ]]
+			then 	set -- $REPLY
+				break
 			fi
-		else 	if ((${#ar[@]}==2)) && [[ \ $REPLY = @(*[$IFS]$GLOBOPT|$globtest) ]]
+		else 	if ((${#ar[@]}==2)) && [[ \ $REPLY = $globtest ]]
 			then 	set -- "$@" $REPLY
 			else 	set -- "$@" "$REPLY"
 			fi ;break
 		fi
 	done ;unset ar globtest REPLY
-	[[ ${1//[$IFS]} = $GLOBOPT ]] && opt="$1" && shift
 fi
-[[ -n $opt ]] && set -- "$@" "$opt"
 
-#set single time unit
-opt="${opt:-${@: -1}}" opt="${opt//[$IFS]}"
+#continue prepare for single unit time option
+if ((${#opt}))
+then 	set -- "$@" "$opt"
+elif ((${#}))
+then 	opt="${@: $#}"
+	opt="${opt//[$IFS]}"
+fi
+
 if [[ $opt$OPTFF = $GLOBOPT ]]
 then 	OPTT=1 OPTVERBOSE=1 OPTLAYOUT=
 	case $opt in
@@ -1321,7 +1378,7 @@ then 	set -- "${1#"${1%%[!$IFS]*}"}" ;set -- "${1%"${1##*[!$IFS]}"}"
 fi
 
 #-r, unix times
-if ((OPTR && ${#1}+${#2})) || [[ \ $1\ $2 = *\ @[0-9.+-]* ]] 
+if ((OPTR && ${#1}+${#2})) || [[ \ $1\ $2 = *\ @[0-9.+-]* ]]
 then
 	if [[ $DATE_CMD = false ]]
 	then 	if ((${#1})) && [[ $1 != *[!0-9@.+-]* ]]
@@ -1345,7 +1402,7 @@ then
 	fi
 fi
 
-#set defaults input for opts -leem
+#default input for opts -leem
 if ((OPTL+OPTE+OPTM))
 then 	if [[ $1 != ${1:++([0-9])?([\ ${SEP}]?([01])[0-9]?([\ ${SEP}]?([0-3])[0-9]))} ]] #YYYY[-MM[-DD]]
 	then 	var='+%Y' ;((OPTM)) && var='-I'
@@ -1359,6 +1416,7 @@ then 	if [[ $1 != ${1:++([0-9])?([\ ${SEP}]?([01])[0-9]?([\ ${SEP}]?([0-3])[0-9]
 	fi ;unset var
 fi
 
+#call functions
 if ((OPTL))
 then 	for YEAR
 	do 	is_year "$YEAR" || continue
@@ -1367,30 +1425,35 @@ then 	for YEAR
 		fi
 	done ;exit $RET
 elif ((OPTE))
-then 	((OPTE>1)) && ((!OPTVERBOSE)) && printf '%10s\t%10s\t%10s\n' Carnaval Easter CorpusChristi  #tsv header
+then  #header of tsv table
+	((OPTE>1)) && printf "${BOLD}%10s\t%10s\t%10s${NC}\n" Carnaval Easter CorpusChristi
 	for YEAR
 	do 	is_year "$YEAR" || continue
 		if ((OPTE>1))
 		then 	carnavalf "$YEAR"
-		else 	DATE=$(easterf "$YEAR") ;echo $DATE
+		else 	easterf "$YEAR"
 		fi
 	done
 elif ((OPTM))
-then 	for DATE_Y  #fill in months and days
-	do 	if [[ $DATE_Y = +([0-9]) ]]
+then 	for DATE_Y
+	do  #fill in months and days
+		if [[ $DATE_Y = +([0-9]) ]]
 		then 	set --
 			for ((M=1;M<=12;++M)) ;do set -- "$@" "${DATE_Y}-$M" ;done
-		else 	set -- "$DATE_Y" #;PHASE_SKIP=
+		else 	set -- "$DATE_Y"
+			#PHASE_SKIP=""
 		fi
 		for DATE_M
 		do 	if [[ $DATE_M = +([0-9])[\ $SEP]+([0-9]) ]]
 			then 	set --
 				DMAX=$(month_maxday "${DATE_M#*[\ $SEP]}" "${DATE_M%[\ $SEP]*}")
 				for ((D=1;D<=DMAX;++D)) ;do set -- "$@" "${DATE_M}-$D" ;done
-			else 	set -- "$DATE_M" #;PHASE_SKIP=
+			else 	set -- "$DATE_M"
+				#PHASE_SKIP=""
 			fi
 			for DATE
-			do 	set -- ${DATE//[$SEP]/ }  # ISO8601 input
+			do  # ISO-8601 fomart
+				set -- ${DATE//[$SEP]/ }
 				phase_of_the_moon "$3" "$2" "$1"
 			done
 		done
@@ -1399,9 +1462,7 @@ elif ((OPTFF))
 then
 	friday_13th "$@"
 else
-	 
-	((DEBUG)) && . datediff.debug.sh || DEBUG= ;
-	[[ -t 1 ]] && BOLD=$'\u001b[0;1m' NC=$'\u001b[m' || BOLD= NC= ;
+	((DEBUG)) && . datediff.debug.sh
 
 	mainf "$@"
 fi
