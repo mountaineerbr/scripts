@@ -21,13 +21,12 @@ _bcalc_ext.bc_ | *bcalc.sh* extensions for bash bc
 [inmet.sh](inmet.sh) | Download satellite images from Brazilian Instituto Nacional de Meteorologia
 [ipmet.sh](ipmet.sh) | Download radar images from Brazilian IPMET/SIMEPAR
 [md2man.sh](md2man.sh) | Generate man pages from a pandoc markdown file.
+[moon-brightness.py](moon-brightness.py) | Calculate geocentric lunar illuminated fraction.
 [tkn-cnt.py](tkn-cnt.py) | Python tiktoken wrapper.
 [ul.sh](ul.sh) |  Generate html lists from URLs
 [urlgrep.sh](urlgrep.sh) | Grep full-text content from URL list
 [wc.sh](wc.sh) |  Print line, word and character count for files with shell built-ins
 [wf.sh](wf.sh) |  Weather forecast from the Norway Meteorological Institute
-
-<!-- [cep.sh](cep.sh) | CEP por nome de rua e vice-versa via api dos Correios brasileiros -->
 
 
 ## BITCOIN
@@ -72,10 +71,6 @@ NAME | DESCRIPTION
 [uol.sh](markets/uol.sh) | Fetches rates from uol service provider public api. Puxa dados de páginas da api pública do uol economia
 [whalealert.sh](markets/whalealert.sh) | Data from whale-alert.io free api with the latest whale transactions.
 [yahooscrape.sh](markets/yahooscrape.sh) | Scrape some Yahoo! Finance tickers
-
-<!-- [bakkt.sh](markets/bakkt.sh) | Price and contract/volume tickers from bakkt public api -->
-<!-- [brasilbtc.sh](markets/brasilbtc.sh) | Fetches bitcoin rates from brazilian exchanges public apis. Puxa cotações de bitcoin de agências de câmbio brasileiras de apis públicas -->
-<!-- [stocks.sh](markets/stocks.sh) | <Financialmodelingprep.com> latest and historical stock and major index rates -->
 
 
 ## API KEYS / CHAVES DE API
