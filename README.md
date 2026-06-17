@@ -21,7 +21,7 @@ _bcalc_ext.bc_ | *bcalc.sh* extensions for bash bc
 [inmet.sh](inmet.sh) | Download satellite images from Brazilian Instituto Nacional de Meteorologia
 [ipmet.sh](ipmet.sh) | Download radar images from Brazilian IPMET/SIMEPAR
 [md2man.sh](md2man.sh) | Generate man pages from a pandoc markdown file.
-[moon-brightness.py](moon-brightness.py) | Calculate geocentric lunar illuminated fraction.
+[moon-illumination.py](moon-illumination.py) | Calculate lunar illuminated fraction.
 [tkn-cnt.py](tkn-cnt.py) | Python tiktoken wrapper.
 [ul.sh](ul.sh) |  Generate html lists from URLs
 [urlgrep.sh](urlgrep.sh) | Grep full-text content from URL list
