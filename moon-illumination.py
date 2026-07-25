@@ -94,7 +94,7 @@ def main():
               "using geocentric.", file=sys.stderr)
 
     try:
-        # de440s: valid 1849--2150;  de440: roughly 1550--2650
+        # de440s: valid 1849--2150;  de440: 1550--2650
         frac = illuminated_fraction(t, "de440s", location)
     except Exception as e:
         print(f"JPL DE440s unavailable or date out of range: {e}. "

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # wf.sh  --  weather forecast from the norway meteorological institute
-# v0.9.4  mar/2026  by mountaineerbr
+# v0.9.5  jun/2026  by mountaineerbr
 
 # Favourite Locations (globs)
 # name:latitude:longitude:altitude;
@@ -178,7 +178,7 @@ OPTIONS
 
 #plot fun
 #plot to dumb term
-#usage: plotf [TITLE] [XLABEL] [YLABEL]
+#usage: plotf [TITLE] [XLABEL] [YLABEL] [LOCATION]
 plotf()
 {
 	gnuplot -p \
@@ -196,6 +196,7 @@ plotx11f()
 {
 	gnuplot -p \
 		-e "set title \"$1\"; show title; set key off; set xlabel \"$2\"; set ylabel \"$3\"" \
+		-e "set label \"$4\" at graph 0.02, 0.95" \
 		-e 'set xdata time' \
 		-e 'set timefmt "%Y-%m-%dT%H:%M:%S%Z"' \
 		-e 'set format x "%b %d"' \
@@ -212,6 +213,7 @@ plottofilef()
 	gnuplot -p \
 		-e "set terminal png size 800,600; set output \"$tmpfile\"" \
 		-e "set title \"$1\"; show title; set key off; set xlabel \"$2\"; set ylabel \"$3\"" \
+		-e "set label \"$4\" at graph 0.02, 0.95" \
 		-e 'set xdata time' \
 		-e 'set timefmt "%Y-%m-%dT%H:%M:%S%Z"' \
 		-e 'set format x "%b %d"' \
@@ -434,21 +436,24 @@ mainf()
 	#print tables
 	if ((!OPTG)) && [[ -t 1 ]]
 	then 	column -et -N"$header" <<<"$jqout" | less -S
-	else 	printf '%s\n' "${header//,/$'\t'}" "$jqout"
+	elif ((!OPTG))
+	then 	printf '%s\n' "${header//,/$'\t'}" "$jqout"
 	fi
 	echo "Lat: $LAT  Lng: $LNG  ${HGT:+Alt: $HGT  }${FORMATTED:-$query}" >&2
 
 	#print gfx?
 	if ((OPTG))
-	then 	jqout=$(tr \? 0 <<<"$jqout" | tr -d 'msº%UVC')  #fix input for graphs
-		#colcutf 4 <<<"$jqout" | _plotf DewPoint date ºC &&
-		colcutf 10 <<<"$jqout" | _plotf CloudAreaFraction date % &&
-		colcutf  3 <<<"$jqout" | _plotf Humidity date % &&
-		colcutf  8 <<<"$jqout" | _plotf WindSpeed date m/s &&
-		colcutf  7 <<<"$jqout" | _plotf PressureAtSeaLevel date hPa &&
-		colcutf 14 <<<"$jqout" | _plotf 'Precipitation(1h)' date mm &&
-		colcutf 15 <<<"$jqout" | _plotf 'Precipitation(6h)' date mm &&
-		colcutf  2 <<<"$jqout" | _plotf Temperature date ºC
+	then
+		jqout=$(tr \? 0 <<<"$jqout" | tr -d 'msº%UVC ')  #fix input for graphs
+		((${#jqout})) &&
+		#colcutf 4 <<<"$jqout" | _plotf DewPoint date ºC "${FORMATTED:-$query}" &&
+		colcutf 10 <<<"$jqout" | _plotf CloudAreaFraction date % "${FORMATTED:-$query}" &&
+		colcutf  3 <<<"$jqout" | _plotf Humidity date % "${FORMATTED:-$query}" &&
+		colcutf  8 <<<"$jqout" | _plotf WindSpeed date m/s "${FORMATTED:-$query}" &&
+		colcutf  7 <<<"$jqout" | _plotf PressureAtSeaLevel date hPa "${FORMATTED:-$query}" &&
+		colcutf 14 <<<"$jqout" | _plotf 'Precipitation(1h)' date mm "${FORMATTED:-$query}" &&
+		colcutf 15 <<<"$jqout" | _plotf 'Precipitation(6h)' date mm "${FORMATTED:-$query}" &&
+		colcutf  2 <<<"$jqout" | _plotf Temperature date ºC "${FORMATTED:-$query}"
 	fi 2>/dev/null || ! echo "$SN: err: GNUPlot" >&2;
 
 	return $((ret+$?))
@@ -567,20 +572,23 @@ mainf_omf()
 		#print tables
 		if ((!OPTG)) && [[ -t 1 ]]
 		then 	column -t -s $'\t' <<<"$jqout" | less -S
-		else 	printf '%s\n' "$jqout"
+		elif ((!OPTG))
+		then 	printf '%s\n' "$jqout"
 		fi
 		echo "Lat: $LAT  Lng: $LNG  ${HGT:+Alt: $HGT  }${FORMATTED:-$query}" >&2
 
 		#print gfx?
 		if ((OPTG))
-		then 	jqout=$(tr \? 0 <<<"$jqout" | tr -d 'msº°%UVChPakm/h')  #fix input for graphs
-			colcutf  7 <<<"$jqout" | _plotf CloudAreaFraction date % &&
-			colcutf  3 <<<"$jqout" | _plotf Humidity date % &&
-			colcutf  8 <<<"$jqout" | _plotf WindSpeed date km/h &&
-			colcutf  6 <<<"$jqout" | _plotf PressureAtSeaLevel date hPa &&
-			colcutf  5 <<<"$jqout" | _plotf 'PrecipitationSum(daily)' date mm &&
-			colcutf  4 <<<"$jqout" | _plotf 'Precipitation(hourly,previous)' date mm &&  #previous hour of precipitation
-			colcutf  2 <<<"$jqout" | _plotf Temperature date ºC
+		then
+			jqout=$(sed '1,2d' <<<"$jqout" | tr \? 0 | tr -d 'msº°%UVChPakm/h ')  #fix input for graphs
+			((${#jqout})) &&
+			colcutf  7 <<<"$jqout" | _plotf CloudAreaFraction date % "${FORMATTED:-$query}" &&
+			colcutf  3 <<<"$jqout" | _plotf Humidity date % "${FORMATTED:-$query}" &&
+			colcutf  8 <<<"$jqout" | _plotf WindSpeed date km/h "${FORMATTED:-$query}" &&
+			colcutf  6 <<<"$jqout" | _plotf PressureAtSeaLevel date hPa "${FORMATTED:-$query}" &&
+			colcutf  5 <<<"$jqout" | _plotf 'PrecipitationSum(daily)' date mm "${FORMATTED:-$query}" &&
+			colcutf  4 <<<"$jqout" | _plotf 'Precipitation(hourly,previous)' date mm "${FORMATTED:-$query}" &&  #previous hour of precipitation
+			colcutf  2 <<<"$jqout" | _plotf Temperature date ºC "${FORMATTED:-$query}"
 		fi 2>/dev/null || ! echo "$SN: err: GNUPlot" >&2;
 	fi
 

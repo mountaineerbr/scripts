@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # cmc.sh -- coinmarketcap.com api access
-# v0.11.13  feb/2023  by mountaineerbr
+# v0.12  jul/2026  by mountaineerbr
 
 #your cmc api key
 #CMCAPIKEY=
@@ -8,10 +8,10 @@ export CMCAPIKEY
 
 #defaults
 #default from crypto currency
-DEFCUR=BTC
+DEFCUR="BTC"
 
 #default vs currency
-DEFTOCUR=USD
+DEFTOCUR="USD"
 
 #scale if no custom scale
 SCLDEFAULTS=16
@@ -31,7 +31,6 @@ HELP_LINES="NAME
 
 SYNOPSIS
 	cmc.sh [-b] [-gpx] [-sNUM] [AMOUNT] FROM_CURRENCY [TO_CURRENCY]
-	cmc.sh -t FROM_CURRENCY [TO_CURRENCY]
 	cmc.sh -m [TO_CURRENCY]
 	cmc.sh [-adhlv]
 
@@ -60,8 +59,8 @@ DESCRIPTION
 
 	If you cannot get the rate of a market automatically, try set-
 	ting option -b to convert between bank currencies (for ex. usd
-	x cad), precious metals rates and other unoficially supported
-	(crytpo)currency markets.
+	x cad), precious metals rates and other unofficially supported
+	(crypto)currency markets.
 
 	Option -b is originally called the bank currency function. It
 	was first implemented because of coinmarketcap api restrictions.
@@ -74,8 +73,8 @@ DESCRIPTION
 
 ENVIRONMENT AND API KEY
 	Please take a little time to register at <coinmarketcap.com/api/>
-	for a free API key and. Set and export \$CMCAPIKEY variable in
-	or set that in the script head source code.
+	for a free API key. Set and export \$CMCAPIKEY variable to the
+	environment.
 
 	A builtin key was added for demo purposes, however that may stop
 	working at any time or get rate limited quickly.
@@ -104,7 +103,7 @@ USAGE EXAMPLES
 	(2)     One Dash in ZCash, with 4 decimal plates:
 
 		$ cmc.sh -4 dash zec
-		
+
 		$ cmc.sh -s4 dash zec
 
 
@@ -146,15 +145,13 @@ OPTIONS
 	-s [NUM]  Set scale (decimal plates) for some opts; defaults=${SCLDEFAULTS}.
 	-p 	  Print timestamp, if available.
 	Functions
-	-b 	  Bank currency function, convertions between
+	-b 	  Bank currency function, conversions between
 		  unofficially supported currency pairs.
 	-d 	  Print dominance stats.
-	-l 	  List supported currencies.
+	-l 	  List supported coins and currencies.
 	-m [CURRENCY]
 		  Rolling 24h market ticker, optionally may set a CURRENCY
 		  for converting market stats.
-	-t [FROM_CURRENCY] [TO_CURRENCY]
-		  Time series (historical prices).
 	-x 	  Use satoshis instead of bitcoins (sat = 1/100,000,000 btc)."
 
 
@@ -177,7 +174,7 @@ FIATCODES=( USD AUD BRL CAD CHF CLP CNY CZK DKK EUR GBP HKD
 #trap cleaning func
 cleanf()
 {
-	trap \  INT HUP EXIT
+	trap '-' INT HUP EXIT
 
 	#rm temp dir
 	[[ -d "$TMPD" ]] && rm -rf "$TMPD"
@@ -212,6 +209,7 @@ errf() {
 
 #-b bank currency rate function
 bankf() {
+	local n
 	unset BANK
 
 	#rerun script, get rates and process data
@@ -247,10 +245,15 @@ bankf() {
 	#precious metals in grams?
 	ozgramf "${2}" "${3}"
 	#satoshi units?
-	satoshif "$@" && set -- "${args[@]}"
+	satoshif "$@" && set -- "${ARGS[@]}"
 
 	#calculate result & print result
-	RESULT="$(bc <<< "scale=16; ( ( (${1}) * ${BTCTOCURTAIL})/${BTCBANKTAIL}) ${GRAM}${TOZ}")"
+	RESULT="$(bc <<< "scale=18; ( ( (${1}) * (${BTCTOCURTAIL}) ) / (${BTCBANKTAIL}) ) ${GRAM}${TOZ}")"
+
+	# find first significant digit; expand display scale to match
+	while [[ ${RESULT:0:SCL+n+1} != *[1-9]* ]]
+	do 	((++n)); ((n>18)) && break;
+	done; ((n>1)) && ((SCL+=n+2));
 
 	#check for errors
 	if [[ -z "${RESULT}" ]]
@@ -275,7 +278,7 @@ mcapf() {
 
 	#get market data
 	CMCGLOBAL="$TMPD/cmcglobal.json"
-	curl -s --compressed -H "X-CMC_PRO_API_KEY:  ${CMCAPIKEY}" -H 'Accept: application/json' -d "convert=${1^^}" -G 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest' -o "$CMCGLOBAL"
+	curl -s --compressed -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -d "convert=${1^^}" -G 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest' -o "$CMCGLOBAL"
 
 	#print json?
 	if (( PJSON ))
@@ -305,7 +308,7 @@ mcapf() {
 	#timestamp
 	LASTUP="$(jq -r '.data.last_updated' <"$CMCGLOBAL")"
 
-	#avoid erros being printed
+	#avoid errors being printed
 	{
 	printf '## CRYPTO MARKET INFORMATION\n'
 	date --date "${LASTUP}"  '+#  %FT%T%Z'
@@ -343,7 +346,7 @@ mcapf() {
 	printf '\n## Market Cap per Coin\n'
 	printf " # Bitcoin : %'.2f %s\n" "$(jq -r "((.data.btc_dominance/100)*.data.quote.${1^^}.total_market_cap)" <"$CMCGLOBAL")" "${1^^}"
 	printf " # Ethereum: %'.2f %s\n" "$(jq -r "((.data.eth_dominance/100)*.data.quote.${1^^}.total_market_cap)" <"$CMCGLOBAL")" "${1^^}"
-	#avoid erros being printed
+	#avoid errors being printed
 	} 2>/dev/null
 }
 
@@ -369,69 +372,13 @@ listsf() {
 	column -s'=' -et -N 'ID,SYMBOL,NAME' <<<"${LIST}"
 
 	printf '\nBANK CURRENCIES\n'
-	LIST2="$(curl -s --compressed -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -d "" -G https://pro-api.coinmarketcap.com/v1/fiat/map | jq -r '.data[]|"\(.id)=\(.symbol)=\(.sign)=\(.name)"')"
+	LIST2="$(curl -s --compressed -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -G https://pro-api.coinmarketcap.com/v1/fiat/map | jq -r '.data[]|"\(.id)=\(.symbol)=\(.sign)=\(.name)"')"
 	column -s'=' -et -N'ID,SYMBOL,SIGN,NAME' <<<"${LIST2}"
 	column -s'=' -et -N'ID,SYMBOL,NAME' <<<"${METALS}"
 
 	printf 'Cryptos: %s\n' "$(wc -l <<<"${LIST}")"
 	printf 'BankCur: %s\n' "$(wc -l <<<"${LIST2}")"
 	printf 'Metals : %s\n' "$(wc -l <<<"${METALS}")"
-}
-
-#time series (historical prices)
-timeseriesf()
-{
-	#user agent
-	uag='user-agent: Mozilla/5.0 Gecko'
-	#interval
-	int=1d
-	#end date
-	end="$( date -ud00:00:00 +%s )"
-	#start date
-	start=2013-04-28  #this is the maximum for bitcoin
-
-	#check currencies
-	(( $1 )) && shift
-
-	#get coin list
-	list="$( PJSON=1 listsf )"
-
-	#get coion id
-	id="$( <<<"$list" jq --arg n "${1^^}" --arg s "${1^^}" --arg sl "${1,,}" \
-		'.data[] | select(.name == $n // .symbol == $s // .slug == $sl )' |
-		jq -r '.id' )"
-
-	tocur="$( <<<"$list" jq --arg n "${2^^}" --arg s "${2^^}" --arg sl "${2,,}" \
-		'.data[] | select(.name == $n // .symbol == $s // .slug == $sl )' |
-		jq -r '.symbol' )"
-
-	#make sure jq did not return null values
-	id="${id//null}"
-	tocur="${tocur//null}"
-
-	#check id or return
-	(( id )) || return 1
-
-	#get data
-	data="$TMPD/timeseries.json" 
-	curl -sL --compressed --header "$uag" "https://web-api.coinmarketcap.com/v1.1/cryptocurrency/quotes/historical?convert=${tocur:-${2^^}}&format=chart_crypto_details&id=${id}&interval=${int}&time_end=${end}&time_start=${start}" -o "$data"
-
-	#print json?
-	if (( PJSON ))
-	then
-		cat "$data"
-		exit 0
-	fi
-
-	#extract relevant data
-	keys="$( jq -r '.data | keys_unsorted[]' <"$data")"
-	prices="$( jq -r '.data[] | .[] |.[0] ' <"$data")" 
-	vol24h="$( jq -r '.data[] | .[] |.[1] ' <"$data")" 
-	mcap="$( jq -r '.data[] | .[] |.[2] ' <"$data")" 
-
-	#make table
-	paste <(echo "$prices") <(echo "$mcap") <(echo "${vol24h}") <(echo "$keys") |
-		column -et -NPRICE,MCAP,24HVOL,DATE
 }
 
 #-a api status
@@ -451,7 +398,7 @@ apif() {
 
 	#print heading and status page
 	printf 'API key: %s\n\n' "${CMCAPIKEY}"
-	
+
 	jq <"$PAGESTAT"
 }
 
@@ -489,29 +436,30 @@ satoshif()
 	then
 		[[ "${3,,}" =~ ^(bitcoin|btc|bitcoin-cash|bch|bitcoin-cash-sv|bsv)$ ]] && SATTO=1
 		[[ "${2,,}" =~ ^(bitcoin|btc|bitcoin-cash|bch|bitcoin-cash-sv|bsv)$ ]] && SATFROM=1
-		
+
 		if (( SATTO - SATFROM ))
 		then
 			if (( SATTO ))
 			then
-				args=( "( $1 ) * 100000000" "$2" "$3" )
+				ARGS=( "( $1 ) * 100000000" "$2" "$3" )
 			else
-				args=( "( $1 ) / 100000000" "$2" "$3" )
+				ARGS=( "( $1 ) / 100000000" "$2" "$3" )
 			fi
 			return 0
 		fi
 	fi
 
-	unset args
+	unset ARGS
 	return 1
 }
 
 #defaults func -- currency converter
 mainf()
 {
+	local n
 	CMCJSON="$TMPD/cmc_${RANDOM}.json"
 	curl -s --compressed -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -d "&symbol=${2^^}&convert=${3^^}" -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest' -o "$CMCJSON"
-	
+
 	#print json?
 	if (( PJSON ))
 	then
@@ -522,9 +470,9 @@ mainf()
 	#get pair rate
 	if ! CMCRATE="$(jq -r ".data[] | .quote.${3^^}.price" <"${CMCJSON}" 2>/dev/null)"
 	then jq -r '.status.error_message' <"${CMCJSON}" ;exit 1
-	else CMCRATE="$(sed 's/e/*10^/g' <<<"$CMCRATE")"
+	else CMCRATE="$(sed 's/[Ee]/*10^/g' <<<"$CMCRATE")"
 	fi
-	
+
 	#print json timestamp ?
 	if (( TIMEST ))
 	then
@@ -536,17 +484,20 @@ mainf()
 			echo no_timestamp
 		fi
 	fi
-	
-	RESULT="$(bc <<< "scale=16; ( ( ${1} ) * ${CMCRATE} ) ${GRAM}${TOZ}" )"
+
+	RESULT="$(bc <<< "scale=18; ( ( ${1} ) * ( ${CMCRATE} ) ) ${GRAM}${TOZ}" )"
+	while [[ ${RESULT:0:SCL+n+1} != *[1-9]* ]]
+	do 	((++n)); ((n>18)) && break;
+	done; ((n>1)) && ((SCL+=n+2));
 
 	[[ -z "$RESULT" ]] && return 1
-	
+
 	printf "%.${SCL}f\n" "${RESULT}"
 }
 
 
 #parse options
-while getopts :0123456789abdlmghjs:ptvx opt
+while getopts :0123456789abdlmghjs:pvx opt
 do
 	case ${opt} in
 		( [0-9] ) #scale, same as '-sNUM'
@@ -584,9 +535,6 @@ do
 		( s ) #decimal plates
 			SCL="${OPTARG}"
 			;;
-		( t ) #time series (historical prices)
-			OPTHIST=1
-			;;
 		( v ) #script version
 			grep -m1 '# v' "${0}"
 			exit 0
@@ -602,29 +550,26 @@ do
 done
 shift $((OPTIND -1))
 
-export SYMBOLLIST FIATLIST CCHECK
-
 #api key test
-if [[ -z "${CMCAPIKEY}" ]]
+if [[ -z "${CMCAPIKEY}" ]] && [[ -n "${CMC_PRO_API_KEY}" ]]
+then
+	CMCAPIKEY=$CMC_PRO_API_KEY
+elif [[ -z "${CMCAPIKEY}" ]]
 then
 	#dev demo key
 	CMCAPIKEY=30394e61-6fdf-4552-8f95-7e228b598f98
 fi
 
 #test for must have packages
-if (( CCHECK ))
+if ! command -v jq &>/dev/null
 then
-	if ! command -v jq &>/dev/null
-	then
-		echo 'JQ is required' >&2
-		exit 1
-	fi
-	if ! command -v curl &>/dev/null
-	then
-		echo 'cURL is required' >&2
-		exit 1
-	fi
-	CCHECK=1
+	echo 'JQ is required' >&2
+	exit 1
+fi
+if ! command -v curl &>/dev/null
+then
+	echo 'cURL is required' >&2
+	exit 1
 fi
 
 #set custom scale
@@ -637,13 +582,14 @@ then
 	((SATOPT)) && SCL=0
 fi
 
-#make temo dir, lots of data
+#make temp dir, lots of data
 trap cleanf INT HUP EXIT
 TMPD="$(mktemp -d)" || exit 1
 
 #call opt functions
 if (( MCAP ))
 then
+	LC_NUMERIC=en_US.UTF-8 2>/dev/null
 	mcapf "${@}"
 	exit
 elif (( LISTS ))
@@ -658,11 +604,11 @@ fi
 
 #set equation arguments
 #if first argument does not have numbers
-if [[ "${1}" != *[0-9]* ]]
+if [[ "$1" != *[0-9]* ]] || [[ "$1" = *[0-9]* && "$1" = *[a-zA-Z]* ]]
 then
 	set -- 1 "${@}"
 #if amount is not a valid expression for bc
-elif [[ ! "$1" =~ ^[0-9]+$ ]] &&
+elif [[ ! "$1" =~ ^[0-9()*/^.+-]+$ ]] &&
 	[[ -z "$(bc <<< "$1")" ]]
 then
 	printf 'Err: invalid expression in AMOUNT\n' 1>&2
@@ -677,36 +623,20 @@ then
 	set -- "${1}" "${2}" ${DEFTOCUR^^}
 fi
 
-#call opt -- historical price
-if (( OPTHIST))
-then
-	timeseriesf "$@"
-	exit
-fi
-
 #currency converter
 if (( BANK )) ||
 	[[ \ "${FIATCODES[*]}"\  = *\ ${2^^}\ * ]]
 then
 	#try the bank function
 	bankf "${@}"
-	exit
-fi
-
 #default markets -- get data
-#if error response
-if ! errf "${CMCJSON}" 2>/dev/null
-then
-	#try the bank function
-	bankf "${@}"
-	exit
 else
 	#make equation and calculate result
 	#metals in grams?
 	ozgramf "${2}" "${3}"
 	#satoshi units?
-	satoshif "$@" && set -- "${args[@]}"
-	
+	satoshif "$@" && set -- "${ARGS[@]}"
+
 	#defaults func
 	mainf "$@"
 fi
