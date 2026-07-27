@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # cgk.sh -- coingecko.com api access
-# v0.19  jul/2026  by mountaineerbr
+# v0.19.1  jul/2026  by mountaineerbr
 # requires jq and curl/wget
 
 #from currency
@@ -580,7 +580,12 @@ bankf()
 	then
 		{ 	[[ -n $BTCBANK ]] &&
 		BTCTOCUR="( 1 / ( $( mainf 1 bitcoin "${3,,}" 2>/dev/null ) ) )" ;} || {
+			
+			#change pivot currency from bitcoin to usd
+			[[ "${2,,}" = usd ]] && BTCBANK=1 ||
 			BTCBANK="( $( mainf 1 "${2,,}" usd ) )" || return 1
+
+			[[ "${3,,}" = usd ]] && BTCTOCUR=1 ||
 			BTCTOCUR="( $( mainf 1 "${3,,}" usd ) )" || return 1
 		}
 	fi
