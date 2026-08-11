@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # cgk.sh -- coingecko.com api access
-# v0.19.1  jul/2026  by mountaineerbr
+# v0.19.2  aug/2026  by mountaineerbr
 # requires jq and curl/wget
 
 #from currency
@@ -276,7 +276,7 @@ cachef()
 {
 	local url tmpfile
 	url="$1" tmpfile="$2"
-	if [[ ! -s "$tmpfile" || "$OPTC" -gt 0 ]]
+	if [[ ! -s "$tmpfile" ]] || [[ "$OPTC" -gt 0 ]]
 	then "${YOURAPP[@]}" "$url" >"$tmpfile"  #create or update cache
 	fi
 }
@@ -538,12 +538,12 @@ bankf()
 		#get data to check currency names and symbols
 		local keys=( $( jq -r ".[] | .id,.symbol" "$CGKTEMPLIST1" ) )
 		#check and change currency ids
-		if [[ \ "${keys[*]}"\  = *\ "${2,,}"\ * ]] &&
+		if [[ \ "${keys[*]}"\  =~ \ "${2,,}"\  ]] &&
 			MAYBE1="$(changecf vs "$2")"
 		then
 			set -- "$1" "$MAYBE1" "$3"
 		fi
-		if [[ \ "${keys[*]}"\  = *\ "${3,,}"\ * ]] &&
+		if [[ \ "${keys[*]}"\  =~ \ "${3,,}"\  ]] &&
 			MAYBE2="$(changecf vs "$3")"
 		then
 			set -- "$1" "$2" "$MAYBE2"
@@ -861,13 +861,13 @@ curcheckf()
 	## Check VS_CURRENCY
 	# Make sure "XAG Silver" does not get translated to "XAG Xrpalike Gene"
 	#auto try the bank function, if needed
-	if [[ -z "$TOPT" && \ "${FIATCODESSTRICT[*]}"\  = *\ "${2,,}"\ * ]] &&
+	if [[ -z "$TOPT" ]] && [[ \ "${FIATCODESSTRICT[*]}"\  = *\ "${2,,}"\ * ]] &&
 		bankf "${@}"
 	then
 		exit 0
 	elif ! jq -er ".[] | select(.id == \"${2,,}\" or .symbol == \"${2,,}\")" "$CGKTEMPLIST1" &>/dev/null
 	then
-		printf "ERR: currency -- %s\n" "${2^^}" >&2
+		printf "ERR: currency -- %s\n" "${2:-empty}" >&2
 		exit 1
 	fi
 
@@ -1072,10 +1072,10 @@ if [[ "$1" != *[0-9]* ]] || [[ "$1" = *[0-9]* && "$1" = *[a-zA-Z]* ]]
 then
 	set -- 1 "$@"
 # if AMOUNT is not a valid expression for Bc
-elif [[ -z "${OPTHIST}${TOPT}" && ! "$1" =~ ^[0-9()*/^.+-]+$ ]] &&
+elif [[ -z "${OPTHIST}${TOPT}" ]] && { [[ -z "$1" ]] || [[ "$1" = *[!0-9\(\)*/^\ +.-]* ]] ;} &&
 	[[ -z "$(bc <<<"$1")" ]]
 then
-	printf 'Invalid expression in AMOUNT -- %s\n' "$1" >&2
+	printf 'Invalid expression in AMOUNT -- %s\n' "${1:-empty}" >&2
 	exit 1
 fi
 
