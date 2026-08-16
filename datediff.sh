@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # datediff.sh - Calculate time ranges between dates
-# v0.30  jun/2026  mountaineerbr  GPLv3+
+# v0.30.1  aug/2026  mountaineerbr  GPLv3+
 [[ -n $BASH_VERSION ]] && shopt -s extglob  #bash2.05b+/ksh93u+/zsh5+
 [[ -n $ZSH_VERSION  ]] && setopt NO_SH_GLOB KSH_GLOB KSH_ARRAYS SH_WORD_SPLIT GLOB_SUBST
 
@@ -1199,10 +1199,7 @@ function mainf
 	then
 		#!# requires datediff.debug.sh
 		#replace with the function body here for performance!
-		unix1=$unix1 unix2=$unix2 tzA=$tzA tzB=$tzB TZs=$TZs \
-		date1_iso8601_pr="$date1_iso8601_pr" date1_iso8601="$date1_iso8601" \
-		date2_iso8601_pr="$date2_iso8601_pr" date2_iso8601="$date2_iso8601" \
-		debugf "$@"  || [[ $DATE_CMD = false ]] || printf "${BOLD}Debug:${NC} \`C-code date' is set!\n" >&2;
+		debugf "$@";
 
 	fi
 
@@ -1234,8 +1231,9 @@ function mainf
 }
 
 #checks against c-code `datediff' and `date'
-function debugf { 	! : ;}
 #source `datediff.debug.sh'
+debugf() { 	! : ;}
+#POSIX syntax required for ksh93 dynamic variable scoping
 
 
 ## Parse options
@@ -1247,7 +1245,7 @@ do 	case $opt in
 		d) 	((++DEBUG))
 			;;
 		D) 	DATE_CMD_DEBUG="${DATE_CMD_DEBUG:-${DATE_CMD:-date}}"  #save pkg date path
-			[[ $DATE_CMD = false ]] && OPTDD=1  #-DD disables shell get_timef()
+			[[ $DATE_CMD = [Ff][Aa][Ll][Ss][Ee] ]] && OPTDD=1  #-DD disables shell get_timef()
 			DATE_CMD=false  #-D disables pkg 'date'
 			;;
 		e) 	((++OPTE)); OPTL=
@@ -1299,7 +1297,7 @@ export TZ
 if [[ $DATE_CMD = *busybox* ]] || [[ $DATE_CMD = *toybox* ]]
 then 	DATE_CMD="${DATE_CMD%% date} date";
 	BUSYDATE=1;  #toybox does not error out with --version
-elif ${DATE_CMD} --version || [[ ${DATE_CMD} = false ]]
+elif ${DATE_CMD} --version || [[ ${DATE_CMD} = [Ff][Aa][Ll][Ss][Ee] ]]
 then 	:;  #GNU
 elif command -v ${DATE_CMD%%date}gdate
 then 	DATE_CMD=gdate; #GNU
@@ -1380,7 +1378,7 @@ fi
 #-r, unix times
 if ((OPTR && ${#1}+${#2})) || [[ \ $1\ $2 = *\ @[0-9.+-]* ]]
 then
-	if [[ $DATE_CMD = false ]]
+	if [[ $DATE_CMD = [Ff][Aa][Ll][Ss][Ee] ]]
 	then 	if ((${#1})) && [[ $1 != *[!0-9@.+-]* ]]
 		then 	((UNIX1=10#${1##*[!0-9.]}));
 			case "$1" in @-*|-*) 	UNIX1=-$UNIX1;; esac;
